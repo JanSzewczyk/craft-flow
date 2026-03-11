@@ -52,5 +52,12 @@
     "type": "command",
     "command": ".claude/statusline.sh",
     "padding": 0
+  },
+  "enabledPlugins": {
+    "product-management@szum-tech": true,
+    "clerk-webhooks@clerk-skills": true,
+    "clerk@clerk-skills": true,
+    "clerk-nextjs-patterns@clerk-skills": true,
+    "clerk-testing@clerk-skills": true
   }
 }

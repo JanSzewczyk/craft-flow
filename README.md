@@ -1,9 +1,8 @@
 <div align="center">
 
-# 🚀 Next.js Szumplate
+# 🚀 Craft Flow
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=github&utm_campaign=next-enterprise)
-[![GitHub stars](https://img.shields.io/github/stars/JanSzewczyk/nextjs-szumplate?style=social)](https://github.com/JanSzewczyk/nextjs-szumplate/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **An enterprise-ready Next.js template that accelerates your development workflow**
@@ -17,9 +16,9 @@
 
 ## 👋 Hello there!
 
-This is **Next.js Szumplate**, an open-source template for enterprise projects! It is packed with features that will
-help you create an efficient, maintainable, and enjoyable application. This template will save you a lot of time, so sit
-back, relax, and get ready to conquer the whole world with your new awesome app!
+This is **Craft Flow**, an open-source template for enterprise projects! It is packed with features that will help you
+create an efficient, maintainable, and enjoyable application. This template will save you a lot of time, so sit back,
+relax, and get ready to conquer the whole world with your new awesome app!
 
 ## ✨ Features
 
@@ -106,8 +105,8 @@ Don't forget to star ⭐ and fork the repository first!
 #### 2. 📥 Clone the Repository
 
 ```bash
-git clone https://github.com/<your_username>/nextjs-szumplate.git
-cd nextjs-szumplate
+git clone https://github.com/<your_username>/craft-flow.git
+cd craft-flow
 ```
 
 #### 3. 📦 Install Dependencies with Bun
@@ -272,7 +271,7 @@ Run with UI for debugging:
 npm run e2e:ui
 ```
 
-<img width="1665" alt="image" src="https://github.com/JanSzewczyk/nextjs-szumplate/assets/29024606/9c65cdd2-4e04-4687-81d6-8e7a32f12518">
+<img width="1665" alt="image" src="https://github.com/[REPLACE_WITH_USERNAME]/craft-flow/assets/29024606/9c65cdd2-4e04-4687-81d6-8e7a32f12518">
 
 ### Storybook Tests
 
@@ -756,7 +755,7 @@ export async function getData() {
 ## 📁 Project Structure
 
 ```
-nextjs-szumplate/
+craft-flow/
 ├── .claude/              # Claude Code configuration (agents, skills, hooks)
 ├── .github/
 │   └── workflows/        # GitHub Actions workflows (CI/CD)
@@ -851,9 +850,9 @@ This template is built with amazing tools and libraries from the open-source com
 
 If you have any questions, suggestions, or issues:
 
-- 🐛 [Open an issue](https://github.com/JanSzewczyk/nextjs-szumplate/issues)
-- ⭐ [Star this repository](https://github.com/JanSzewczyk/nextjs-szumplate)
-- 👨‍💻 Check out my [GitHub profile](https://github.com/JanSzewczyk)
+- 🐛 [Open an issue](https://github.com/[REPLACE_WITH_USERNAME]/craft-flow/issues)
+- ⭐ [Star this repository](https://github.com/[REPLACE_WITH_USERNAME]/craft-flow)
+- 👨‍💻 Check out my [GitHub profile](https://github.com/[REPLACE_WITH_USERNAME])
 
 ---
 
@@ -863,6 +862,6 @@ If you have any questions, suggestions, or issues:
 
 If this template helped you, please consider giving it a ⭐ on GitHub!
 
-[⬆ Back to Top](#-nextjs-szumplate)
+[⬆ Back to Top](#-craft-flow)
 
 </div>

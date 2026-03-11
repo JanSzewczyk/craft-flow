@@ -58,6 +58,7 @@
     "clerk-webhooks@clerk-skills": true,
     "clerk@clerk-skills": true,
     "clerk-nextjs-patterns@clerk-skills": true,
-    "clerk-testing@clerk-skills": true
+    "clerk-testing@clerk-skills": true,
+    "clerk-setup@clerk-skills": true
   }
 }

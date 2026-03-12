@@ -2,15 +2,16 @@
  * Footer links data
  */
 export const FOOTER_LINKS = {
-  produkt: [
+  products: [
     { href: "/features", label: "Funkcje" },
-    { href: "/pricing", label: "Cennik" }
+    { href: "/pricing", label: "Cennik" },
+    { href: "/login", label: "Logowanie" }
   ] as const,
-  firma: [
+  company: [
     { href: "/about-us", label: "O nas" },
     { href: "/contact", label: "Kontakt" }
   ] as const,
-  prawne: [
+  legal: [
     { href: "/terms", label: "Regulamin" },
     { href: "/privacy", label: "Polityka prywatności" }
   ] as const

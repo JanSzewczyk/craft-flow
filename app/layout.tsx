@@ -1,8 +1,8 @@
 import * as React from "react";
 
 import { type Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "~/components/providers/theme-provider";
 
 import "./globals.css";

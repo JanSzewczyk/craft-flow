@@ -1,23 +1,19 @@
+/**
+ * Footer links data
+ */
 export const FOOTER_LINKS = {
   produkt: [
     { href: "/features", label: "Funkcje" },
-    { href: "/pricing", label: "Cennik" },
-    { href: "/client-portal", label: "Portal Klienta" }
-  ],
+    { href: "/pricing", label: "Cennik" }
+  ] as const,
   firma: [
     { href: "/about-us", label: "O nas" },
-    { href: "/blog", label: "Blog" },
     { href: "/contact", label: "Kontakt" }
-  ],
+  ] as const,
   prawne: [
     { href: "/terms", label: "Regulamin" },
-    { href: "/privacy", label: "Polityka Prywatności" },
-    { href: "/gdpr", label: "RODO" }
-  ]
+    { href: "/privacy", label: "Polityka prywatności" }
+  ] as const
 } as const;
 
-export const SOCIAL_LINKS = [
-  { href: "https://facebook.com/craftflow", label: "Facebook", icon: "facebook" as const },
-  { href: "https://twitter.com/craftflow", label: "Twitter", icon: "twitter" as const },
-  { href: "https://linkedin.com/company/craftflow", label: "LinkedIn", icon: "linkedin" as const }
-] as const;
+export type FooterLink = (typeof FOOTER_LINKS)[keyof typeof FOOTER_LINKS][number];

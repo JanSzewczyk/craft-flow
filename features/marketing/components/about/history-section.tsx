@@ -1,5 +1,6 @@
-import { Badge, Card } from "@szum-tech/design-system";
 import { Hammer } from "lucide-react";
+
+import { Badge, Card } from "@szum-tech/design-system";
 
 export function HistorySection() {
   return (

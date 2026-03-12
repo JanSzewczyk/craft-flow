@@ -2,6 +2,9 @@
 
 import * as React from "react";
 import { useTransition, useState } from "react";
+
+import { CheckCircle2, TriangleAlert } from "lucide-react";
+
 import {
   Alert,
   AlertDescription,
@@ -14,8 +17,6 @@ import {
   Input,
   Textarea
 } from "@szum-tech/design-system";
-import { CheckCircle2, TriangleAlert } from "lucide-react";
-
 import { contactFormSchema, type ContactFormData } from "~/features/contact/schemas/contact-schema";
 import { sendContactEmail } from "~/features/contact/server/send-contact-email";
 

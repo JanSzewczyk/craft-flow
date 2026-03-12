@@ -2,13 +2,24 @@
 
 import * as React from "react";
 
+import { clsx } from "clsx";
 import { MenuIcon } from "lucide-react";
 
-import { Button, Header, Separator, Sheet, SheetContent, SheetTrigger } from "@szum-tech/design-system";
-import { cn } from "@szum-tech/design-system/utils";
+import {
+  Button,
+  Header,
+  Separator,
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@szum-tech/design-system";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "~/components/ui/theme-toggle";
+
 import { BrandLogo } from "./brand-logo";
 
 /**
@@ -35,8 +46,8 @@ function DesktopNav() {
           <Link
             key={link.href}
             href={link.href}
-            className={cn(
-              "text-body-sm group/link relative transition-all duration-200",
+            className={clsx(
+              "text-heading-h4 group/link relative transition-all duration-200",
               isActive
                 ? "text-primary after:bg-primary after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full"
                 : "text-muted-foreground hover:text-primary",
@@ -68,7 +79,10 @@ function MobileNav() {
         </Button>
       </SheetTrigger>
       <SheetContent side="right">
-        <div className="mt-8 flex flex-col gap-6">
+        <SheetHeader>
+          <SheetTitle className="sr-only">App Navigation</SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 py-4">
           <nav className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
@@ -77,10 +91,10 @@ function MobileNav() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className={cn(
-                    "text-body-lg group/link relative -my-2 py-2 font-medium transition-all duration-200",
+                  className={clsx(
+                    "text-body-lg group/link px-3 py-2 transition-all duration-200",
                     isActive
-                      ? "text-primary bg-primary/5 -mx-4 rounded-md px-4"
+                      ? "text-primary bg-primary/5 rounded"
                       : "text-muted-foreground hover:text-primary hover:bg-muted/50"
                   )}
                   aria-current={isActive ? "page" : undefined}
@@ -90,20 +104,20 @@ function MobileNav() {
               );
             })}
           </nav>
-          <Separator />
-          <div className="flex flex-col gap-3">
-            <Button variant="outline" fullWidth asChild>
-              <Link href="/pricing" onClick={() => setOpen(false)}>
-                Rozpocznij okres próbny
-              </Link>
-            </Button>
-            <Button fullWidth asChild>
-              <Link href="/sign-in" onClick={() => setOpen(false)}>
-                Zaloguj się
-              </Link>
-            </Button>
-          </div>
         </div>
+        <Separator />
+        <SheetFooter>
+          <Button variant="outline" fullWidth asChild>
+            <Link href="/pricing" onClick={() => setOpen(false)}>
+              Rozpocznij okres próbny
+            </Link>
+          </Button>
+          <Button fullWidth asChild>
+            <Link href="/sign-in" onClick={() => setOpen(false)}>
+              Zaloguj się
+            </Link>
+          </Button>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
@@ -115,7 +129,7 @@ function MobileNav() {
 function HeaderActions() {
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="default" className="hidden sm:flex" asChild>
+      <Button variant="outline" size="default" className="hidden xl:flex" asChild>
         <Link href="/pricing">Rozpocznij okres próbny</Link>
       </Button>
       <Button size="default" className="hidden sm:flex" asChild>

@@ -1,5 +1,6 @@
-import { Badge } from "@szum-tech/design-system";
 import { CheckCircle2 } from "lucide-react";
+
+import { Badge } from "@szum-tech/design-system";
 
 export type BulletPoint = {
   text: string;

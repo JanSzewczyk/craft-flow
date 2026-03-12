@@ -1,5 +1,6 @@
-import { Separator } from "@szum-tech/design-system";
 import { Mail } from "lucide-react";
+
+import { Separator } from "@szum-tech/design-system";
 
 import { IllustrationCard } from "./illustration-card";
 

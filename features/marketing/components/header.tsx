@@ -9,32 +9,17 @@ import { cn } from "@szum-tech/design-system/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "~/components/ui/theme-toggle";
+import { BrandLogo } from "./brand-logo";
 
 /**
  * Navigation links for the marketing site.
  */
 const NAV_LINKS = [
   { href: "/features", label: "Funkcje" },
-  { href: "/", label: "Cennik" },
-  { href: "/about", label: "O nas" },
+  { href: "/pricing", label: "Cennik" },
+  { href: "/about-us", label: "O nas" },
   { href: "/contact", label: "Kontakt" }
 ] as const;
-
-/**
- * Logo component for CraftFlow.
- */
-function Logo() {
-  return (
-    <Link href="/" className="group flex items-center gap-2 transition-transform duration-200 hover:scale-105">
-      <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg">
-        <svg className="size-5" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor" />
-        </svg>
-      </div>
-      <span className="text-foreground text-body-xl">CraftFlow</span>
-    </Link>
-  );
-}
 
 /**
  * Desktop navigation links.
@@ -130,15 +115,12 @@ function MobileNav() {
 function HeaderActions() {
   return (
     <div className="flex items-center gap-2">
-      <>
-        <Button variant="outline" size="default" className="hidden sm:flex" asChild>
-          <Link href="/pricing">Rozpocznij okres próbny</Link>
-        </Button>
-        <Button size="default" className="hidden sm:flex" asChild>
-          <Link href="/sign-in">Zaloguj się</Link>
-        </Button>
-      </>
-
+      <Button variant="outline" size="default" className="hidden sm:flex" asChild>
+        <Link href="/pricing">Rozpocznij okres próbny</Link>
+      </Button>
+      <Button size="default" className="hidden sm:flex" asChild>
+        <Link href="/sign-in">Zaloguj się</Link>
+      </Button>
       <MobileNav />
     </div>
   );
@@ -162,7 +144,7 @@ export function MarketingHeader() {
   return (
     <Header>
       <div className="flex w-full items-center justify-between">
-        <Logo />
+        <BrandLogo />
         <DesktopNav />
         <div className="flex gap-3">
           <ThemeToggle />

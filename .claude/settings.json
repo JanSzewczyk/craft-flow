@@ -4,16 +4,6 @@
     "next-devtools"
   ],
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '🚀 Session started in: $CLAUDE_PROJECT_DIR' >&2"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -35,17 +25,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "Before finishing, verify: 1) All requested changes are complete, 2) No TypeScript errors introduced, 3) Code follows project patterns from CLAUDE.md. If something is incomplete, list it.",
-            "timeout": 60
-          }
-        ]
-      }
     ]
   },
   "statusLine": {
@@ -59,7 +38,10 @@
     "clerk@clerk-skills": true,
     "clerk-nextjs-patterns@clerk-skills": true,
     "clerk-testing@clerk-skills": true,
-    "clerk-setup@clerk-skills": true
+    "clerk-setup@clerk-skills": true,
+    "code-quality@szum-tech": true,
+    "nextjs-react@szum-tech": true,
+    "testing@szum-tech": true
   },
   "mcpServers": {
     "stitch": {

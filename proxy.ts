@@ -1,11 +1,13 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 import logger from "~/lib/logger";
 
-export function proxy(request: NextRequest) {
+const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/app(.*)"]);
+
+export const proxy = clerkMiddleware(async (auth, request) => {
   const startTime = Date.now();
   const requestId = crypto.randomUUID();
 
-  // Create a logger with request context
   const requestLogger = logger.child({
     requestId,
     method: request.method,
@@ -15,24 +17,19 @@ export function proxy(request: NextRequest) {
 
   requestLogger.info("Incoming request");
 
-  // Continue with the request
+  if (isProtectedRoute(request)) {
+    await auth.protect();
+  }
+
   const response = NextResponse.next();
 
-  // Add request ID to response headers
   response.headers.set("X-Request-ID", requestId);
 
-  // Log the response
   const duration = Date.now() - startTime;
-  requestLogger.info(
-    {
-      status: response.status,
-      duration
-    },
-    "Request completed"
-  );
+  requestLogger.info({ status: response.status, duration }, "Request completed");
 
   return response;
-}
+});
 
 // Configure which routes to run proxy on
 export const config = {

@@ -1,12 +1,13 @@
+import { z } from "zod";
+
 import { createEnv } from "@t3-oss/env-nextjs";
 
 export const env = createEnv({
   client: {
-    // Client env variables, eg:
-    // NEXT_PUBLIC_CLIENT_VAR: z.string(),
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string()
   },
   experimental__runtimeEnv: {
-    // NEXT_PUBLIC_CLIENT_VAR: process.env.NEXT_PUBLIC_CLIENT_VAR,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

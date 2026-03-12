@@ -29,6 +29,7 @@
     "type-check": "bun run next typegen && bun run tsc --noEmit"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.0.4",
     "@next/bundle-analyzer": "^16.1.4",
     "@szum-tech/design-system": "^3.11.1",
     "@t3-oss/env-nextjs": "^0.13.8",
@@ -42,6 +43,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.1",
+    "resend": "^6.9.3",
     "server-only": "^0.0.1",
     "zod": "^4.3.6"
   },

@@ -125,4 +125,4 @@ src/styles
 /.claude/*.local.json
 
 # decs
-/docs
+/tmp

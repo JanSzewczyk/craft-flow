@@ -125,6 +125,8 @@ src/styles
 /.claude/*.local.json
 
 # decs
+/docs
 /tmp
+
 # clerk configuration (can include secrets)
 /.clerk/

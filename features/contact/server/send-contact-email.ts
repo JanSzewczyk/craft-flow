@@ -3,8 +3,8 @@
 import { Resend } from "resend";
 
 import { env } from "~/data/env/server";
-import { createLogger } from "~/lib/logger";
 import { contactFormSchema, type ContactFormData } from "~/features/contact/schemas/contact-schema";
+import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "contact" });
 
@@ -68,7 +68,7 @@ export async function sendContactEmail(
 
   try {
     const { error } = await resend.emails.send({
-      from: "CraftFlow <kontakt@craftflow.pl>",
+      from: "CraftFlow <craft-flow-contact@resend.dev>",
       to: env.CONTACT_EMAIL_TO,
       subject: `[CraftFlow] ${parsed.data.subject}`,
       html: buildEmailHtml(parsed.data)

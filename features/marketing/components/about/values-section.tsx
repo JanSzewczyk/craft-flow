@@ -1,3 +1,5 @@
+import * as React from "react";
+
 import { Clock, Eye, Heart, Zap } from "lucide-react";
 
 const VALUES = [

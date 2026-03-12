@@ -60,5 +60,14 @@
     "clerk-nextjs-patterns@clerk-skills": true,
     "clerk-testing@clerk-skills": true,
     "clerk-setup@clerk-skills": true
+  },
+  "mcpServers": {
+    "stitch": {
+      "type": "http",
+      "url": "https://stitch.googleapis.com/mcp",
+      "headers": {
+        "X-Goog-Api-Key": "AQ.Ab8RN6K7lfTtUpPwBBY68IkCn8nmqXHJ2m9QtiSbmJ8jTqa80A"
+      }
+    }
   }
 }

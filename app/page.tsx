@@ -1,16 +1,11 @@
-import { Header, Separator } from "@szum-tech/design-system";
-import { ThemeToggle } from "~/components/ui/theme-toggle";
+import { Separator } from "@szum-tech/design-system";
+import { MarketingHeader } from "~/components/marketing";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
-      <Header>
-        <div className="flex w-full items-center justify-between">
-          <h1 className="text-heading-h3">Craft Flow</h1>
-          <ThemeToggle />
-        </div>
-      </Header>
+      <MarketingHeader />
 
       {/* Main Content */}
       <main className="container flex-1 py-16">

@@ -25,11 +25,12 @@ export default function HomePage() {
       <WhyCraftFlowSection />
       <TestimonialsSection />
       <BottomCtaSection
-        heading="Gotowy na spokojniejszą pracę?"
-        subheading="Dołącz do rzemieślników, którzy odzyskali swój czas. Pierwsze 14 dni bezpłatnie."
-        ctaLabel="Zacznij bezpłatny okres próbny"
+        heading="Gotowy na rewolucję w swoim warsztacie?"
+        subheading="Zacznij korzystać z CraftFlow już dzisiaj. Pierwsze 14 dni za darmo."
+        ctaLabel="Załóż darmowe konto"
         ctaHref="/pricing"
-        note="Bez karty kredytowej • Anuluj w dowolnym momencie"
+        secondaryCtaLabel="Skontaktuj się z nami"
+        secondaryCtaHref="/contact"
       />
     </>
   );

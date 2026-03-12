@@ -1,127 +1,114 @@
+import React from "react";
+
+import { ArrowRight, Menu, Smartphone, Zap } from "lucide-react";
+
+import { Avatar, AvatarFallback, Badge, Button, Card, Separator } from "@szum-tech/design-system";
 import Link from "next/link";
-import { Badge, Button, Card, Separator } from "@szum-tech/design-system";
-import { CheckCircle2, Circle } from "lucide-react";
-
-type PortalStepProps = {
-  icon: React.ReactNode;
-  label: string;
-  done: boolean;
-  active?: boolean;
-};
-
-function PortalStep({ icon, label, done, active = false }: PortalStepProps) {
-  return (
-    <div
-      className={`flex items-center gap-3 rounded-md px-3 py-2 transition-colors ${
-        active ? "bg-primary/10" : done ? "bg-background/40" : "bg-background/20"
-      }`}
-    >
-      {icon}
-      <span
-        className={`text-body-sm ${
-          active ? "text-foreground font-medium" : done ? "text-foreground" : "text-muted-foreground"
-        }`}
-      >
-        {label}
-      </span>
-      {active && (
-        <Badge variant="primary" className="ml-auto">
-          Aktywny
-        </Badge>
-      )}
-    </div>
-  );
-}
 
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden">
-      {/* Radial background decoration */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(var(--primary)/0.12),transparent)]"
-      />
-
+    <section className="flex min-h-screen items-center">
       <div className="container mx-auto px-4 py-20 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-16">
           {/* Copy */}
           <div className="flex flex-col items-start gap-6">
-            <Badge variant="primary">Teraz dostępne &bull; 14 dni za darmo</Badge>
+            <Badge variant="primary">
+              <Zap className="size-4" />
+              Nowoczesny Warsztat
+            </Badge>
 
             <h1 className="text-display-lg font-poppins text-foreground">
-              Koniec z telefonami od klientów. Daj im portal, nie numer.
+              Zakończ erę ciągłych <span className="text-primary">telefonów</span> od klientów.
             </h1>
 
             <p className="text-lead max-w-lg">
-              Wyślij klientowi link i niech sam sprawdza postęp prac — bez dzwonienia do Ciebie. Ty pracujesz, on śledzi
-              projekt w czasie rzeczywistym.
+              CraftFlow to Twój cyfrowy asystent. Ty pracujesz w warsztacie, a Twoi klienci sami sprawdzają postępy
+              online w czasie rzeczywistym.
             </p>
 
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link href="/pricing">Zacznij za darmo →</Link>
+                <Link href="/pricing">Rozpocznij 14-dniowy okres próbny</Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href="/features">Zobacz funkcje</Link>
+              <Button asChild variant="outline" size="lg" className="gap-2">
+                <Link href="/features">
+                  Zobacz jak to działa
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </Button>
+            </div>
+
+            {/* Social proof */}
+            <div className="flex items-center gap-4">
+              <div className="flex -space-x-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <Avatar className="ring-background ring-2" key={i}>
+                    <AvatarFallback>{String.fromCharCode(64 + i)}</AvatarFallback>
+                  </Avatar>
+                ))}
+              </div>
+              <span className="text-body-sm text-muted-foreground">
+                Dołącz do <span className="text-foreground font-medium">+500 warsztatów</span>
+              </span>
             </div>
           </div>
 
-          {/* Mockup */}
-          <div className="relative">
-            <Card className="from-primary/10 to-primary/5 overflow-hidden bg-gradient-to-br p-6 shadow-xl">
-              {/* Fake browser chrome */}
-              <div className="mb-4 flex items-center gap-2">
-                <div className="bg-error/60 h-3 w-3 rounded-full" />
-                <div className="bg-warning/60 h-3 w-3 rounded-full" />
-                <div className="bg-success/60 h-3 w-3 rounded-full" />
-                <div className="bg-background/60 text-body-xs text-muted-foreground ml-3 flex-1 rounded px-3 py-1">
-                  craftflow.app/projekt/szafa-na-wymiar
+          {/* Smartphone mockup */}
+          <div className="relative flex justify-center">
+            <Card className="mx-auto w-full max-w-[320px] overflow-hidden rounded-[2.5rem] shadow-2xl">
+              {/* Phone frame */}
+              <div className="bg-background relative p-4">
+                {/* Status bar */}
+                <div className="mb-4 flex items-center justify-between">
+                  <Menu className="text-muted-foreground h-5 w-5" />
+                  <span className="text-body-xs text-muted-foreground">12:30</span>
+                  <div className="bg-muted h-5 w-5 rounded-full" />
+                </div>
+
+                <Separator className="mb-4" />
+
+                {/* Status card */}
+                <div className="bg-muted/30 space-y-4 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-sm text-foreground font-medium">Status Zlecenia</span>
+                    <div className="flex gap-1">
+                      <div className="bg-primary h-2 w-2 rounded-full" />
+                      <div className="bg-primary h-2 w-2 rounded-full" />
+                      <div className="bg-primary h-2 w-2 rounded-full" />
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="bg-muted h-2 w-full rounded-full">
+                    <div className="bg-primary h-full w-[75%] rounded-full" />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Badge variant="primary" className="text-body-xs">
+                      W TRAKCIE
+                    </Badge>
+                  </div>
+
+                  <h3 className="text-body-default text-foreground">Naprawa układu hamulcowego</h3>
+
+                  {/* Photo placeholders */}
+                  <div className="flex gap-3">
+                    <div className="bg-muted/50 flex aspect-square flex-1 items-center justify-center rounded-lg">
+                      <Smartphone className="text-muted-foreground h-6 w-6" />
+                    </div>
+                    <div className="bg-muted/50 flex aspect-square flex-1 items-center justify-center rounded-lg">
+                      <Smartphone className="text-muted-foreground h-6 w-6" />
+                    </div>
+                  </div>
+
+                  {/* Text skeleton lines */}
+                  <div className="space-y-2 pt-2">
+                    <div className="bg-muted/40 h-2.5 w-full rounded-full" />
+                    <div className="bg-muted/40 h-2.5 w-3/4 rounded-full" />
+                    <div className="bg-muted/40 h-2.5 w-1/2 rounded-full" />
+                  </div>
                 </div>
               </div>
-
-              <Separator className="mb-5" />
-
-              {/* Portal header */}
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <p className="text-body-xs text-muted-foreground">Twój projekt</p>
-                  <h2 className="text-heading-h3 text-foreground">Szafa na wymiar — Kowalski</h2>
-                </div>
-                <Badge variant="warning">Projekt w toku</Badge>
-              </div>
-
-              {/* Status steps */}
-              <div className="flex flex-col gap-3">
-                <PortalStep
-                  icon={<CheckCircle2 className="text-success h-5 w-5" />}
-                  label="Wycena zaakceptowana"
-                  done
-                />
-                <PortalStep icon={<CheckCircle2 className="text-success h-5 w-5" />} label="Materiały zamówione" done />
-                <PortalStep
-                  icon={<CheckCircle2 className="text-success h-5 w-5" />}
-                  label="Produkcja w toku"
-                  done
-                  active
-                />
-                <PortalStep
-                  icon={<Circle className="text-muted-foreground h-5 w-5" />}
-                  label="Montaż u klienta"
-                  done={false}
-                />
-                <PortalStep
-                  icon={<Circle className="text-muted-foreground h-5 w-5" />}
-                  label="Odbiór końcowy"
-                  done={false}
-                />
-              </div>
-
-              <Separator className="my-5" />
-
-              <p className="text-body-xs text-muted-foreground">
-                Ostatnia aktualizacja: dziś, 14:23 &bull; przez Marek Nowak
-              </p>
             </Card>
           </div>
         </div>

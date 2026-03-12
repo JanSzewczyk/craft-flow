@@ -1,8 +1,8 @@
 import { type Metadata } from "next";
 import { CheckCircle2Icon } from "lucide-react";
+import { Badge, Button, Card, CardContent, CardFooter, CardHeader, Separator } from "@szum-tech/design-system";
 import Link from "next/link";
 
-import { Badge, Button, Card, CardContent, CardFooter, CardHeader, Separator } from "@szum-tech/design-system";
 import { PLANS } from "~/constants/plans";
 import { PricingFAQ } from "~/features/marketing/components";
 

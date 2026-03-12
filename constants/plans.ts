@@ -6,7 +6,7 @@ export const PLANS = [
     description: "Idealne na start – kontroluj projekty i buduj zaufanie klientów.",
     features: [
       "Do 5 nowych projektów miesięcznie",
-      "Do 2 szablonów etapów",
+      "Do 1 szablonów etapów",
       "Do 10 zdjęć na projekt",
       "Dostęp do historii i archiwum",
       "Portal klienta (logowanie)",

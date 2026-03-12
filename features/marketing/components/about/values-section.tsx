@@ -23,7 +23,7 @@ const VALUES = [
     name: "Wsparcie rzemieślnika",
     description: "Budujemy dla ludzi, którzy tworzą rzeczy własnymi rękami. To dla nas coś więcej niż SaaS."
   }
-];
+] as const;
 
 type ValueCardProps = {
   icon: React.ReactNode;

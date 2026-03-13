@@ -5,8 +5,8 @@ import { IllustrationCard } from "./illustration-card";
 export function PortalIllustration() {
   return (
     <IllustrationCard
-      gradientClass="from-blue-500/10 to-blue-500/5"
-      icon={<Monitor className="h-16 w-16 text-blue-500 opacity-20" aria-hidden="true" />}
+      gradientClass="from-primary/10 to-primary/5"
+      icon={<Monitor className="h-16 w-16 text-primary opacity-20" aria-hidden="true" />}
       cardTitle="Portal projektu"
     >
       <div className="bg-muted/50 mb-2 flex items-center gap-2 rounded px-2 py-1.5">

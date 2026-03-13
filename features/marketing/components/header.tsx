@@ -49,10 +49,10 @@ function DesktopNav() {
             className={clsx(
               "text-heading-h4 group/link relative transition-all duration-200",
               isActive
-                ? "text-primary after:bg-primary after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full"
+                ? "text-primary after:bg-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full"
                 : "text-muted-foreground hover:text-primary",
               !isActive &&
-                "after:bg-primary after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:transition-all after:duration-300 after:ease-out after:content-[''] hover:group-focus/link:after:w-full"
+                "after:bg-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:transition-all after:duration-300 after:ease-out after:content-[''] hover:group-focus/link:after:w-full"
             )}
             aria-current={isActive ? "page" : undefined}
           >

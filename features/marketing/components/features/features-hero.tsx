@@ -1,13 +1,23 @@
+import { User, LayoutList, Palette } from "lucide-react";
+
+import { Status } from "@szum-tech/design-system";
+
 export function FeaturesHero() {
   return (
-    <section className="bg-white py-16 sm:py-20">
-      <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
-        <h1 className="text-[36px] font-bold text-black font-poppins mx-auto max-w-[800px] leading-tight">
-          Funkcje stworzone dla Twojego warsztatu.
-        </h1>
-        <p className="mt-2 text-[18px] font-normal text-[#6B7280] mx-auto max-w-[800px]">
-          Narzędzia, które usprawnią pracę Twojego warsztatu.
-        </p>
+    <section className="py-20 sm:py-24">
+      <div className="container mx-auto px-6 text-center">
+        <h1 className="text-display-lg text-foreground mx-auto max-w-200">Funkcje stworzone dla Twojego warsztatu.</h1>
+        <div className="mt-8 flex flex-wrap justify-center gap-3 md:gap-6">
+          <Status variant="primary">
+            <User className="size-4" aria-hidden="true" /> Portal Klienta
+          </Status>
+          <Status variant="primary">
+            <LayoutList className="size-4" aria-hidden="true" /> Zarządzanie Projektami
+          </Status>
+          <Status variant="primary">
+            <Palette className="size-4" aria-hidden="true" /> Branding Firmowy
+          </Status>
+        </div>
       </div>
     </section>
   );

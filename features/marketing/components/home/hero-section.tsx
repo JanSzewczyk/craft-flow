@@ -17,7 +17,7 @@ export function HeroSection() {
               Nowoczesny Warsztat
             </Badge>
 
-            <h1 className="text-display-lg font-poppins text-foreground">
+            <h1 className="text-display-lg text-foreground">
               Zakończ erę ciągłych <span className="text-primary">telefonów</span> od klientów.
             </h1>
 

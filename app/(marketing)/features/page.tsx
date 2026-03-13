@@ -1,12 +1,11 @@
+import { CameraIcon, CheckCircle, Link as LinkIcon, Shield, Smartphone } from "lucide-react";
 import { type Metadata } from "next";
 
 import {
   CrmDashboardIllustration,
-  EmailIllustration,
   FeatureSection,
   FeaturesHero,
   SmartLinksIllustration,
-  TemplatesIllustration,
   TimelineIllustration
 } from "~/features/marketing/components";
 
@@ -23,71 +22,65 @@ export const metadata: Metadata = {
 
 export default function FeaturesPage() {
   return (
-    <>
+    <div className="bg-muted/30">
       <FeaturesHero />
 
-      {/* Feature 1: Oś Czasu Projektu - TEXT LEFT, VISUAL RIGHT */}
+      {/* Feature 1: Timeline - TEXT LEFT, VISUAL RIGHT */}
       <FeatureSection
-        heading="Oś Czasu Projektu. Zawsze wiesz, co dalej."
-        bullets={[
-          { text: "Śledź każdy etap zlecenia — od wyceny po odbiór. Nigdy nie zgub wątku w trakcie realizacji." },
-          { text: "Klient widzi postępy w czasie rzeczywistym, więc sam nie musi dzwonić z pytaniem «co słychać?»." },
-          { text: "Koniec z kartkami i tabelkami w Excelu — wszystkie kamienie milowe w jednym miejscu." }
-        ]}
-        ctaLabel="Wypróbuj za darmo"
+        heading="Inteligentna Oś Czasu."
+        description="Dodawaj etapy, wgrywaj zdjęcia i publikuj postępy jednym kliknięciem. System sam powiadomi klienta o aktualnym statusie prac."
+        badge={{
+          label: "Automatyczne powiadomienia",
+          icon: CheckCircle,
+          variant: "success"
+        }}
+        ctaLabel="Dodaj postęp"
+        ctaIcon={<CameraIcon />}
         layout="normal"
         illustration={<TimelineIllustration />}
       />
 
-      {/* Feature 2: Portal Klienta - VISUAL LEFT, TEXT RIGHT */}
+      {/* Feature 2: Smart Links - VISUAL LEFT, TEXT RIGHT */}
       <FeatureSection
-        heading="Portal Klienta. Profesjonalny wygląd, zero wysiłku."
-        bullets={[
-          { text: "Udostępnij klientowi unikalny link — bez instalowania aplikacji, bez zakładania konta." },
-          { text: "Klient widzi aktualny status projektu na żywo i czuje się zaopiekowany przez cały czas." },
-          { text: "Twoje zlecenia wyglądają profesjonalnie — budujesz zaufanie i dostajesz więcej poleceń." }
+        heading="Smart Linki. Zapomnij o hasłach."
+        description="Klient otrzymuje unikalny, bezpieczny link, który otwiera jego osobisty portal na dowolnym urządzeniu. Żadnego logowania, żadnego przypominania haseł."
+        badge={{
+          label: "Smart Linki",
+          icon: LinkIcon,
+          variant: "primary"
+        }}
+        featurePoints={[
+          {
+            icon: Shield,
+            title: "Bezpieczny dostęp",
+            description: "Unikalne tokeny dla każdego klienta i projektu."
+          },
+          {
+            icon: Smartphone,
+            title: "W pełni responsywne",
+            description: "Idealnie działa na smartfonach, tabletach i desktopach."
+          }
         ]}
         layout="reversed"
         illustration={<SmartLinksIllustration />}
       />
 
-      {/* Feature 3: Baza CRM - TEXT LEFT, VISUAL RIGHT */}
+      {/* Feature 3: CRM - TEXT LEFT, VISUAL RIGHT */}
       <FeatureSection
-        heading="CRM dla Rzemieślnika. Wszyscy klienci w jednym miejscu."
-        bullets={[
-          { text: "Pełna lista kontaktów z numerami telefonów, mailami i historią zleceń — zawsze pod ręką." },
-          { text: "Sprawdź w sekundę, co robiłeś dla danego klienta rok temu i ile na tym zarobiłeś." },
-          { text: "Szybkie wyszukiwanie po nazwisku lub typie usługi — znajdziesz każde zlecenie błyskawicznie." }
+        heading="CRM dla Rzemieślnika."
+        description="Pełna baza klientów z historią wszystkich realizacji. Wszystko w jednym miejscu, bezpieczne i zgodne z RODO. Już nigdy nie zgubisz numeru do ulubionego klienta."
+        badge={{
+          label: "CRM & RODO",
+          icon: Shield,
+          variant: "primary"
+        }}
+        stats={[
+          { value: "100%", label: "Zgodność z RODO" },
+          { value: "∞", label: "Historia prac" }
         ]}
-        ctaLabel="Zobacz więcej"
         layout="normal"
         illustration={<CrmDashboardIllustration />}
       />
-
-      {/* Feature 4: Szablony Etapów - VISUAL LEFT, TEXT RIGHT */}
-      <FeatureSection
-        heading="Szablony Etapów. Zacznij nowe zlecenie w 30 sekund."
-        bullets={[
-          { text: "Gotowe szablony dla stolarza, elektryka, glazurnika i wielu innych branż — wybierz i ruszaj." },
-          { text: "Dostosujesz każdy szablon do własnych potrzeb i zapiszesz go na kolejne zlecenia." },
-          { text: "Oszczędzasz godziny konfiguracji przy każdym nowym projekcie — skupiasz się na robocie." }
-        ]}
-        layout="reversed"
-        illustration={<TemplatesIllustration />}
-      />
-
-      {/* Feature 5: Powiadomienia E-mail - TEXT LEFT, VISUAL RIGHT */}
-      <FeatureSection
-        heading="Automatyczne Maile. Klient zawsze na bieżąco."
-        bullets={[
-          { text: "Gdy etap zlecenia się zmienia, klient dostaje maila automatycznie — Ty nie musisz pamiętać." },
-          { text: "Profesjonalne szablony wiadomości — wyglądasz jak duża firma, nawet działając solo." },
-          { text: "Zero ręcznego pisania i dzwonienia — CraftFlow komunikuje się z klientem za Ciebie." }
-        ]}
-        ctaLabel="Wypróbuj za darmo"
-        layout="normal"
-        illustration={<EmailIllustration />}
-      />
-    </>
+    </div>
   );
 }

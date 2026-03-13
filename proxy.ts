@@ -17,9 +17,17 @@ export const proxy = clerkMiddleware(async (auth, request) => {
 
   requestLogger.info("Incoming request");
 
-  if (isProtectedRoute(request)) {
-    await auth.protect();
+  if (request.nextUrl.pathname.startsWith("/sign-up")) {
+    const hasPlan = request.nextUrl.searchParams.has("plan");
+    if (!hasPlan) {
+      requestLogger.info("Redirecting to /pricing — missing plan param");
+      return NextResponse.redirect(new URL("/pricing", request.url));
+    }
   }
+
+  // if (isProtectedRoute(request)) {
+  //   await auth.protect();
+  // }
 
   const response = NextResponse.next();
 

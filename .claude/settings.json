@@ -1,7 +1,8 @@
 {
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "next-devtools","stitch"
+    "next-devtools",
+    "stitch"
   ],
   "hooks": {
     "PreToolUse": [
@@ -34,14 +35,8 @@
   },
   "enabledPlugins": {
     "product-management@szum-tech": true,
-    "clerk-webhooks@clerk-skills": true,
-    "clerk@clerk-skills": true,
-    "clerk-nextjs-patterns@clerk-skills": true,
-    "clerk-testing@clerk-skills": true,
-    "clerk-setup@clerk-skills": true,
     "code-quality@szum-tech": true,
     "nextjs-react@szum-tech": true,
     "testing@szum-tech": true
   }
 }
-

@@ -211,6 +211,3 @@ jeśli klient założy konto używając funkcji "Sign in with Apple" (ukryty ema
 - **Paginacja:** Pobieranie danych paczkami (np. limit(20)) zapobiega ogromnym kosztom odczytów w Firebase.
 - **Optimistic UI:** Oznaczenie checkboxa etapu zmienia interfejs w 1ms (hak useOptimistic), ignorując opóźnienia sieci
   podczas gdy serwer zapisuje dane w tle.
-
-K"mcpServers": { "stitch": { "type": "http", "url": "https://stitch.googleapis.com/mcp", "headers": { "X-Goog-Api-Key":
-"AQ.Ab8RN6LTv1CyrT7XAMZVHCKbtRXi-Kb0ICyQ6jhLAIEOgs99SQ" } } }

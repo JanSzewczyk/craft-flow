@@ -26,7 +26,6 @@ export default function PricingPage() {
             Każdy nowy użytkownik otrzymuje 14 dni bezpłatnego dostępu do planu Premium — bez karty kredytowej.
           </p>
         </div>
-        <PricingTable for="user" />
       </section>
 
       <Separator />

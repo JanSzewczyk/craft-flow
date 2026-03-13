@@ -10,7 +10,7 @@ type IllustrationCardProps = {
 
 export function IllustrationCard({ gradientClass, icon, cardTitle, children }: IllustrationCardProps) {
   return (
-    <div className={cn("relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br", gradientClass)}>
+    <div className={cn("relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br shadow-sm", gradientClass)}>
       <div className="absolute inset-0 flex items-center justify-center">{icon}</div>
       <div className="absolute right-6 bottom-6 left-6">
         <Card className="shadow-md">

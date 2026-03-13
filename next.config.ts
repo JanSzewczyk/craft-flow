@@ -6,9 +6,6 @@ import { env } from "./data/env/server";
 
 const config: NextConfig = {
   reactStrictMode: true,
-  experimental: {
-    optimizePackageImports: ["motion", "radix-ui"]
-  },
   serverExternalPackages: ["pino", "pino-pretty"],
   reactCompiler: true,
   async rewrites() {

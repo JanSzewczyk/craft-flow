@@ -81,16 +81,16 @@ export function FeatureSection({
               </ul>
             )}
             {/* Stats grid */}
-            {stats && (
+            {stats ? (
               <div className="mb-6 grid grid-cols-2 gap-6">
                 {stats.map((stat) => (
-                  <div key={stat.label} className="bg-card text-card-foreground border-border rounded-xl border p-4">
-                    <div className="text-primary mb-1 text-3xl font-black">{stat.value}</div>
+                  <div key={stat.label} className="bg-card text-card-foreground rounded border p-4">
+                    <div className="text-primary text-heading-h4 mb-1">{stat.value}</div>
                     <p className="text-body-sm text-foreground font-bold">{stat.label}</p>
                   </div>
                 ))}
               </div>
-            )}
+            ) : null}
             {/* CTA Button */}
             {ctaLabel && (
               <div className="flex items-center gap-4 pt-4">

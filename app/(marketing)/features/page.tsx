@@ -1,4 +1,4 @@
-import { CameraIcon, CheckCircle, Link as LinkIcon, Shield, Smartphone } from "lucide-react";
+import { CameraIcon } from "lucide-react";
 import { type Metadata } from "next";
 
 import {
@@ -8,6 +8,7 @@ import {
   SmartLinksIllustration,
   TimelineIllustration
 } from "~/features/marketing/components";
+import { FEATURES_CONFIG } from "~/features/marketing/constants";
 
 export const metadata: Metadata = {
   title: "Funkcje",
@@ -20,67 +21,36 @@ export const metadata: Metadata = {
   }
 };
 
+const ILLUSTRATIONS = {
+  timeline: <TimelineIllustration />,
+  smartLinks: <SmartLinksIllustration />,
+  crmDashboard: <CrmDashboardIllustration />
+} as const;
+
+const CTA_ICONS = {
+  camera: <CameraIcon aria-hidden="true" />
+} as const;
+
 export default function FeaturesPage() {
   return (
     <div className="bg-muted/30">
       <FeaturesHero />
 
-      {/* Feature 1: Timeline - TEXT LEFT, VISUAL RIGHT */}
-      <FeatureSection
-        heading="Inteligentna Oś Czasu."
-        description="Dodawaj etapy, wgrywaj zdjęcia i publikuj postępy jednym kliknięciem. System sam powiadomi klienta o aktualnym statusie prac."
-        badge={{
-          label: "Automatyczne powiadomienia",
-          icon: CheckCircle,
-          variant: "success"
-        }}
-        ctaLabel="Dodaj postęp"
-        ctaIcon={<CameraIcon />}
-        layout="normal"
-        illustration={<TimelineIllustration />}
-      />
-
-      {/* Feature 2: Smart Links - VISUAL LEFT, TEXT RIGHT */}
-      <FeatureSection
-        heading="Smart Linki. Zapomnij o hasłach."
-        description="Klient otrzymuje unikalny, bezpieczny link, który otwiera jego osobisty portal na dowolnym urządzeniu. Żadnego logowania, żadnego przypominania haseł."
-        badge={{
-          label: "Smart Linki",
-          icon: LinkIcon,
-          variant: "primary"
-        }}
-        featurePoints={[
-          {
-            icon: Shield,
-            title: "Bezpieczny dostęp",
-            description: "Unikalne tokeny dla każdego klienta i projektu."
-          },
-          {
-            icon: Smartphone,
-            title: "W pełni responsywne",
-            description: "Idealnie działa na smartfonach, tabletach i desktopach."
-          }
-        ]}
-        layout="reversed"
-        illustration={<SmartLinksIllustration />}
-      />
-
-      {/* Feature 3: CRM - TEXT LEFT, VISUAL RIGHT */}
-      <FeatureSection
-        heading="CRM dla Rzemieślnika."
-        description="Pełna baza klientów z historią wszystkich realizacji. Wszystko w jednym miejscu, bezpieczne i zgodne z RODO. Już nigdy nie zgubisz numeru do ulubionego klienta."
-        badge={{
-          label: "CRM & RODO",
-          icon: Shield,
-          variant: "primary"
-        }}
-        stats={[
-          { value: "100%", label: "Zgodność z RODO" },
-          { value: "∞", label: "Historia prac" }
-        ]}
-        layout="normal"
-        illustration={<CrmDashboardIllustration />}
-      />
+      {FEATURES_CONFIG.map((config) => (
+        <FeatureSection
+          key={config.heading}
+          heading={config.heading}
+          description={config.description}
+          badge={config.badge}
+          featurePoints={config.featurePoints}
+          stats={config.stats}
+          ctaLabel={config.ctaLabel}
+          ctaIcon={config.ctaIcon ? CTA_ICONS[config.ctaIcon] : undefined}
+          ctaHref={config.ctaHref}
+          layout={config.layout}
+          illustration={ILLUSTRATIONS[config.illustrationKey]}
+        />
+      ))}
     </div>
   );
 }

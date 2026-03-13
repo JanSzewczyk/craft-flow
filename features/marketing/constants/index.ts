@@ -5,3 +5,4 @@ export * from "./faq";
 export * from "./team";
 export * from "./footer";
 export * from "./social";
+export * from "./features";

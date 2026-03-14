@@ -3,44 +3,39 @@
  */
 export const FAQ_ITEMS = [
   {
-    question: "Czy mogę wypróbować CraftFlow za darmo?",
+    question: "Czy mogę zrezygnować w dowolnym momencie?",
     answer:
-      "Tak, każde nowe konto otrzymuje 14 dni dostępu do planu Premium bez konieczności podania karty kredytowej. Po tym czasie możesz wybrać plan płatny (Basic, Standard lub Premium). CraftFlow nie oferuje bezpłatnego planu — po zakończeniu okresu próbnego konieczne jest wybranie jednego z dostępnych planów płatnych."
+      "Tak, subskrypcja jest miesięczna i możesz ją anulować w dowolnym momencie bez dodatkowych kosztów. Twoje dane pozostaną bezpieczne przez 30 dni od rezygnacji."
   },
   {
-    question: "Jak wygląda rozliczenie? Czy mogę anulować w dowolnym momencie?",
+    question: "Jak działa darmowy trial?",
     answer:
-      "Rozliczamy miesięcznie z góry. Możesz anulować subskrypcję w dowolnym momencie — nie ma umów długoterminowych ani kar za rezygnację. Po anulowaniu zachowujesz dostęp do końca opłaconego okresu rozliczeniowego."
+      "Darmowy trial 14-dniowy dotyczy wyłącznie planu Basic. Pozwala on na przetestowanie podstawowych funkcjonalności bez żadnych zobowiązań i konieczności podawania danych karty."
   },
   {
-    question: "Czym różni się limit projektów między planami?",
+    question: "Czy mój klient musi zakładać konto?",
     answer:
-      "Limit dotyczy liczby nowo tworzonych projektów w danym miesiącu rozliczeniowym. Projekty zakończone i zarchiwizowane nie wliczają się do limitu. Plan Basic umożliwia tworzenie do 5 projektów miesięcznie, Standard do 20, a Premium nie ma żadnych ograniczeń."
+      'Nie! Dzięki funkcji "Smart Links" Twoi klienci mogą śledzić postępy prac i zatwierdzać projekty bez konieczności rejestracji. Otrzymują unikalny link do swojego panelu.'
   },
   {
-    question: "Czy mój klient musi zakładać konto, żeby zobaczyć projekt?",
+    question: "Czy mogę zmienić plan w trakcie trwania subskrypcji?",
     answer:
-      "Nie. Każdy projekt ma unikalny link — klient otwiera go w przeglądarce bez rejestracji. Opcjonalnie może założyć konto, żeby mieć dostęp do historii wszystkich swoich zleceń i łatwiej śledzić postępy kolejnych projektów."
+      "Tak, możesz zmienić plan na wyższy lub niższy w dowolnym momencie. Zmiany zostaną rozliczone proporcjonalnie w następnym cyklu rozliczeniowym."
   },
   {
-    question: "Co to jest własny branding?",
+    question: "Jakie metody płatności są obsługiwane?",
     answer:
-      "Na planach Standard i Premium możesz dodać swoje logo i kolor marki. Klient widzi Twój portal — nie logo CraftFlow. Na planie Basic portal wyświetla branding CraftFlow zamiast Twoich danych wizualnych."
+      "Obsługujemy płatności kartami płatniczymi (Visa, Mastercard), przelewy online oraz płatności mobilne BLIK za pośrednictwem bezpiecznego systemu Stripe."
   },
   {
-    question: "Co się dzieje z moimi danymi po anulowaniu subskrypcji?",
+    question: "Czy moje dane są bezpieczne?",
     answer:
-      "Twoje dane są bezpieczne przez 30 dni po anulowaniu. W tym czasie możesz je wyeksportować lub wznowić subskrypcję bez utraty danych. Po 30 dniach dane są trwale usuwane z naszych serwerów."
+      "Bezpieczeństwo Twoich danych jest naszym priorytetem. Korzystamy z szyfrowania SSL oraz infrastruktury Firebase, która spełnia najwyższe standardy bezpieczeństwa i zgodności z RODO."
   },
   {
-    question: "Czy mogę zmienić plan w trakcie miesiąca?",
+    question: "Co się stanie po zakończeniu 14-dniowego trialu?",
     answer:
-      "Tak. Możesz przejść na wyższy plan w dowolnym momencie — różnica jest naliczana proporcjonalnie za pozostałe dni okresu rozliczeniowego. Przejście na niższy plan następuje automatycznie od początku kolejnego okresu rozliczeniowego."
-  },
-  {
-    question: "Czy CraftFlow działa na telefonie?",
-    answer:
-      "Tak. Interfejs wykonawcy jest w pełni responsywny i działa płynnie na telefonach i tabletach. Portal klienta jest zoptymalizowany pod urządzenia mobilne — klienci mogą bez problemu przeglądać projekty i zatwierdzać wyceny na smartfonie."
+      "Po 14 dniach dostęp do funkcji planu Basic zostanie zablokowany, chyba że zdecydujesz się na dodanie metody płatności i kontynuowanie subskrypcji. Nie obciążymy Cię automatycznie."
   }
 ] as const;
 

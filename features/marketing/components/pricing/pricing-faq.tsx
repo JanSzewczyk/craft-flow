@@ -8,9 +8,11 @@ export function PricingFAQ() {
     <Accordion type="single" collapsible className="w-full">
       {FAQ_ITEMS.map((item, index) => (
         <AccordionItem key={index} value={`faq-${index}`}>
-          <AccordionTrigger className="text-left">{item.question}</AccordionTrigger>
+          <AccordionTrigger className="group-hover:text-primary text-left font-semibold transition-colors">
+            {item.question}
+          </AccordionTrigger>
           <AccordionContent>
-            <p className="text-body-sm text-muted-foreground">{item.answer}</p>
+            <p className="text-body-sm text-muted-foreground leading-relaxed">{item.answer}</p>
           </AccordionContent>
         </AccordionItem>
       ))}

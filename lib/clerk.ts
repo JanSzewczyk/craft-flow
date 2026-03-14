@@ -1,34 +1,28 @@
-/**
- * Clerk server-side utilities for billing operations
- */
-
+import { type BillingPlan } from "@clerk/backend";
 import { clerkClient } from "@clerk/nextjs/server";
+import { createLogger } from "~/lib/logger";
+import { categorizeClerkError, type ClerkServiceResult } from "~/lib/services/clerk/errors";
+
+const logger = createLogger({ module: "clerk-billing" });
 
 /**
  * Fetches all available billing plans from Clerk
- * @returns Paginated list of billing plans
+ * @returns Tuple [error, data] - error is null on success, data is null on error
  */
-export async function getBillingPlans() {
-  const client = await clerkClient();
-  return client.billing.getPlanList();
-}
+export async function getVisibleBillingPlans(): Promise<ClerkServiceResult<Array<BillingPlan>>> {
+  try {
+    const client = await clerkClient();
+    const result = await client.billing.getPlanList({ payerType: "user" });
+    const data = result.data.filter((plan) => plan.publiclyVisible);
 
-/**
- * Fetches billing plans for a specific payer type
- * @param payerType - "user" or "org"
- * @returns Paginated list of billing plans
- */
-export async function getBillingPlansByPayerType(payerType: "user" | "org") {
-  const client = await clerkClient();
-  return client.billing.getPlanList({ payerType });
-}
-
-/**
- * Fetches user's current billing subscription
- * @param userId - The user ID
- * @returns User's billing subscription or null
- */
-export async function getUserSubscription(userId: string) {
-  const client = await clerkClient();
-  return client.billing.getUserBillingSubscription(userId);
+    logger.debug({ totalCount: data.length }, "Fetched billing plans successfully");
+    return [null, data];
+  } catch (error) {
+    const serviceError = categorizeClerkError(error, "Billing plans");
+    logger.error(
+      { errorCode: serviceError.code, isRetryable: serviceError.isRetryable, operation: "getBillingPlans" },
+      "Failed to fetch billing plans"
+    );
+    return [serviceError, null];
+  }
 }

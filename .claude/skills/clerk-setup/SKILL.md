@@ -231,7 +231,7 @@ import { shadcn } from "@clerk/ui/themes";
 Also import the shadcn CSS in your global styles:
 
 ```css
-@import "tailwindcss";
+@import "../../../node_modules/tailwindcss/dist/lib.d.mts";
 @import "@clerk/ui/themes/shadcn.css";
 ```
 

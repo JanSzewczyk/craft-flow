@@ -1,6 +1,7 @@
 import { type Metadata } from "next";
 
 import { PricingCardsSection, PricingFAQ } from "~/features/marketing/components";
+import { getVisibleBillingPlans } from "~/lib/clerk";
 
 export const metadata: Metadata = {
   title: "Cennik",
@@ -13,7 +14,11 @@ export const metadata: Metadata = {
   }
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const [, clerkPlansResult] = await getVisibleBillingPlans();
+
+  console.log(clerkPlansResult);
+
   return (
     <div className="bg-muted/30">
       <PricingCardsSection />

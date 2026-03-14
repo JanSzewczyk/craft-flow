@@ -1,5 +1,6 @@
+import { PLANS } from "~/constants";
 import { PricingCard } from "~/features/marketing/components";
-import { PRICING_PLANS } from "~/features/marketing/constants";
+import { selectPlan } from "~/features/marketing/server/actions/select-plan";
 
 export function PricingCardsSection() {
   return (
@@ -14,8 +15,8 @@ export function PricingCardsSection() {
       </div>
 
       <div className="mb-24 grid grid-cols-1 items-center gap-8 md:grid-cols-3">
-        {PRICING_PLANS.map((plan) => (
-          <PricingCard key={plan.id} plan={plan} />
+        {PLANS.map((plan) => (
+          <PricingCard key={plan.id} plan={plan} onSelectAction={selectPlan} />
         ))}
       </div>
     </section>

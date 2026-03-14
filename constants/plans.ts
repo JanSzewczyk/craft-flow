@@ -4,6 +4,8 @@ export const PLANS = [
     name: "Basic",
     price: 79,
     description: "Idealne na start – kontroluj projekty i buduj zaufanie klientów.",
+    trial: true,
+    featured: false,
     features: [
       "Do 5 nowych projektów miesięcznie",
       "Do 2 szablonów etapów",
@@ -28,6 +30,8 @@ export const PLANS = [
     name: "Standard",
     price: 149,
     description: "Dla rozwijających się warsztatów – własny branding i bez limitów zdjęć.",
+    featured: true,
+    trial: false,
     features: [
       "Do 20 nowych projektów miesięcznie",
       "Do 10 szablonów etapów",
@@ -53,6 +57,8 @@ export const PLANS = [
     name: "Premium",
     price: 299,
     description: "Bez kompromisów – nieograniczone możliwości i priorytetowe wsparcie.",
+    trial: false,
+    featured: false,
     features: [
       "Nieograniczona liczba projektów",
       "Nieograniczona liczba szablonów",

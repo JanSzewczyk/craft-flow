@@ -1,6 +1,12 @@
 import { type Metadata } from "next";
 
-import { BottomCtaSection, HistorySection, TeamSection, ValuesSection } from "~/features/marketing/components";
+import {
+  AboutHeroSection,
+  BottomCtaSection,
+  HistorySection,
+  TeamSection,
+  ValuesSection
+} from "~/features/marketing/components";
 
 export const metadata: Metadata = {
   title: "O nas",
@@ -15,7 +21,8 @@ export const metadata: Metadata = {
 
 export default function AboutUsPage() {
   return (
-    <>
+    <div className="bg-muted/30">
+      <AboutHeroSection />
       <HistorySection />
       <ValuesSection />
       <TeamSection />
@@ -24,7 +31,10 @@ export default function AboutUsPage() {
         subheading="Zacznij 14-dniowy bezpłatny okres próbny. Bez karty kredytowej."
         ctaLabel="Wypróbuj CraftFlow za darmo"
         ctaHref="/pricing"
+        urgencyMessage="Ostatnia szansa na ten miesiąc"
+        socialProofCount="200+"
+        socialProofLabel="klientów zadowolonych"
       />
-    </>
+    </div>
   );
 }

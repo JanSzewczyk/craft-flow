@@ -40,10 +40,12 @@ bun run type-check   # TypeScript type checking
 
 ```bash
 bun run test                  # Run all Vitest tests
+bun run test:ci               # Run tests for CI environment
+bun run test:coverage         # Generate test coverage report
 bun run test:unit             # Unit tests only (with coverage)
-bun run test:storybook        # Storybook component tests (with coverage)
 bun run test:watch            # Watch mode
 bun run test:ui               # Vitest UI
+bun run test:storybook        # Storybook component tests (with coverage)
 
 # Run a single test file
 bun run vitest run path/to/file.test.ts
@@ -51,7 +53,8 @@ bun run vitest run --project=unit path/to/file.test.ts
 
 # E2E tests (Playwright) - requires build first
 bun run build && bun run test:e2e
-bun run test:e2e:ui           # Playwright UI mode
+bun run test:e2e:ci          # E2E tests for CI environment
+bun run test:e2e:ui          # Playwright UI mode
 ```
 
 ### Storybook
@@ -59,6 +62,8 @@ bun run test:e2e:ui           # Playwright UI mode
 ```bash
 bun run storybook:dev         # Start Storybook (port 6006)
 bun run storybook:build       # Build static Storybook
+bun run storybook:serve       # Serve built Storybook
+bun run test:storybook        # Run Storybook component tests
 ```
 
 ### Analysis
@@ -92,15 +97,18 @@ Bun is recommended for improved performance (10-100x faster installs, 2-3x faste
 
 - **Next.js**: 16.1.4 (App Router, Turbopack, React Compiler)
 - **React**: 19.2.0 with React Compiler enabled
-- **TypeScript**: 5.9.3 (strict mode)
+- **TypeScript**: 5.9.3 (strict mode with `noUncheckedIndexedAccess`)
 - **Tailwind CSS**: 4.1.11 (CSS-first config)
-- **@szum-tech/design-system**: 3.11.1
+- **@szum-tech/design-system**: 3.12.3
 - **Vitest**: 4.0.16 (unit & integration tests)
-- **Playwright**: 1.56 (E2E tests)
+- **Playwright**: 1.58.0 (E2E tests)
 - **Storybook**: 10.1.11 (component development)
 - **Zod**: 4.3.6 (validation)
 - **Pino**: 10.3.0 (logging)
 - **next-themes**: 0.4.6 (theming)
+- **@clerk/nextjs**: 7.0.4 (authentication)
+- **react-hook-form**: 7.71.1 (form handling)
+- **Resend**: 6.9.3 (email service)
 
 ### Path Aliases
 
@@ -125,42 +133,56 @@ import { env } from "~/data/env/server";
 
 ### Feature Module Structure
 
-Features follow a modular architecture pattern:
+Features follow a modular architecture pattern. Current features include:
+- **marketing**: Marketing pages and components (hero, features, about, contact sections)
+- **pricing**: Pricing page and related components
+- **contact**: Contact form and related functionality
+- **example-feature**: Template feature for reference
 
 ```
 features/
-└── example-feature/
-    ├── components/    # Feature-specific components
-    ├── schemas/       # Zod validation schemas
-    └── server/        # Server-side logic (actions, data fetching)
+└── marketing/
+    ├── components/    # Feature-specific components with co-located stories
+    │   ├── about/     # About page components
+    │   ├── features/  # Features showcase components
+    │   └── contact/  # Contact section components
+    └── constants/     # Feature-specific constants (e.g., team data)
 ```
 
 ### Environment Variables
 
 Environment variables are validated at build-time using T3 Env:
 
-- Server variables: `data/env/server.ts`
-- Client variables: `data/env/client.ts` (must be prefixed with `NEXT_PUBLIC_`)
-- Skip validation with `SKIP_ENV_VALIDATION=true`
+- Server variables: `data/env/server.ts` (NODE_ENV, CLERK_SECRET_KEY, RESEND_API_KEY, CONTACT_EMAIL_TO, LOG_LEVEL, etc.)
+- Client variables: `data/env/client.ts` (must be prefixed with `NEXT_PUBLIC_`, e.g., NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)
+- Skip validation with `SKIP_ENV_VALIDATION=true` (useful for Docker builds)
+- Empty strings are treated as undefined for type safety
 
 ### Logging
 
-Uses Pino logger (`lib/logger.ts`). Create child loggers with context:
+Uses Pino logger (`lib/logger.ts`) with different behavior based on environment:
+
+**Development**: Uses `pino-pretty` transport for readable, colored output
+**Production**: Structured JSON logs for log aggregation services
+
+Create child loggers with context:
 
 ```typescript
 import logger, { createLogger } from "~/lib/logger";
 const apiLogger = createLogger({ module: "api" });
 ```
 
+Log levels controlled via `LOG_LEVEL` env var (fatal, error, warn, info, debug, trace).
 Request logging is handled automatically via `proxy.ts` with request ID tracking.
 
 ### Testing Configuration
 
 Vitest 4.0 is configured with two project modes:
 
-- **unit**: Node environment for unit tests (`*.test.ts` files)
-- **storybook**: Browser environment (Playwright) for Storybook component tests
+- **unit**: Node environment for unit tests (`*.test.ts` files) with setup file `tests/unit/vitest.setup.ts`
+- **storybook**: Browser environment (Playwright) for Storybook component tests with setup file `tests/integration/vitest.setup.ts`
 
+Coverage reports include: text, HTML, JSON-summary, and JSON formats.
 Storybook tests use play functions for interaction testing with accessibility checks via @storybook/addon-a11y.
 Use `test-only` tag for stories that should be excluded from docs but run in tests.
 
@@ -172,11 +194,13 @@ Uses `@szum-tech/design-system` package. Import components directly:
 import { Button, Card, Tooltip } from "@szum-tech/design-system";
 ```
 
-Icons are re-exported via the design system:
+Icons are re-exported via lucide-react through the design system:
 
 ```typescript
 import { GithubIcon, SparklesIcon } from "lucide-react";
 ```
+
+UI components are located in `components/ui/` with co-located Storybook stories (`*.stories.tsx`).
 
 ### Health Checks
 
@@ -186,14 +210,27 @@ Built-in health endpoint at `/api/health` with multiple URL aliases: `/healthz`,
 
 The app uses `next-themes` for dark/light/system theme switching:
 - `ThemeProvider` wraps the app in `app/layout.tsx`
-- `ThemeToggle` component for user switching
+- `ThemeToggle` component (`components/ui/theme-toggle.tsx`) for user switching
 - Theme is persisted in localStorage
+- Storybook includes dark mode toggle via `@storybook-community/storybook-dark-mode`
 
 ### Next.js Configuration
 
-- React Compiler enabled (`reactCompiler: true`)
-- Pino externalized for server-side logging
-- Bundle analyzer available via `ANALYZE=true`
+Key Next.js configuration details:
+
+- **React Compiler enabled** (`reactCompiler: true`) - automatic optimization of components
+- **Server External Packages**: Pino and pino-pretty are externalized for server-side logging
+- **Bundle Analyzer**: Available via `ANALYZE=true` environment variable
+- **Health Check Endpoints**: Multiple URL aliases rewrites to `/api/health`: `/healthz`, `/api/healthz`, `/health`, `/ping`
+- **Image Optimization**: Configured remote patterns for Google Images
+- **Strict Mode**: React strict mode enabled for development warnings
+
+### Integrations & Services
+
+- **Clerk**: Authentication service (@clerk/nextjs) - requires CLERK_SECRET_KEY and NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+- **Resend**: Email service for transactional emails - requires RESEND_API_KEY
+- **React Hook Form**: Form handling and validation
+- **@axe-core/playwright**: Accessibility testing in Playwright E2E tests
 
 ## Conventions
 
@@ -201,6 +238,8 @@ The app uses `next-themes` for dark/light/system theme switching:
 - ESLint: Uses `@szum-tech/eslint-config`
 - Prettier: Uses `@szum-tech/prettier-config`
 - Semantic Release: Uses `@szum-tech/semantic-release-config`
+- **TypeScript strict mode** with `noUncheckedIndexedAccess` enabled - safer array/object access
+- **Server-only code protection**: Use `import "server-only"` in modules that should never run on the client
 
 ## Common Pitfalls
 
@@ -212,3 +251,15 @@ The app uses `next-themes` for dark/light/system theme switching:
 | Logging | Use `console.log` in production code | Use structured Pino logging (`logger.info(...)`) |
 | `useFormStatus` | Use in same component as `<form>` | Use in a child component inside the form |
 | Server Actions | Return untyped objects | Use standardized response types with Zod validation |
+| TypeScript | Ignore `noUncheckedIndexedAccess` warnings | Handle undefined array/object access explicitly |
+| Env Variables | Skip validation in production | Use T3 Env for type-safe validation |
+
+## CI/CD & GitHub Actions
+
+The project includes several GitHub Actions workflows in `.github/workflows/`:
+
+- **PR Check** (`pr-check.yml`): Validates builds, linting, formatting, types, and tests on every PR
+- **Code Review** (`code-review.yml`): AI-powered code reviews using OpenAI (requires OPENAI_API_KEY secret)
+- **Publish** (`publish.yml`): Automated semantic releases when merging to main branch (requires configuration)
+
+All workflows use `bun` as the runtime for optimal performance.

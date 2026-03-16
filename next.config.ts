@@ -7,6 +7,9 @@ import { env } from "./data/env/server";
 const config: NextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ["pino", "pino-pretty"],
+  images: {
+    remotePatterns: [new URL("https://lh3.googleusercontent.com/**")]
+  },
   reactCompiler: true,
   async rewrites() {
     return [

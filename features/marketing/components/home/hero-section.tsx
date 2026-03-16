@@ -7,11 +7,11 @@ import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <section className="flex min-h-screen items-center">
-      <div className="container mx-auto px-4 py-20 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-16">
+    <section className="-mt-16 flex min-h-screen items-center">
+      <div className="container mx-auto py-20">
+        <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto] lg:gap-16">
           {/* Copy */}
-          <div className="flex flex-col items-start gap-6">
+          <div className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
             <Badge variant="primary">
               <Zap className="size-4" />
               Nowoczesny Warsztat
@@ -54,7 +54,7 @@ export function HeroSection() {
           </div>
 
           {/* Smartphone mockup */}
-          <div className="relative flex justify-center">
+          <div className="relative order-first flex justify-center lg:order-last">
             <Card className="mx-auto w-full max-w-[320px] overflow-hidden rounded-[2.5rem] shadow-2xl">
               {/* Phone frame */}
               <div className="bg-background relative p-4">

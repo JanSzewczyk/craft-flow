@@ -1,51 +1,45 @@
-import { Hammer } from "lucide-react";
+import { Mail } from "lucide-react";
 
-import { Badge, Card } from "@szum-tech/design-system";
+import { Button, Card } from "@szum-tech/design-system";
+import Image from "next/image";
+import Link from "next/link";
 
 export function HistorySection() {
   return (
-    <section className="py-20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+    <section className="py-24">
+      <div className="container">
+        <Card className="grid items-center gap-12 p-8 md:p-12 lg:grid-cols-2 lg:gap-16">
           {/* Left: Text */}
           <div className="flex flex-col gap-6">
-            <Badge variant="outline">Nasza historia</Badge>
+            <div className="space-y-6">
+              <p className="text-body-lg">
+                CraftFlow narodziło się z pasji do tworzenia i frustracji wynikającej z biurokracji. Wierzymy, że
+                technologia powinna pomagać, a nie przeszkadzać w pracy fizycznej.
+                <br />
+                <br />
+                Każda minuta spędzona na arkuszach kalkulacyjnych to minuta odebrana warsztatowi. Naszą misją jest
+                eliminacja barier administracyjnych, aby rzemiosło mogło kwitnąć w nowoczesnym świecie.
+              </p>
+            </div>
 
-            <h1 className="text-display-md font-poppins text-foreground">
-              Zbudowane przez rzemieślnika, dla rzemieślników
-            </h1>
-
-            <p className="text-body-lg text-muted-foreground">
-              Kamil, stolarz z Wrocławia, przez lata tracił godziny dziennie na telefony od klientów pytających o status
-              mebli. Szukał prostego narzędzia — nie znalazł. Postanowił je zbudować.
-            </p>
-
-            <p className="text-body-lg text-muted-foreground">
-              CraftFlow powstało z jednym celem: dać rzemieślnikom narzędzie tak proste, jak SMS, ale tak profesjonalne
-              jak dedykowana aplikacja korporacyjna. Bez zbędnych funkcji. Bez skomplikowanej konfiguracji.
-            </p>
-
-            <div className="border-primary border-l-4 pl-4">
-              <blockquote className="text-body-lg text-foreground italic">
-                „Chciałem, żeby mój klient wiedział, co się dzieje z jego szafą — bez dzwonienia do mnie co dwa dni."
-              </blockquote>
-              <p className="text-body-sm text-muted-foreground mt-2">— Kamil, założyciel CraftFlow</p>
+            <div className="pt-4">
+              <Button asChild variant="outline" startIcon={<Mail aria-hidden="true" />}>
+                <Link href="/contact">Skontaktuj się z nami</Link>
+              </Button>
             </div>
           </div>
 
-          {/* Right: Decorative */}
-          <div className="relative flex items-center justify-center">
-            <div className="bg-primary/10 to-primary/5 flex aspect-square w-full max-w-md items-center justify-center rounded-2xl bg-gradient-to-br">
-              <Hammer className="text-primary/30" size={96} aria-hidden="true" />
-            </div>
-
-            {/* Floating stat card */}
-            <Card className="absolute right-6 bottom-6 px-5 py-4 shadow-lg sm:right-8 sm:bottom-8">
-              <p className="text-heading-h3 text-foreground">1 247 rzemieślników</p>
-              <p className="text-body-sm text-muted-foreground">korzysta z CraftFlow</p>
-            </Card>
+          <div className="group relative overflow-hidden rounded-3xl">
+            <Image
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNhFAVDT6HZQBc0WQQig7kwD0aL9uzm_-rXXYB2F2d1uAxVqMUuGNaKjjP7ipMTGolrG8fIqo-6hgUNdQfErB4PdGvYwKNSnqIWhkINgCjtBImH1fUvfSj3F2mwZ1fGrOF2tmDySK81DCYbzcXZ45R2E3wEomwPgjl1YOAMRkm0UO1J_slsgAMokOSFUfT4eYjPDKz_5XP0sw2zNE1Op2T6xEwtuXoGOj-9v1yt6gj7DUbM0rH3xuU2BCMfVL0uKAzpWY0eE-ltfw"
+              alt="Artisan workshop with tools"
+              className="h-full w-full object-cover grayscale transition-all duration-300 group-hover:grayscale-0"
+              width={800}
+              height={600}
+              loading="lazy"
+            />
           </div>
-        </div>
+        </Card>
       </div>
     </section>
   );

@@ -31,6 +31,9 @@ export default function HomePage() {
         ctaHref="/pricing"
         secondaryCtaLabel="Skontaktuj się z nami"
         secondaryCtaHref="/contact"
+        urgencyMessage="Tylko 10 miejsc w tym miesiącu"
+        socialProofCount="500+"
+        socialProofLabel="warsztatów już korzysta"
       />
     </>
   );

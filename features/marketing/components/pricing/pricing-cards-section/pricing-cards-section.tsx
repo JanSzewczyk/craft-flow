@@ -15,8 +15,10 @@ export function PricingCardsSection() {
       </div>
 
       <div className="mb-24 grid grid-cols-1 items-center gap-8 md:grid-cols-3">
-        {PLANS.map((plan) => (
-          <PricingCard key={plan.id} plan={plan} onSelectAction={selectPlan} />
+        {PLANS.map((plan, index) => (
+          <div key={plan.id} className={plan.featured && index === 1 ? "order-first md:order-none" : ""}>
+            <PricingCard plan={plan} onSelectAction={selectPlan} />
+          </div>
         ))}
       </div>
     </section>

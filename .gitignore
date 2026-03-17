@@ -123,3 +123,10 @@ src/styles
 
 # Claude
 /.claude/*.local.json
+/bash.exe.stackdump
+
+# decs
+/tmp
+
+# clerk configuration (can include secrets)
+/.clerk/

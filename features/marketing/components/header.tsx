@@ -1,0 +1,171 @@
+"use client";
+
+import * as React from "react";
+
+import { clsx } from "clsx";
+import { MenuIcon } from "lucide-react";
+
+import {
+  Button,
+  Header,
+  Separator,
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@szum-tech/design-system";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ThemeToggle } from "~/components/ui/theme-toggle";
+
+import { BrandLogo } from "./brand-logo";
+
+/**
+ * Navigation links for the marketing site.
+ */
+const NAV_LINKS = [
+  { href: "/features", label: "Funkcje" },
+  { href: "/pricing", label: "Cennik" },
+  { href: "/about-us", label: "O nas" },
+  { href: "/contact", label: "Kontakt" }
+] as const;
+
+/**
+ * Desktop navigation links.
+ */
+function DesktopNav() {
+  const pathname = usePathname();
+
+  return (
+    <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
+      {NAV_LINKS.map((link) => {
+        const isActive = pathname === link.href;
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={clsx(
+              "text-heading-h4 group/link relative transition-all duration-200",
+              isActive
+                ? "text-primary after:bg-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full"
+                : "text-muted-foreground hover:text-primary",
+              !isActive &&
+                "after:bg-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:transition-all after:duration-300 after:ease-out after:content-[''] hover:group-focus/link:after:w-full"
+            )}
+            aria-current={isActive ? "page" : undefined}
+          >
+            {link.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+/**
+ * Mobile navigation menu.
+ */
+function MobileNav() {
+  const pathname = usePathname();
+  const [open, setOpen] = React.useState<boolean>(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
+          <MenuIcon className="size-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle className="sr-only">App Navigation</SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 py-4">
+          <nav className="flex flex-col gap-4">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className={clsx(
+                    "text-body-lg group/link px-3 py-2 transition-all duration-200",
+                    isActive
+                      ? "text-primary bg-primary/5 rounded"
+                      : "text-muted-foreground hover:text-primary hover:bg-muted/50"
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+        <Separator />
+        <SheetFooter>
+          <Button variant="outline" fullWidth asChild>
+            <Link href="/pricing" onClick={() => setOpen(false)}>
+              Rozpocznij okres próbny
+            </Link>
+          </Button>
+          <Button fullWidth asChild>
+            <Link href="/sign-in" onClick={() => setOpen(false)}>
+              Zaloguj się
+            </Link>
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+/**
+ * Action buttons for authenticated/unauthenticated states.
+ */
+function HeaderActions() {
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="default" className="hidden xl:flex" asChild>
+        <Link href="/pricing">Rozpocznij okres próbny</Link>
+      </Button>
+      <Button size="default" className="hidden sm:flex" asChild>
+        <Link href="/sign-in">Zaloguj się</Link>
+      </Button>
+      <MobileNav />
+    </div>
+  );
+}
+
+/**
+ * Main header component for the marketing site.
+ *
+ * Features:
+ * - Sticky positioning with backdrop blur
+ * - Responsive navigation (desktop + mobile)
+ * - Theme toggle
+ * - Auth state detection (Clerk placeholders)
+ *
+ * @example
+ * ```tsx
+ * <MarketingHeader />
+ * ```
+ */
+export function MarketingHeader() {
+  return (
+    <Header>
+      <div className="flex w-full items-center justify-between">
+        <BrandLogo />
+        <DesktopNav />
+        <div className="flex gap-3">
+          <ThemeToggle />
+          <Separator orientation="vertical" className="h-auto!" />
+          <HeaderActions />
+        </div>
+      </div>
+    </Header>
+  );
+}

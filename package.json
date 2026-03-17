@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-szumplate",
+  "name": "craft-flow",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -29,19 +29,23 @@
     "type-check": "bun run next typegen && bun run tsc --noEmit"
   },
   "dependencies": {
-    "@next/bundle-analyzer": "^16.1.4",
-    "@szum-tech/design-system": "^3.11.1",
+    "@clerk/nextjs": "^7.0.4",
+    "@hookform/resolvers": "^5.2.2",
+    "@next/bundle-analyzer": "^16.1.6",
+    "@react-email/components": "^1.0.9",
+    "@react-email/render": "^2.0.4",
+    "@szum-tech/design-system": "^3.12.3",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@tailwindcss/postcss": "^4.1.14",
     "babel-plugin-react-compiler": "^1.0.0",
     "next": "^16.1.4",
-    "next-compose-plugins": "^2.2.1",
     "next-themes": "^0.4.6",
     "pino": "^10.3.0",
     "pino-pretty": "^13.1.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.1",
+    "resend": "^6.9.3",
     "server-only": "^0.0.1",
     "zod": "^4.3.6"
   },

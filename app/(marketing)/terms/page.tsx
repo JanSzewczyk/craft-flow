@@ -58,8 +58,8 @@ const SECTIONS: readonly LegalSidebarSection[] = [
 
 export default function TermsPage() {
   return (
-    <div className="py-16">
-      <div className="container mx-auto max-w-5xl px-4">
+    <div className="bg-muted/30 py-16">
+      <div className="container">
         <LegalBreadcrumbs label="Regulamin" />
         <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:gap-12">
           <LegalSidebar sections={SECTIONS} helpEmail="legal@craftflow.com" />

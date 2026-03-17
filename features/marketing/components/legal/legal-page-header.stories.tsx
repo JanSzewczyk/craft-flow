@@ -43,8 +43,9 @@ export const WithDownload = meta.story({
 });
 WithDownload.test("renders download button when downloadHref is provided", async ({ canvas, step }) => {
   await step("Verify download link is present", async () => {
-    const downloadLink = canvas.getByRole("link", { name: /PDF/i });
-    await expect(downloadLink).toBeInTheDocument();
+    const downloadText = canvas.getByText(/Pobierz PDF/i);
+    await expect(downloadText).toBeInTheDocument();
+    const downloadLink = downloadText.closest("a");
     await expect(downloadLink).toHaveAttribute("href", "/regulamin.pdf");
   });
 });

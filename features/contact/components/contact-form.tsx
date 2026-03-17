@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useTransition, useState } from "react";
+import { useTransition } from "react";
 
 import { CheckCircle2, TriangleAlert } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
   AlertDescription,
@@ -15,53 +17,37 @@ import {
   FieldGroup,
   FieldLabel,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
   Textarea
 } from "@szum-tech/design-system";
 import { contactFormSchema, type ContactFormData } from "~/features/contact/schemas/contact-schema";
-import { sendContactEmail } from "~/features/contact/server/send-contact-email";
-
-type FieldErrors = Partial<Record<keyof ContactFormData, string>>;
+import { sendContactEmail } from "~/features/contact/server/actions/send-contact-email";
 
 export function ContactForm() {
-  const [result, setResult] = useState<{ success: true } | { success: false; error: string } | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [result, setResult] = React.useState<{ success: true } | { success: false; error: string } | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const raw = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      subject: formData.get("subject") as string,
-      message: formData.get("message") as string
-    };
-
-    const parsed = contactFormSchema.safeParse(raw);
-
-    if (!parsed.success) {
-      const errors: FieldErrors = {};
-      for (const issue of parsed.error.issues) {
-        const field = issue.path[0] as keyof ContactFormData;
-        if (!errors[field]) {
-          errors[field] = issue.message;
-        }
-      }
-      setFieldErrors(errors);
-      return;
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "other",
+      message: ""
     }
+  });
 
-    setFieldErrors({});
-
+  function onSubmit(data: ContactFormData) {
     startTransition(() => {
-      sendContactEmail(parsed.data).then(setResult);
+      void sendContactEmail(data).then(setResult);
     });
   }
 
   function handleReset() {
     setResult(null);
-    setFieldErrors({});
+    form.reset();
   }
 
   if (result?.success) {
@@ -73,7 +59,7 @@ export function ContactForm() {
         <div className="flex flex-col gap-2">
           <p className="text-heading-h3 text-foreground">Wiadomość wysłana!</p>
           <p className="text-body-default text-muted-foreground">
-            Dziękujemy za wiadomość. Odezwiemy się w ciągu 48 godzin.
+            Dziękujemy za wiadomość. Odezwiemy się w ciągu 24 godzin.
           </p>
         </div>
         <Button variant="outline" onClick={handleReset}>
@@ -84,7 +70,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+    <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
       {result && !result.success && (
         <Alert variant="destructive" role="alert" aria-live="assertive">
           <TriangleAlert aria-hidden="true" />
@@ -94,66 +80,77 @@ export function ContactForm() {
       )}
 
       <FieldGroup>
-        <Field>
+        <Field data-invalid={!!form.formState.errors.name}>
           <FieldLabel htmlFor="name">Imię i nazwisko</FieldLabel>
           <Input
             id="name"
-            name="name"
-            type="text"
             placeholder="np. Jan Kowalski"
             autoComplete="name"
             disabled={isPending}
-            aria-invalid={!!fieldErrors.name}
-            aria-describedby={fieldErrors.name ? "name-error" : undefined}
+            aria-invalid={!!form.formState.errors.name}
+            aria-describedby={form.formState.errors.name ? "name-error" : undefined}
+            {...form.register("name")}
           />
-          {fieldErrors.name && <FieldError id="name-error">{fieldErrors.name}</FieldError>}
+          <FieldError errors={[form.formState.errors.name]} />
         </Field>
 
-        <Field>
+        <Field data-invalid={!!form.formState.errors.email}>
           <FieldLabel htmlFor="email">Adres e-mail</FieldLabel>
           <Input
             id="email"
-            name="email"
             type="email"
             placeholder="np. jan@firma.pl"
             autoComplete="email"
             disabled={isPending}
-            aria-invalid={!!fieldErrors.email}
-            aria-describedby={fieldErrors.email ? "email-error" : undefined}
+            aria-invalid={!!form.formState.errors.email}
+            aria-describedby={form.formState.errors.email ? "email-error" : undefined}
+            {...form.register("email")}
           />
-          {fieldErrors.email && <FieldError id="email-error">{fieldErrors.email}</FieldError>}
+          <FieldError errors={[form.formState.errors.email]} />
         </Field>
 
-        <Field>
-          <FieldLabel htmlFor="subject">Temat</FieldLabel>
-          <Input
-            id="subject"
-            name="subject"
-            type="text"
-            placeholder="np. Pytanie o wdrożenie"
-            disabled={isPending}
-            aria-invalid={!!fieldErrors.subject}
-            aria-describedby={fieldErrors.subject ? "subject-error" : undefined}
-          />
-          {fieldErrors.subject && <FieldError id="subject-error">{fieldErrors.subject}</FieldError>}
-        </Field>
+        <Controller
+          control={form.control}
+          name="subject"
+          render={({ field: { onChange, ...fieldProps }, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="subject">Temat</FieldLabel>
+              <Select
+                placeholder="Wybierz temat"
+                invalid={fieldState.invalid}
+                aria-describedby={fieldState.invalid ? "subject-error" : undefined}
+                onValueChange={onChange}
+                {...fieldProps}
+              >
+                <SelectContent>
+                  <SelectItem value="demo">Prezentacja systemu (Demo)</SelectItem>
+                  <SelectItem value="pricing">Zapytanie o cennik</SelectItem>
+                  <SelectItem value="support">Pomoc techniczna</SelectItem>
+                  <SelectItem value="other">Inne</SelectItem>
+                </SelectContent>
+              </Select>
 
-        <Field>
+              <FieldError errors={[fieldState.error]} />
+            </Field>
+          )}
+        />
+
+        <Field data-invalid={!!form.formState.errors.message}>
           <FieldLabel htmlFor="message">Wiadomość</FieldLabel>
           <Textarea
             id="message"
-            name="message"
             placeholder="Opisz swoje pytanie lub problem..."
             rows={5}
             disabled={isPending}
-            aria-invalid={!!fieldErrors.message}
-            aria-describedby={fieldErrors.message ? "message-error" : undefined}
+            aria-invalid={!!form.formState.errors.message}
+            aria-describedby={form.formState.errors.message ? "message-error" : undefined}
+            {...form.register("message")}
           />
-          {fieldErrors.message && <FieldError id="message-error">{fieldErrors.message}</FieldError>}
+          <FieldError errors={[form.formState.errors.message]} />
         </Field>
       </FieldGroup>
 
-      <Button type="submit" fullWidth loading={isPending} loadingPosition="start" disabled={isPending}>
+      <Button type="submit" fullWidth loading={isPending}>
         {isPending ? "Wysyłanie..." : "Wyślij wiadomość"}
       </Button>
     </form>

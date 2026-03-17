@@ -133,21 +133,29 @@ import { env } from "~/data/env/server";
 
 ### Feature Module Structure
 
-Features follow a modular architecture pattern. Current features include:
-- **marketing**: Marketing pages and components (hero, features, about, contact sections)
-- **pricing**: Pricing page and related components
-- **contact**: Contact form and related functionality
-- **example-feature**: Template feature for reference
+Features follow a **feature-driven architecture** where each domain is self-contained. Features should include UI components, business logic, validation, and constants.
 
+**Current Features:**
+- **marketing**: Pure presentation/layout components (hero, features, about sections)
+- **contact**: Complete contact feature (form, validation, email sending)
+- **pricing**: Pricing display and related components
+
+**Feature Structure:**
 ```
-features/
-└── marketing/
-    ├── components/    # Feature-specific components with co-located stories
-    │   ├── about/     # About page components
-    │   ├── features/  # Features showcase components
-    │   └── contact/  # Contact section components
-    └── constants/     # Feature-specific constants (e.g., team data)
+features/{domain}/
+├── components/          # UI components
+├── constants/          # Static data
+├── schemas/            # Zod validation schemas (if needed)
+├── server/             # Server actions, db queries
+├── index.ts            # Clean feature exports
+└── README.md           # Feature documentation
 ```
+
+**Import Pattern:**
+- Import from feature root: `import { ContactForm } from "~/features/contact"`
+- Not from nested paths: `✗ import { ContactForm } from "~/features/contact/components/contact-form"`
+
+See `docs/ARCHITECTURE.md` for detailed design patterns and guidelines.
 
 ### Environment Variables
 

@@ -123,6 +123,7 @@ src/styles
 
 # Claude
 /.claude/*.local.json
+/bash.exe.stackdump
 
 # decs
 /tmp

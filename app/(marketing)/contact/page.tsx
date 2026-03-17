@@ -1,6 +1,6 @@
 import { type Metadata } from "next";
 
-import { ContactHeader, ContactSection } from "~/features/contact";
+import { ContactHeader, ContactSection, sendContactEmail } from "~/features/contact";
 
 export const metadata: Metadata = {
   title: "Kontakt",
@@ -16,7 +16,7 @@ export default function ContactPage() {
   return (
     <>
       <ContactHeader title="Skontaktuj się z nami" description="Masz pytanie? Chętnie odpowiemy." />
-      <ContactSection />
+      <ContactSection onSubmitAction={sendContactEmail} />
     </>
   );
 }

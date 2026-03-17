@@ -1,10 +1,17 @@
 import { Clock, Mail } from "lucide-react";
 
 import { Card, CardContent, Separator } from "@szum-tech/design-system";
-import { ContactForm } from "./contact-form";
-import { ContactFAQ } from "./contact-faq";
+import { type ContactFormData } from "~/features/contact/schemas/contact-schema";
+import { type ActionResponse } from "~/lib/action-types";
 
-export function ContactSection() {
+import { ContactFAQ } from "./contact-faq";
+import { ContactForm } from "./forms/contact-form";
+
+type ContactSectionProps = {
+  onSubmitAction: (data: ContactFormData) => ActionResponse;
+};
+
+export function ContactSection({ onSubmitAction }: ContactSectionProps) {
   return (
     <section className="container py-16">
       <div className="grid gap-16 lg:grid-cols-2">
@@ -46,7 +53,7 @@ export function ContactSection() {
         <div>
           <Card>
             <CardContent className="pt-6">
-              <ContactForm />
+              <ContactForm onSubmitAction={onSubmitAction} />
             </CardContent>
           </Card>
         </div>

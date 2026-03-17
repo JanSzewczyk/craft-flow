@@ -1,16 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { useTransition } from "react";
 
-import { CheckCircle2, TriangleAlert } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
   Button,
   Field,
   FieldError,
@@ -20,15 +15,17 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  Textarea
+  Textarea,
+  toast
 } from "@szum-tech/design-system";
 import { contactFormSchema, type ContactFormData } from "~/features/contact/schemas/contact-schema";
-import { sendContactEmail } from "~/features/contact/server/actions/send-contact-email";
+import { type ActionResponse } from "~/lib/action-types";
 
-export function ContactForm() {
-  const [result, setResult] = React.useState<{ success: true } | { success: false; error: string } | null>(null);
-  const [isPending, startTransition] = useTransition();
+type ContactFormProps = {
+  onSubmitAction: (data: ContactFormData) => ActionResponse;
+};
 
+export function ContactForm({ onSubmitAction }: ContactFormProps) {
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -39,46 +36,22 @@ export function ContactForm() {
     }
   });
 
-  function onSubmit(data: ContactFormData) {
-    startTransition(() => {
-      void sendContactEmail(data).then(setResult);
-    });
-  }
-
-  function handleReset() {
-    setResult(null);
-    form.reset();
-  }
-
-  if (result?.success) {
-    return (
-      <div className="flex flex-col items-center gap-6 py-8 text-center" role="status" aria-live="polite">
-        <div className="bg-success/10 flex size-16 items-center justify-center rounded-full">
-          <CheckCircle2 className="text-success size-8" aria-hidden="true" />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className="text-heading-h3 text-foreground">Wiadomość wysłana!</p>
-          <p className="text-body-default text-muted-foreground">
-            Dziękujemy za wiadomość. Odezwiemy się w ciągu 24 godzin.
-          </p>
-        </div>
-        <Button variant="outline" onClick={handleReset}>
-          Wyślij kolejną wiadomość
-        </Button>
-      </div>
-    );
+  async function handleSubmit(data: ContactFormData) {
+    const result = await onSubmitAction(data);
+    if (result.success) {
+      toast.success("Wiadomość wysłana!", {
+        description: "Dziękujemy za wiadomość. Odezwiemy się w ciągu 24 godzin."
+      });
+      form.reset();
+    } else {
+      toast.error("Błąd wysyłania", {
+        description: result.error || "Nie udało się wysłać wiadomości"
+      });
+    }
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
-      {result && !result.success && (
-        <Alert variant="destructive" role="alert" aria-live="assertive">
-          <TriangleAlert aria-hidden="true" />
-          <AlertTitle>Błąd wysyłania</AlertTitle>
-          <AlertDescription>{result.error}</AlertDescription>
-        </Alert>
-      )}
-
+    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-6">
       <FieldGroup>
         <Field data-invalid={!!form.formState.errors.name}>
           <FieldLabel htmlFor="name">Imię i nazwisko</FieldLabel>
@@ -86,7 +59,6 @@ export function ContactForm() {
             id="name"
             placeholder="np. Jan Kowalski"
             autoComplete="name"
-            disabled={isPending}
             aria-invalid={!!form.formState.errors.name}
             aria-describedby={form.formState.errors.name ? "name-error" : undefined}
             {...form.register("name")}
@@ -101,7 +73,6 @@ export function ContactForm() {
             type="email"
             placeholder="np. jan@firma.pl"
             autoComplete="email"
-            disabled={isPending}
             aria-invalid={!!form.formState.errors.email}
             aria-describedby={form.formState.errors.email ? "email-error" : undefined}
             {...form.register("email")}
@@ -141,7 +112,6 @@ export function ContactForm() {
             id="message"
             placeholder="Opisz swoje pytanie lub problem..."
             rows={5}
-            disabled={isPending}
             aria-invalid={!!form.formState.errors.message}
             aria-describedby={form.formState.errors.message ? "message-error" : undefined}
             {...form.register("message")}
@@ -150,8 +120,8 @@ export function ContactForm() {
         </Field>
       </FieldGroup>
 
-      <Button type="submit" fullWidth loading={isPending}>
-        {isPending ? "Wysyłanie..." : "Wyślij wiadomość"}
+      <Button type="submit" fullWidth loading={form.formState.isSubmitting}>
+        {form.formState.isSubmitting ? "Wysyłanie..." : "Wyślij wiadomość"}
       </Button>
     </form>
   );

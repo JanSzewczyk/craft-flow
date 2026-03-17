@@ -1,7 +1,7 @@
-interface ContactHeaderProps {
+type ContactHeaderProps = {
   title: string;
   description: string;
-}
+};
 
 export function ContactHeader({ title, description }: ContactHeaderProps) {
   return (

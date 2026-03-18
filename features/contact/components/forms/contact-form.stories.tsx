@@ -1,6 +1,3 @@
-import * as React from "react";
-
-import { Toaster } from "@szum-tech/design-system";
 import { expect, fn, screen, waitFor } from "storybook/test";
 
 import { ContactForm } from "./contact-form";
@@ -10,14 +7,6 @@ import preview from "~/.storybook/preview";
 const meta = preview.meta({
   title: "Contact/Forms/Contact Form",
   component: ContactForm,
-  decorators: [
-    (Story) => (
-      <>
-        <Story />
-        <Toaster />
-      </>
-    )
-  ],
   parameters: {
     layout: "padded"
   }

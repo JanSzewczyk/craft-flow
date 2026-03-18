@@ -15,6 +15,9 @@ const isPublicRoute = createRouteMatcher([
   "/terms(.*)",
   "/privacy(.*)",
   "/api/health(.*)",
+  "/healthz",
+  "/health",
+  "/ping",
   "/icon(.*)",
   "/favicon(.*)"
 ]);

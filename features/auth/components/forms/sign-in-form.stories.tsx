@@ -1,8 +1,7 @@
-import * as React from "react";
-
 import { expect, fn, screen, waitFor } from "storybook/test";
 
 import { SignInForm } from "./sign-in-form";
+
 import preview from "~/.storybook/preview";
 
 const meta = preview.meta({

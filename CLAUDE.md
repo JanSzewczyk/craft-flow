@@ -7,89 +7,70 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Craft Flow is an enterprise-ready Next.js 16.1.4 template with React 19.2.0, TypeScript, Tailwind CSS 4.1.11,
 React Compiler, and comprehensive testing infrastructure (Vitest 4.0, Playwright 1.56).
 
-## Commands (Bun)
+## Commands
 
 ### Development
 
 ```bash
-bun run dev          # Start dev server with Bun
-bun run build        # Production build with Bun
-bun run start        # Start production server with Bun
+npm run dev          # Start dev server
+npm run build        # Production build
+npm run start        # Start production server
 ```
 
 ### Package Management
 
 ```bash
-bun install          # Install dependencies
-bun add <package>    # Add dependency
-bun add -d <package> # Add dev dependency
-bun update           # Update dependencies
+npm install          # Install dependencies
+npm install <pkg>    # Add dependency
+npm install -D <pkg> # Add dev dependency
+npm update           # Update dependencies
 ```
 
 ### Code Quality
 
 ```bash
-bun run lint         # ESLint check
-bun run lint:fix     # ESLint with auto-fix
-bun run prettier:check   # Prettier check
-bun run prettier:write   # Prettier with auto-fix
-bun run type-check   # TypeScript type checking
+npm run lint         # ESLint check
+npm run lint:fix     # ESLint with auto-fix
+npm run prettier:check   # Prettier check
+npm run prettier:write   # Prettier with auto-fix
+npm run type-check   # TypeScript type checking
 ```
 
 ### Testing
 
 ```bash
-bun run test                  # Run all Vitest tests
-bun run test:ci               # Run tests for CI environment
-bun run test:coverage         # Generate test coverage report
-bun run test:unit             # Unit tests only (with coverage)
-bun run test:watch            # Watch mode
-bun run test:ui               # Vitest UI
-bun run test:storybook        # Storybook component tests (with coverage)
+npm run test                  # Run all Vitest tests
+npm run test:ci               # Run tests for CI environment
+npm run test:coverage         # Generate test coverage report
+npm run test:unit             # Unit tests only (with coverage)
+npm run test:watch            # Watch mode
+npm run test:ui               # Vitest UI
+npm run test:storybook        # Storybook component tests (with coverage)
 
 # Run a single test file
-bun run vitest run path/to/file.test.ts
-bun run vitest run --project=unit path/to/file.test.ts
+npx vitest run path/to/file.test.ts
+npx vitest run --project=unit path/to/file.test.ts
 
 # E2E tests (Playwright) - requires build first
-bun run build && bun run test:e2e
-bun run test:e2e:ci          # E2E tests for CI environment
-bun run test:e2e:ui          # Playwright UI mode
+npm run build && npm run test:e2e
+npm run test:e2e:ci          # E2E tests for CI environment
+npm run test:e2e:ui          # Playwright UI mode
 ```
 
 ### Storybook
 
 ```bash
-bun run storybook:dev         # Start Storybook (port 6006)
-bun run storybook:build       # Build static Storybook
-bun run storybook:serve       # Serve built Storybook
-bun run test:storybook        # Run Storybook component tests
+npm run storybook:dev         # Start Storybook (port 6006)
+npm run storybook:build       # Build static Storybook
+npm run storybook:serve       # Serve built Storybook
+npm run test:storybook        # Run Storybook component tests
 ```
 
 ### Analysis
 
 ```bash
-bun run analyze               # Bundle analyzer
+npm run analyze               # Bundle analyzer
 ```
-
-## Bun Runtime Notes
-
-This project is configured to run with Bun runtime:
-- Uses `bun --bun` flag for Next.js commands to force Bun runtime
-- Bun's package manager is npm-compatible and uses node_modules
-- Environment variables work via `process.env` and Bun.env automatically
-- Pino logging is externalized via `serverExternalPackages` configuration
-
-### Alternative: Node.js/npm
-
-This project still supports Node.js 24.x and npm if needed:
-
-```bash
-npm install
-npm run dev
-```
-
-Bun is recommended for improved performance (10-100x faster installs, 2-3x faster dev server startup).
 
 ## Architecture
 
@@ -101,7 +82,7 @@ Bun is recommended for improved performance (10-100x faster installs, 2-3x faste
 - **Tailwind CSS**: 4.1.11 (CSS-first config)
 - **@szum-tech/design-system**: 3.12.3
 - **Vitest**: 4.0.16 (unit & integration tests)
-- **Playwright**: 1.58.0 (E2E tests)
+- **Playwright**: 1.58.x (E2E tests)
 - **Storybook**: 10.1.11 (component development)
 - **Zod**: 4.3.6 (validation)
 - **Pino**: 10.3.0 (logging)
@@ -136,6 +117,7 @@ import { env } from "~/data/env/server";
 Features follow a **feature-driven architecture** where each domain is self-contained. Features should include UI components, business logic, validation, and constants.
 
 **Current Features:**
+- **auth**: Authentication flows (sign-in, sign-up, forgot-password, email verification)
 - **marketing**: Pure presentation/layout components (hero, features, about sections)
 - **contact**: Complete contact feature (form, validation, email sending)
 - **pricing**: Pricing display and related components
@@ -270,4 +252,4 @@ The project includes several GitHub Actions workflows in `.github/workflows/`:
 - **Code Review** (`code-review.yml`): AI-powered code reviews using OpenAI (requires OPENAI_API_KEY secret)
 - **Publish** (`publish.yml`): Automated semantic releases when merging to main branch (requires configuration)
 
-All workflows use `bun` as the runtime for optimal performance.
+All workflows use `npm` as the package manager.

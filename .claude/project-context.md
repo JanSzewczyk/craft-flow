@@ -10,13 +10,15 @@ When using this configuration in other projects, update this file with your proj
 | Framework | Next.js | 16.1.4 (App Router, Turbopack) | ✅ Installed |
 | UI Library | React | 19.2.0 (with React Compiler) | ✅ Installed |
 | Styling | Tailwind CSS | 4.1.11 (CSS-first config) | ✅ Installed |
-| Design System | @szum-tech/design-system | 3.11.1 (shadcn/ui based) | ✅ Installed |
+| Design System | @szum-tech/design-system | 3.12.3 (shadcn/ui based) | ✅ Installed |
 | Type Safety | TypeScript | 5.9.3 (strict mode) | ✅ Installed |
 | Env Validation | T3 Env | @t3-oss/env-nextjs 0.13.8 | ✅ Installed |
 | Logging | Pino | 10.3.0 (pretty-printing in dev) | ✅ Installed |
 | Forms | React Hook Form | 7.71.1 | ✅ Installed |
 | Validation | Zod | 4.3.6 | ✅ Installed |
 | Theme | next-themes | 0.4.6 | ✅ Installed |
+| Auth | @clerk/nextjs | 7.0.4 | ✅ Installed |
+| Email | Resend | 6.9.3 | ✅ Installed |
 
 ## Testing Stack
 
@@ -24,7 +26,7 @@ When using this configuration in other projects, update this file with your proj
 |------|------|----------|---------|
 | Unit | Vitest 4.0 | `tests/unit/`, `*.test.ts` | `npm run test:unit` |
 | Component | Storybook 10 + Vitest | `*.stories.tsx` | `npm run test:storybook` |
-| E2E | Playwright 1.56 | `tests/e2e/` | `npm run test:e2e` |
+| E2E | Playwright 1.58 | `tests/e2e/` | `npm run test:e2e` |
 | All | Vitest | - | `npm run test` |
 
 ## Key Files
@@ -115,3 +117,12 @@ The app uses `next-themes` for dark/light/system theme switching:
 | `useFormStatus` | Use in same component as `<form>` | Use in a child component inside the form |
 | Server Actions | Return untyped objects | Use standardized response types with Zod validation |
 | Icons | Import from lucide-react directly | It's re-exported via design-system |
+
+## Current Features
+
+| Feature | Description |
+|---------|-------------|
+| auth | Authentication flows (sign-in, sign-up, forgot-password, email verification) via Clerk |
+| marketing | Pure presentation/layout components (hero, features, about, legal sections) |
+| contact | Complete contact feature (form, validation, email sending via Resend) |
+| pricing | Pricing display and related components |

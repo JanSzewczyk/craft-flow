@@ -2,7 +2,20 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import logger from "~/lib/logger";
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/app(.*)"]);
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/forgot-password(.*)",
+  "/sso-callback(.*)",
+  "/pricing(.*)",
+  "/features(.*)",
+  "/about-us(.*)",
+  "/contact(.*)",
+  "/terms(.*)",
+  "/privacy(.*)",
+  "/api/health(.*)"
+]);
 
 export const proxy = clerkMiddleware(async (auth, request) => {
   const startTime = Date.now();
@@ -17,17 +30,9 @@ export const proxy = clerkMiddleware(async (auth, request) => {
 
   requestLogger.info("Incoming request");
 
-  if (request.nextUrl.pathname.startsWith("/sign-up")) {
-    const hasPlan = request.nextUrl.searchParams.has("plan");
-    if (!hasPlan) {
-      requestLogger.info("Redirecting to /pricing — missing plan param");
-      return NextResponse.redirect(new URL("/pricing", request.url));
-    }
+  if (!isPublicRoute(request)) {
+    await auth.protect();
   }
-
-  // if (isProtectedRoute(request)) {
-  //   await auth.protect();
-  // }
 
   const response = NextResponse.next();
 

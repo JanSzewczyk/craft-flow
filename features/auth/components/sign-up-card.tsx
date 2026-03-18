@@ -5,10 +5,11 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 
 import { useSignUp } from "@clerk/nextjs";
+import { Card, CardContent, CardHeader } from "@szum-tech/design-system";
 import { EmailVerificationForm } from "~/features/auth/components/forms/email-verification-form";
-import { type SignUpFormData } from "~/features/auth/schemas/sign-up-schema";
-import { type EmailVerificationFormData } from "~/features/auth/schemas/email-verification-schema";
 import { SignUpForm } from "~/features/auth/components/forms/sign-up-form";
+import { type EmailVerificationFormData } from "~/features/auth/schemas/email-verification-schema";
+import { type SignUpFormData } from "~/features/auth/schemas/sign-up-schema";
 
 export function SignUpCard() {
   const { signUp } = useSignUp();
@@ -68,7 +69,21 @@ export function SignUpCard() {
   }
 
   if (step === "verification") {
-    return <EmailVerificationForm onVerify={handleVerify} onResend={handleResend} email={email} />;
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-2 text-center">
+            <h1 className="text-card-foreground text-2xl font-bold tracking-tight">Zweryfikuj e-mail</h1>
+            <p className="text-muted-foreground text-sm">
+              Wysłaliśmy 6-cyfrowy kod na <span className="text-foreground font-medium">{email}</span>.
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <EmailVerificationForm onVerify={handleVerify} onResend={handleResend} />
+        </CardContent>
+      </Card>
+    );
   }
 
   return <SignUpForm onEmailSignUp={handleEmailSignUp} onGoogleSignUp={handleGoogleSignUp} />;

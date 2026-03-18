@@ -12,10 +12,9 @@ import {
 type EmailVerificationFormProps = {
   onVerify: (data: EmailVerificationFormData) => Promise<{ error?: string }>;
   onResend: () => Promise<{ error?: string }>;
-  email?: string;
 };
 
-export function EmailVerificationForm({ onVerify, onResend, email }: EmailVerificationFormProps) {
+export function EmailVerificationForm({ onVerify, onResend }: EmailVerificationFormProps) {
   const form = useForm<EmailVerificationFormData>({
     resolver: zodResolver(emailVerificationSchema),
     defaultValues: {
@@ -46,15 +45,7 @@ export function EmailVerificationForm({ onVerify, onResend, email }: EmailVerifi
   }
 
   return (
-    <div className="bg-card border-border flex w-full flex-col gap-6 rounded-2xl border p-8 shadow-sm">
-      <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-card-foreground text-2xl font-bold tracking-tight">Zweryfikuj e-mail</h1>
-        <p className="text-muted-foreground text-sm">
-          Wysłaliśmy 6-cyfrowy kod na{" "}
-          {email ? <span className="text-foreground font-medium">{email}</span> : "Twój adres e-mail"}.
-        </p>
-      </div>
-
+    <div className="flex flex-col gap-6">
       <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-4">
         <FieldGroup>
           <Field data-invalid={!!form.formState.errors.code}>

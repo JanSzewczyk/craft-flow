@@ -3,9 +3,9 @@ import * as React from "react";
 import { Toaster } from "@szum-tech/design-system";
 import { expect, fn, screen, waitFor } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { EmailVerificationForm } from "./email-verification-form";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Auth/Forms/Email Verification Form",
@@ -74,6 +74,25 @@ InvalidCode.test("Shows error toast on invalid code", async ({ canvas, args, ste
       const toastTitle = await screen.findByText("Błąd weryfikacji");
       await expect(toastTitle).toBeVisible();
     });
+  });
+});
+
+export const WithReset = meta.story({
+  args: {
+    onVerify: fn(async () => ({})),
+    onResend: fn(async () => ({})),
+    onReset: fn()
+  }
+});
+
+WithReset.test("Shows reset button and calls onReset on click", async ({ canvas, args, step, userEvent }) => {
+  await step("Reset button is visible", async () => {
+    await expect(canvas.getByRole("button", { name: /wróć do logowania/i })).toBeVisible();
+  });
+
+  await step("Calls onReset when clicked", async () => {
+    await userEvent.click(canvas.getByRole("button", { name: /wróć do logowania/i }));
+    await expect(args.onReset).toHaveBeenCalledOnce();
   });
 });
 

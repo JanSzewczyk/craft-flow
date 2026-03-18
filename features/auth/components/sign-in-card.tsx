@@ -13,13 +13,11 @@ import { type SignInFormData } from "~/features/auth/schemas/sign-in-schema";
 export function SignInCard() {
   const { signIn } = useSignIn();
   const router = useRouter();
-
-  // const [step, setStep] = React.useState<"credentials" | "verification">("credentials");
-  // const [email, setEmail] = React.useState<string>("");
+  const [email, setEmail] = React.useState("");
 
   async function handleEmailSignIn(data: SignInFormData): Promise<{ error?: string }> {
     const { error } = await signIn.password({
-      emailAddress: data.email,
+      identifier: data.email,
       password: data.password
     });
     if (error) return { error: error.message };
@@ -30,7 +28,6 @@ export function SignInCard() {
           if (session?.currentTask) {
             // Handle pending session tasks
             // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
-            console.log(session?.currentTask);
             return;
           }
 
@@ -43,8 +40,10 @@ export function SignInCard() {
         }
       });
       if (finalizeError) return { error: finalizeError.message };
+      return {};
     } else if (signIn.status === "needs_second_factor") {
       // See https://clerk.com/docs/guides/development/custom-flows/authentication/multi-factor-authentication
+      return {};
     } else if (signIn.status === "needs_client_trust") {
       // For other second factor strategies,
       // see https://clerk.com/docs/guides/development/custom-flows/authentication/client-trust
@@ -54,6 +53,9 @@ export function SignInCard() {
         const { error: codeError } = await signIn.mfa.sendEmailCode();
         if (codeError) return { error: codeError.message };
       }
+
+      setEmail(data.email);
+      return {};
     }
 
     return { error: "Logowanie nie powiodło się. Spróbuj ponownie." };
@@ -77,7 +79,6 @@ export function SignInCard() {
           if (session?.currentTask) {
             // Handle pending session tasks
             // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
-            console.log(session?.currentTask);
             return;
           }
 
@@ -90,33 +91,34 @@ export function SignInCard() {
         }
       });
       if (finalizeError) return { error: finalizeError.message };
-    } else {
-      // Check why the sign-in is not complete
-      return { error: "Logowanie nie powiodło się. Spróbuj ponownie." };
+      return {};
     }
 
-    return {};
+    return { error: "Logowanie nie powiodło się. Spróbuj ponownie." };
   }
 
   async function handleResend(): Promise<{ error?: string }> {
-    if (!signIn) return { error: "Usługa jest niedostępna. Spróbuj ponownie." };
-    const { error } = await signIn.emailCode.sendCode();
+    const { error } = await signIn.mfa.sendEmailCode();
     if (error) return { error: error.message };
     return {};
   }
 
-  if (signIn.status === "needs_client_trust") {
+  function handleReset() {
+    void signIn.reset();
+    setEmail("");
+  }
+
+  if (signIn?.status === "needs_client_trust") {
     return (
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-heading-h2">Zweryfikuj e-mail</CardTitle>
-          {/* TODO add email */}
           <CardDescription>
-            Wysłaliśmy 6-cyfrowy kod na <span className="text-foreground font-medium">{"EMAIL"}</span>.
+            Wysłaliśmy 6-cyfrowy kod na <span className="text-foreground font-medium">{email}</span>.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EmailVerificationForm onVerify={handleVerify} onResend={handleResend} />
+          <EmailVerificationForm onVerify={handleVerify} onResend={handleResend} onReset={handleReset} />
         </CardContent>
       </Card>
     );

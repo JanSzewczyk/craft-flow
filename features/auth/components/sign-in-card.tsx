@@ -18,35 +18,48 @@ export function SignInCard() {
   // const [email, setEmail] = React.useState<string>("");
 
   async function handleEmailSignIn(data: SignInFormData): Promise<{ error?: string }> {
-    if (!signIn) return { error: "Usługa logowania jest niedostępna. Spróbuj ponownie." };
-
     const { error } = await signIn.password({
       emailAddress: data.email,
       password: data.password
     });
-
     if (error) return { error: error.message };
 
     if (signIn.status === "complete") {
-      const { error: finalizeError } = await signIn.finalize();
-      if (finalizeError) return { error: finalizeError.message };
-      router.push("/");
-      return {};
-    }
+      const { error: finalizeError } = await signIn.finalize({
+        navigate: ({ session, decorateUrl }) => {
+          if (session?.currentTask) {
+            // Handle pending session tasks
+            // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
+            console.log(session?.currentTask);
+            return;
+          }
 
-    if (signIn.status === "needs_first_factor") {
-      const { error: codeError } = await signIn.emailCode.sendCode();
-      if (codeError) return { error: codeError.message };
-      // setEmail(data.email);
-      // setStep("verification");
-      return {};
+          const url = decorateUrl("/");
+          if (url.startsWith("http")) {
+            window.location.href = url;
+          } else {
+            router.push(url);
+          }
+        }
+      });
+      if (finalizeError) return { error: finalizeError.message };
+    } else if (signIn.status === "needs_second_factor") {
+      // See https://clerk.com/docs/guides/development/custom-flows/authentication/multi-factor-authentication
+    } else if (signIn.status === "needs_client_trust") {
+      // For other second factor strategies,
+      // see https://clerk.com/docs/guides/development/custom-flows/authentication/client-trust
+      const emailCodeFactor = signIn.supportedSecondFactors.find((factor) => factor.strategy === "email_code");
+
+      if (emailCodeFactor) {
+        const { error: codeError } = await signIn.mfa.sendEmailCode();
+        if (codeError) return { error: codeError.message };
+      }
     }
 
     return { error: "Logowanie nie powiodło się. Spróbuj ponownie." };
   }
 
   function handleGoogleSignIn() {
-    if (!signIn) return;
     void signIn.sso({
       strategy: "oauth_google",
       redirectUrl: "/sso-callback",
@@ -54,19 +67,35 @@ export function SignInCard() {
     });
   }
 
-  async function handleVerify(data: EmailVerificationFormData): Promise<{ error?: string }> {
-    if (!signIn) return { error: "Usługa weryfikacji jest niedostępna. Spróbuj ponownie." };
-
-    const { error } = await signIn.emailCode.verifyCode(data);
+  async function handleVerify({ code }: EmailVerificationFormData): Promise<{ error?: string }> {
+    const { error } = await signIn.mfa.verifyEmailCode({ code });
     if (error) return { error: error.message };
 
     if (signIn.status === "complete") {
-      const { error: finalizeError } = await signIn.finalize();
+      const { error: finalizeError } = await signIn.finalize({
+        navigate: ({ session, decorateUrl }) => {
+          if (session?.currentTask) {
+            // Handle pending session tasks
+            // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
+            console.log(session?.currentTask);
+            return;
+          }
+
+          const url = decorateUrl("/");
+          if (url.startsWith("http")) {
+            window.location.href = url;
+          } else {
+            router.push(url);
+          }
+        }
+      });
       if (finalizeError) return { error: finalizeError.message };
-      router.push("/");
-      return {};
+    } else {
+      // Check why the sign-in is not complete
+      return { error: "Logowanie nie powiodło się. Spróbuj ponownie." };
     }
-    return { error: "Logowanie nie powiodło się. Spróbuj ponownie." };
+
+    return {};
   }
 
   async function handleResend(): Promise<{ error?: string }> {

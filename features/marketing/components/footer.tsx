@@ -41,9 +41,7 @@ export function MarketingFooter() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 lg:gap-12">
           {/* Brand column */}
           <div className="flex flex-col gap-4 lg:col-span-1">
-            <Link href="/">
-              <BrandLogo />
-            </Link>
+            <BrandLogo />
             <p className="text-body-sm text-muted-foreground max-w-60">
               Twoja praca, nasza technologia. System stworzony, aby wspierać rzemiosło nowoczesnymi narzędziami.{" "}
             </p>

@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { Toaster } from "@szum-tech/design-system";
 import { expect, fn, screen, waitFor } from "storybook/test";
 
 import { EmailVerificationForm } from "./email-verification-form";
@@ -10,27 +9,19 @@ import preview from "~/.storybook/preview";
 const meta = preview.meta({
   title: "Auth/Forms/Email Verification Form",
   component: EmailVerificationForm,
-  decorators: [
-    (Story) => (
-      <>
-        <Story />
-        <Toaster />
-      </>
-    )
-  ],
   parameters: {
     layout: "padded"
   }
 });
 
-export const Default = meta.story({
+export const EmptyForm = meta.story({
   args: {
     onVerify: fn(async () => ({})),
     onResend: fn(async () => ({}))
   }
 });
 
-Default.test("Renders code field and validates empty submission", async ({ canvas, args, step, userEvent }) => {
+EmptyForm.test("Renders code field and validates empty submission", async ({ canvas, args, step, userEvent }) => {
   await step("Renders form fields", async () => {
     await expect(canvas.getByLabelText("Kod weryfikacyjny")).toBeVisible();
     await expect(canvas.getByRole("button", { name: /zweryfikuj e-mail/i })).toBeVisible();

@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { Toaster } from "@szum-tech/design-system";
 import { expect, fn, screen, waitFor } from "storybook/test";
 
 import preview from "~/.storybook/preview";
@@ -10,26 +9,18 @@ import { ForgotPasswordVerifyForm } from "./forgot-password-verify-form";
 const meta = preview.meta({
   title: "Auth/Forms/Forgot Password Verify Form",
   component: ForgotPasswordVerifyForm,
-  decorators: [
-    (Story) => (
-      <>
-        <Story />
-        <Toaster />
-      </>
-    )
-  ],
   parameters: {
     layout: "padded"
   }
 });
 
-export const Default = meta.story({
+export const EmptyForm = meta.story({
   args: {
     onSubmit: fn(async () => ({}))
   }
 });
 
-Default.test("Renders all fields and validates empty submission", async ({ canvas, args, step, userEvent }) => {
+EmptyForm.test("Renders all fields and validates empty submission", async ({ canvas, args, step, userEvent }) => {
   await step("Renders all form fields", async () => {
     await expect(canvas.getByLabelText("Kod weryfikacyjny")).toBeVisible();
     await expect(canvas.getByLabelText("Nowe hasło")).toBeVisible();

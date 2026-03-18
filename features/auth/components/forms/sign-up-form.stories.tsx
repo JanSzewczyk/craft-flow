@@ -1,23 +1,13 @@
 import * as React from "react";
 
-import { Toaster } from "@szum-tech/design-system";
 import { expect, fn, screen, waitFor } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { SignUpForm } from "./sign-up-form";
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Auth/Forms/Sign Up Form",
   component: SignUpForm,
-  decorators: [
-    (Story) => (
-      <>
-        <Story />
-        <Toaster />
-      </>
-    )
-  ],
   parameters: {
     layout: "padded",
     nextjs: {
@@ -29,38 +19,70 @@ const meta = preview.meta({
   }
 });
 
-export const Default = meta.story({
+export const EmptyForm = meta.story({
   args: {
     onEmailSignUp: fn(async () => ({})),
     onGoogleSignUp: fn()
   }
 });
 
-Default.test("Renders all fields and validates empty submission", async ({ canvas, args, step, userEvent }) => {
-  await step("Renders all form fields", async () => {
-    await expect(canvas.getByLabelText("Adres e-mail")).toBeVisible();
-    await expect(canvas.getByLabelText("Hasło")).toBeVisible();
-    await expect(canvas.getByLabelText("Potwierdź hasło")).toBeVisible();
-    await expect(canvas.getByRole("button", { name: /utwórz konto/i })).toBeVisible();
+EmptyForm.test("Renders all expected content", async ({ canvas }) => {
+  await expect(canvas.getByLabelText("Imię")).toBeVisible();
+  await expect(canvas.getByLabelText("Nazwisko")).toBeVisible();
+  await expect(canvas.getByLabelText("E-mail firmowy")).toBeVisible();
+  await expect(canvas.getByLabelText("Hasło")).toBeVisible();
+  await expect(canvas.getByRole("button", { name: /zacznij darmowy trial/i })).toBeVisible();
+  await expect(canvas.getByText(/zarejestruj się przez google/i)).toBeVisible();
+});
+
+EmptyForm.test("Shows validation errors on empty submission", async ({ canvas, step, userEvent }) => {
+  await step("Clicks submit without filling form", async () => {
+    await userEvent.click(canvas.getByRole("button", { name: /zacznij darmowy trial/i }));
   });
 
-  await step("Shows validation errors on empty submission", async () => {
-    await userEvent.click(canvas.getByRole("button", { name: /utwórz konto/i }));
+  await step("Validation errors are displayed for all fields", async () => {
     await waitFor(async () => {
+      await expect(canvas.getByText(/imię jest wymagane/i)).toBeVisible();
+      await expect(canvas.getByText(/nazwisko jest wymagane/i)).toBeVisible();
       await expect(canvas.getByText(/podaj prawidłowy adres e-mail/i)).toBeVisible();
       await expect(canvas.getByText(/hasło musi mieć co najmniej 8 znaków/i)).toBeVisible();
     });
   });
+});
 
-  await step("Shows password mismatch error", async () => {
-    await userEvent.type(canvas.getByLabelText("Adres e-mail"), "test@example.com");
+EmptyForm.test("Does not call onEmailSignUp when form has validation errors", async ({ canvas, args, userEvent }) => {
+  await userEvent.click(canvas.getByRole("button", { name: /zacznij darmowy trial/i }));
+  await expect(args.onEmailSignUp).not.toHaveBeenCalled();
+});
+
+EmptyForm.test("Submits form with valid data and calls onEmailSignUp", async ({ canvas, args, step, userEvent }) => {
+  await step("Fills in all fields with valid data", async () => {
+    await userEvent.type(canvas.getByLabelText("Imię"), "Jan");
+    await userEvent.type(canvas.getByLabelText("Nazwisko"), "Kowalski");
+    await userEvent.type(canvas.getByLabelText("E-mail firmowy"), "jan.kowalski@firma.pl");
     await userEvent.type(canvas.getByLabelText("Hasło"), "password123");
-    await userEvent.type(canvas.getByLabelText("Potwierdź hasło"), "different");
-    await userEvent.click(canvas.getByRole("button", { name: /utwórz konto/i }));
+  });
+
+  await step("Submits the form", async () => {
+    await userEvent.click(canvas.getByRole("button", { name: /zacznij darmowy trial/i }));
     await waitFor(async () => {
-      await expect(canvas.getByText(/hasła nie są zgodne/i)).toBeVisible();
+      await expect(args.onEmailSignUp).toHaveBeenCalledOnce();
     });
   });
+
+  await step("onEmailSignUp is called with correct data", async () => {
+    await expect(args.onEmailSignUp).toHaveBeenCalledWith({
+      firstName: "Jan",
+      lastName: "Kowalski",
+      email: "jan.kowalski@firma.pl",
+      password: "password123"
+    });
+  });
+});
+
+EmptyForm.test("Calls onGoogleSignUp when Google button is clicked", async ({ canvas, args, userEvent }) => {
+  await userEvent.click(canvas.getByText(/zarejestruj się przez google/i));
+  await expect(args.onGoogleSignUp).toHaveBeenCalledOnce();
 });
 
 export const RegistrationError = meta.story({
@@ -72,10 +94,11 @@ export const RegistrationError = meta.story({
 
 RegistrationError.test("Shows error toast on registration failure", async ({ canvas, args, step, userEvent }) => {
   await step("Fill and submit form", async () => {
-    await userEvent.type(canvas.getByLabelText("Adres e-mail"), "existing@example.com");
+    await userEvent.type(canvas.getByLabelText("Imię"), "Jan");
+    await userEvent.type(canvas.getByLabelText("Nazwisko"), "Kowalski");
+    await userEvent.type(canvas.getByLabelText("E-mail firmowy"), "existing@example.com");
     await userEvent.type(canvas.getByLabelText("Hasło"), "password123");
-    await userEvent.type(canvas.getByLabelText("Potwierdź hasło"), "password123");
-    await userEvent.click(canvas.getByRole("button", { name: /utwórz konto/i }));
+    await userEvent.click(canvas.getByRole("button", { name: /zacznij darmowy trial/i }));
     await waitFor(async () => {
       await expect(args.onEmailSignUp).toHaveBeenCalledOnce();
     });

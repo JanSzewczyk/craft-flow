@@ -79,10 +79,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     env: {
       NODE_ENV: "test",
-      SKIP_ENV_VALIDATION: "true",
-      CLERK_SECRET_KEY: "sk_test_mock_key_for_testing",
-      RESEND_API_KEY: "re_mock_key_for_testing",
-      CONTACT_EMAIL_TO: "test@craftflow.pl"
+      SKIP_ENV_VALIDATION: "true"
     }
   }
 });

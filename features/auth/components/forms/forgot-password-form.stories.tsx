@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { Toaster } from "@szum-tech/design-system";
 import { expect, fn, screen, waitFor } from "storybook/test";
 
 import preview from "~/.storybook/preview";
@@ -10,14 +9,6 @@ import { ForgotPasswordForm } from "./forgot-password-form";
 const meta = preview.meta({
   title: "Auth/Forms/Forgot Password Form",
   component: ForgotPasswordForm,
-  decorators: [
-    (Story) => (
-      <>
-        <Story />
-        <Toaster />
-      </>
-    )
-  ],
   parameters: {
     layout: "padded",
     nextjs: {
@@ -29,13 +20,13 @@ const meta = preview.meta({
   }
 });
 
-export const Default = meta.story({
+export const EmptyForm = meta.story({
   args: {
     onSubmit: fn(async () => ({}))
   }
 });
 
-Default.test("Renders email field and validates empty submission", async ({ canvas, args, step, userEvent }) => {
+EmptyForm.test("Renders email field and validates empty submission", async ({ canvas, args, step, userEvent }) => {
   await step("Renders form fields", async () => {
     await expect(canvas.getByLabelText("Adres e-mail")).toBeVisible();
     await expect(canvas.getByRole("button", { name: /wyślij kod resetowania/i })).toBeVisible();

@@ -1,23 +1,13 @@
 import * as React from "react";
 
-import { Toaster } from "@szum-tech/design-system";
 import { expect, fn, screen, waitFor } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { SignInForm } from "./sign-in-form";
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Auth/Forms/Sign In Form",
   component: SignInForm,
-  decorators: [
-    (Story) => (
-      <>
-        <Story />
-        <Toaster />
-      </>
-    )
-  ],
   parameters: {
     layout: "padded",
     nextjs: {
@@ -29,14 +19,14 @@ const meta = preview.meta({
   }
 });
 
-export const Default = meta.story({
+export const EmptyForm = meta.story({
   args: {
     onEmailSignIn: fn(async () => ({})),
     onGoogleSignIn: fn()
   }
 });
 
-Default.test("Renders all fields and validates empty submission", async ({ canvas, args, step, userEvent }) => {
+EmptyForm.test("Renders all fields and validates empty submission", async ({ canvas, args, step, userEvent }) => {
   await step("Renders all form fields", async () => {
     await expect(canvas.getByLabelText("Adres e-mail")).toBeVisible();
     await expect(canvas.getByLabelText("Hasło")).toBeVisible();

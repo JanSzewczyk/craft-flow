@@ -5,6 +5,7 @@ import addonDocs from "@storybook/addon-docs";
 import { DocsContainer, type DocsContainerProps } from "@storybook/addon-docs/blocks";
 import { definePreview } from "@storybook/nextjs-vite";
 import { DARK_MODE_EVENT_NAME } from "@storybook-community/storybook-dark-mode";
+import { Toaster } from "@szum-tech/design-system";
 import { ThemeProvider } from "~/components/providers/theme-provider";
 
 import dark from "./theme/dark";
@@ -97,6 +98,7 @@ export default definePreview({
     (Story) => (
       <ThemeDecorator>
         <Story />
+        <Toaster />
       </ThemeDecorator>
     )
   ],

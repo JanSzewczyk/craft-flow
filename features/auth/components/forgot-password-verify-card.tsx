@@ -1,11 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-
 import { useSignIn } from "@clerk/nextjs";
-
-import { type ForgotPasswordVerifyFormData } from "~/features/auth/schemas/forgot-password-schema";
 import { ForgotPasswordVerifyForm } from "~/features/auth/components/forms/forgot-password-verify-form";
+import { type ForgotPasswordVerifyFormData } from "~/features/auth/schemas/forgot-password-schema";
 
 export function ForgotPasswordVerifyCard() {
   const { signIn } = useSignIn();

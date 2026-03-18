@@ -1,11 +1,10 @@
 import * as React from "react";
 
+import { ZapIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Separator, toast } from "@szum-tech/design-system";
-import { ZapIcon } from "lucide-react";
-import Link from "next/link";
 import { GoogleButton } from "~/features/auth/components/google-button";
 import { signUpSchema, type SignUpFormData } from "~/features/auth/schemas/sign-up-schema";
 
@@ -21,7 +20,8 @@ export function SignUpForm({ onEmailSignUp, onGoogleSignUp }: SignUpFormProps) {
       firstName: "",
       lastName: "",
       email: "",
-      password: ""
+      password: "",
+      confirmPassword: ""
     }
   });
 
@@ -92,6 +92,20 @@ export function SignUpForm({ onEmailSignUp, onGoogleSignUp }: SignUpFormProps) {
               {...form.register("password")}
             />
             <FieldError errors={[form.formState.errors.password]} />
+          </Field>
+
+          <Field data-invalid={!!form.formState.errors.confirmPassword}>
+            <FieldLabel htmlFor="confirmPassword">Potwierdź hasło</FieldLabel>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              autoComplete="new-password"
+              aria-invalid={!!form.formState.errors.confirmPassword}
+              aria-describedby={form.formState.errors.confirmPassword ? "confirmPassword-error" : undefined}
+              {...form.register("confirmPassword")}
+            />
+            <FieldError errors={[form.formState.errors.confirmPassword]} />
           </Field>
         </FieldGroup>
 

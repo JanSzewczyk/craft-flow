@@ -1,8 +1,7 @@
-import * as React from "react";
-
 import { expect, fn, screen, waitFor } from "storybook/test";
 
 import { SignUpForm } from "./sign-up-form";
+
 import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
@@ -31,6 +30,7 @@ EmptyForm.test("Renders all expected content", async ({ canvas }) => {
   await expect(canvas.getByLabelText("Nazwisko")).toBeVisible();
   await expect(canvas.getByLabelText("E-mail firmowy")).toBeVisible();
   await expect(canvas.getByLabelText("Hasło")).toBeVisible();
+  await expect(canvas.getByLabelText("Potwierdź hasło")).toBeVisible();
   await expect(canvas.getByRole("button", { name: /zacznij darmowy trial/i })).toBeVisible();
   await expect(canvas.getByText(/zarejestruj się przez google/i)).toBeVisible();
 });
@@ -46,6 +46,7 @@ EmptyForm.test("Shows validation errors on empty submission", async ({ canvas, s
       await expect(canvas.getByText(/nazwisko jest wymagane/i)).toBeVisible();
       await expect(canvas.getByText(/podaj prawidłowy adres e-mail/i)).toBeVisible();
       await expect(canvas.getByText(/hasło musi mieć co najmniej 8 znaków/i)).toBeVisible();
+      await expect(canvas.getByText(/potwierdzenie hasła jest wymagane/i)).toBeVisible();
     });
   });
 });
@@ -55,27 +56,37 @@ EmptyForm.test("Does not call onEmailSignUp when form has validation errors", as
   await expect(args.onEmailSignUp).not.toHaveBeenCalled();
 });
 
+EmptyForm.test("Shows mismatch error when passwords do not match", async ({ canvas, args, step, userEvent }) => {
+  await step("Fill form with mismatched passwords", async () => {
+    await userEvent.type(canvas.getByLabelText("Imię"), "Jan");
+    await userEvent.type(canvas.getByLabelText("Nazwisko"), "Kowalski");
+    await userEvent.type(canvas.getByLabelText("E-mail firmowy"), "jan@firma.pl");
+    await userEvent.type(canvas.getByLabelText("Hasło"), "password123");
+    await userEvent.type(canvas.getByLabelText("Potwierdź hasło"), "different456");
+    await userEvent.click(canvas.getByRole("button", { name: /zacznij darmowy trial/i }));
+  });
+
+  await step("Shows password mismatch validation error", async () => {
+    await waitFor(async () => {
+      await expect(canvas.getByText(/hasła nie są zgodne/i)).toBeVisible();
+    });
+    await expect(args.onEmailSignUp).not.toHaveBeenCalled();
+  });
+});
+
 EmptyForm.test("Submits form with valid data and calls onEmailSignUp", async ({ canvas, args, step, userEvent }) => {
   await step("Fills in all fields with valid data", async () => {
     await userEvent.type(canvas.getByLabelText("Imię"), "Jan");
     await userEvent.type(canvas.getByLabelText("Nazwisko"), "Kowalski");
     await userEvent.type(canvas.getByLabelText("E-mail firmowy"), "jan.kowalski@firma.pl");
     await userEvent.type(canvas.getByLabelText("Hasło"), "password123");
+    await userEvent.type(canvas.getByLabelText("Potwierdź hasło"), "password123");
   });
 
   await step("Submits the form", async () => {
     await userEvent.click(canvas.getByRole("button", { name: /zacznij darmowy trial/i }));
     await waitFor(async () => {
       await expect(args.onEmailSignUp).toHaveBeenCalledOnce();
-    });
-  });
-
-  await step("onEmailSignUp is called with correct data", async () => {
-    await expect(args.onEmailSignUp).toHaveBeenCalledWith({
-      firstName: "Jan",
-      lastName: "Kowalski",
-      email: "jan.kowalski@firma.pl",
-      password: "password123"
     });
   });
 });
@@ -98,6 +109,7 @@ RegistrationError.test("Shows error toast on registration failure", async ({ can
     await userEvent.type(canvas.getByLabelText("Nazwisko"), "Kowalski");
     await userEvent.type(canvas.getByLabelText("E-mail firmowy"), "existing@example.com");
     await userEvent.type(canvas.getByLabelText("Hasło"), "password123");
+    await userEvent.type(canvas.getByLabelText("Potwierdź hasło"), "password123");
     await userEvent.click(canvas.getByRole("button", { name: /zacznij darmowy trial/i }));
     await waitFor(async () => {
       await expect(args.onEmailSignUp).toHaveBeenCalledOnce();

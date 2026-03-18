@@ -26,8 +26,7 @@ const meta = preview.meta({
 export const Default = meta.story({
   args: {
     onVerify: fn(async () => ({})),
-    onResend: fn(async () => ({})),
-    email: "test@example.com"
+    onResend: fn(async () => ({}))
   }
 });
 
@@ -57,8 +56,7 @@ Default.test("Renders code field and validates empty submission", async ({ canva
 export const InvalidCode = meta.story({
   args: {
     onVerify: fn(async () => ({ error: "Nieprawidłowy lub wygasły kod weryfikacyjny." })),
-    onResend: fn(async () => ({})),
-    email: "test@example.com"
+    onResend: fn(async () => ({}))
   }
 });
 
@@ -82,8 +80,7 @@ InvalidCode.test("Shows error toast on invalid code", async ({ canvas, args, ste
 export const ResendSuccess = meta.story({
   args: {
     onVerify: fn(async () => ({})),
-    onResend: fn(async () => ({})),
-    email: "test@example.com"
+    onResend: fn(async () => ({}))
   }
 });
 

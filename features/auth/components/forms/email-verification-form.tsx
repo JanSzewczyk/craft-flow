@@ -12,9 +12,10 @@ import {
 type EmailVerificationFormProps = {
   onVerify: (data: EmailVerificationFormData) => Promise<{ error?: string }>;
   onResend: () => Promise<{ error?: string }>;
+  onReset?: () => void;
 };
 
-export function EmailVerificationForm({ onVerify, onResend }: EmailVerificationFormProps) {
+export function EmailVerificationForm({ onVerify, onResend, onReset }: EmailVerificationFormProps) {
   const form = useForm<EmailVerificationFormData>({
     resolver: zodResolver(emailVerificationSchema),
     defaultValues: {
@@ -58,6 +59,7 @@ export function EmailVerificationForm({ onVerify, onResend }: EmailVerificationF
               maxLength={6}
               aria-invalid={!!form.formState.errors.code}
               aria-describedby={form.formState.errors.code ? "code-error" : undefined}
+              className="text-center"
               {...form.register("code")}
             />
             <FieldError errors={[form.formState.errors.code]} />
@@ -69,16 +71,29 @@ export function EmailVerificationForm({ onVerify, onResend }: EmailVerificationF
         </Button>
       </form>
 
-      <div className="text-center text-sm">
-        <span className="text-muted-foreground">Nie otrzymałeś kodu?</span>
-        <button
-          type="button"
-          onClick={handleResend}
-          disabled={isResending}
-          className="text-primary ml-1 font-medium hover:underline disabled:opacity-50"
-        >
-          {isResending ? "Wysyłanie..." : "Wyślij ponownie"}
-        </button>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <div className="text-body-sm">
+          <span className="text-muted-foreground">Nie otrzymałeś kodu?</span>
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={isResending}
+            className="text-primary ml-1 font-medium hover:underline disabled:opacity-50"
+          >
+            {isResending ? "Wysyłanie..." : "Wyślij ponownie"}
+          </button>
+        </div>
+
+        {onReset && (
+          <Button
+            type="button"
+            variant="link"
+            onClick={onReset}
+            className="text-muted-foreground hover:text-foreground font-medium hover:underline"
+          >
+            Wróć do logowania
+          </Button>
+        )}
       </div>
     </div>
   );

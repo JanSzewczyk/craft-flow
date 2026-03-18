@@ -40,7 +40,8 @@ export default defineConfig({
         "**/test?(s)/**",
         "test?(-*).?(c|m)[jt]s?(x)",
         "**/*{.,-}{test,spec,e2e}?(-d).?(c|m)[jt]s?(x)",
-        "**/__tests__/**"
+        "**/__tests__/**",
+        "**/constants/**"
       ]
     },
     projects: [

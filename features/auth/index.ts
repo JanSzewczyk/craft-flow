@@ -1,5 +1,5 @@
 // Components
-export { AuthFooter, SignInCard, SignUpCard, ForgotPasswordCard, ForgotPasswordVerifyCard } from "./components";
+export * from "./components";
 
 // Schemas & types
 export { signInSchema, type SignInFormData } from "./schemas/sign-in-schema";
@@ -11,3 +11,9 @@ export {
   type ForgotPasswordFormData,
   type ForgotPasswordVerifyFormData
 } from "./schemas/forgot-password-schema";
+
+// Constants
+export { Role } from "./constants/roles";
+
+// Server actions
+export { completeSignUp } from "./server/actions/complete-sign-up";

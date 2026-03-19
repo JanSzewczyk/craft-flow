@@ -12,8 +12,13 @@ import { EmailVerificationForm } from "~/features/auth/components/forms/email-ve
 import { SignUpForm } from "~/features/auth/components/forms/sign-up-form";
 import { type EmailVerificationFormData } from "~/features/auth/schemas/email-verification-schema";
 import { type SignUpFormData } from "~/features/auth/schemas/sign-up-schema";
+import { type ActionResponse } from "~/lib/action-types";
 
-export function SignUpCard() {
+type SignUpCardProps = {
+  onCompleteSignUpAction(userIs: string): ActionResponse<true>;
+};
+
+export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
   const { signUp } = useSignUp();
   const router = useRouter();
   const [step, setStep] = React.useState<"credentials" | "verification">("credentials");
@@ -48,6 +53,11 @@ export function SignUpCard() {
     if (signUp.status === "complete") {
       const { error: finalizeError } = await signUp.finalize();
       if (finalizeError) return { error: finalizeError.message };
+
+      if (signUp.createdUserId) {
+        await onCompleteSignUpAction(signUp.createdUserId);
+      }
+
       router.push("/");
       return {};
     }

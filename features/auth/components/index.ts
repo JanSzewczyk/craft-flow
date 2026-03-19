@@ -3,3 +3,4 @@ export { SignInCard } from "./sign-in-card";
 export { SignUpCard } from "./sign-up-card";
 export { ForgotPasswordCard } from "./forgot-password-card";
 export { ForgotPasswordVerifyCard } from "./forgot-password-verify-card";
+export { SSOCallbackHandler } from "./sso-callback-handler";

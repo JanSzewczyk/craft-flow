@@ -1,5 +1,5 @@
-import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
+import { completeSignUp, SSOCallbackHandler } from "~/features/auth";
 
 export default function SSOCallbackPage() {
-  return <AuthenticateWithRedirectCallback />;
+  return <SSOCallbackHandler onCompleteSignUpAction={completeSignUp} />;
 }

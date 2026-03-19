@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { SignUpCard } from "~/features/auth";
+import { SignUpCard, completeSignUp } from "~/features/auth";
 
 export default async function SignUpPage({ searchParams }: PageProps<"/sign-up">) {
   const params = await searchParams;
   if (!params.plan) redirect("/pricing");
 
-  return <SignUpCard />;
+  return <SignUpCard onCompleteSignUpAction={completeSignUp} />;
 }

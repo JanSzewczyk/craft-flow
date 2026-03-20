@@ -1,4 +1,9 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import tsConfigPaths from "vite-tsconfig-paths";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { defineMain } from "@storybook/nextjs-vite/node";
 import { type PresetValue, type TagsOptions } from "storybook/internal/types";
@@ -36,7 +41,12 @@ export default defineMain({
     const { mergeConfig } = await import("vite");
 
     return mergeConfig(config, {
-      plugins: [tsConfigPaths()]
+      plugins: [tsConfigPaths()],
+      resolve: {
+        alias: {
+          "@clerk/nextjs": path.resolve(__dirname, "../__mocks__/@clerk/nextjs.tsx")
+        }
+      }
     });
   }
 });

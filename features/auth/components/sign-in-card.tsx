@@ -65,7 +65,7 @@ export function SignInCard() {
     void signIn.sso({
       strategy: "oauth_google",
       redirectUrl: "/sso-callback",
-      redirectCallbackUrl: "/"
+      redirectCallbackUrl: ""
     });
   }
 

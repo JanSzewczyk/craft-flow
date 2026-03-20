@@ -31,6 +31,7 @@ EmptyForm.test("Renders all fields and validates empty submission", async ({ can
     await expect(canvas.getByLabelText("Hasło")).toBeVisible();
     await expect(canvas.getByRole("button", { name: /zaloguj się/i })).toBeVisible();
     await expect(canvas.getByRole("button", { name: /kontynuuj przez google/i })).toBeVisible();
+    await expect(canvas.getByRole("button", { name: /kontynuuj przez google/i })).toBeDisabled();
   });
 
   await step("Shows validation errors on empty submission", async () => {

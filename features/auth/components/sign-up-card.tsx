@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { AwardIcon, ShieldCheckIcon, ShieldIcon } from "lucide-react";
 
-import { useSignUp } from "@clerk/nextjs";
+import { useAuth, useSignUp } from "@clerk/nextjs";
 import { Alert, AlertTitle, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@szum-tech/design-system";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,13 +20,12 @@ type SignUpCardProps = {
 
 export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
   const { signUp } = useSignUp();
+  const { getToken } = useAuth();
   const router = useRouter();
   const [step, setStep] = React.useState<"credentials" | "verification">("credentials");
   const [email, setEmail] = React.useState<string>("");
 
   async function handleEmailSignUp(data: SignUpFormData): Promise<{ error?: string }> {
-    if (!signUp) return { error: "Usługa rejestracji jest niedostępna. Spróbuj ponownie." };
-
     const { error } = await signUp.password({
       emailAddress: data.email,
       password: data.password,
@@ -45,8 +44,6 @@ export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
   }
 
   async function handleVerify(data: EmailVerificationFormData): Promise<{ error?: string }> {
-    if (!signUp) return { error: "Usługa weryfikacji jest niedostępna. Spróbuj ponownie." };
-
     const { error } = await signUp.verifications.verifyEmailCode({ code: data.code });
     if (error) return { error: error.message };
 
@@ -56,6 +53,7 @@ export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
 
       if (signUp.createdUserId) {
         await onCompleteSignUpAction(signUp.createdUserId);
+        await getToken({ skipCache: true });
       }
 
       router.push("/");
@@ -66,19 +64,16 @@ export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
   }
 
   async function handleResend(): Promise<{ error?: string }> {
-    if (!signUp) return { error: "Usługa jest niedostępna. Spróbuj ponownie." };
-
     const { error } = await signUp.verifications.sendEmailCode();
     if (error) return { error: error.message };
     return {};
   }
 
   function handleGoogleSignUp() {
-    if (!signUp) return;
     void signUp.sso({
       strategy: "oauth_google",
       redirectUrl: "/sso-callback",
-      redirectCallbackUrl: "/"
+      redirectCallbackUrl: ""
     });
   }
 

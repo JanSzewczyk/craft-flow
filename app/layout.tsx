@@ -4,6 +4,8 @@ import { type Metadata } from "next";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@szum-tech/design-system";
+import { cookies } from "next/headers";
+import { CookieBanner } from "~/components/cookie-banner";
 import { ThemeProvider } from "~/components/providers/theme-provider";
 import { ToastHandler } from "~/lib/toast/components/toast-handler";
 
@@ -16,7 +18,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const cookieStore = await cookies();
+  const consent = cookieStore.get("cookieConsent")?.value;
+  const showBanner = !consent;
+
   return (
     <ClerkProvider>
       <html lang="pl" suppressHydrationWarning>
@@ -25,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {children}
             <Toaster />
             <ToastHandler />
+            {showBanner ? <CookieBanner /> : null}
           </ThemeProvider>
         </body>
       </html>

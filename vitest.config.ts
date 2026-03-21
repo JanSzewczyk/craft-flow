@@ -1,4 +1,4 @@
-import tsconfigPaths from "vite-tsconfig-paths";
+import path from "node:path";
 
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
@@ -6,6 +6,10 @@ import { defineConfig } from "vitest/config";
 
 // Skip environment validation in tests
 process.env.SKIP_ENV_VALIDATION = "true";
+
+const alias = {
+  "~/": `${path.resolve(process.cwd())}/`
+};
 
 export default defineConfig({
   test: {
@@ -47,7 +51,8 @@ export default defineConfig({
     projects: [
       // Unit tests project - runs in Node environment
       {
-        plugins: [tsconfigPaths()],
+        plugins: [],
+        resolve: { alias },
         test: {
           name: "unit",
           globals: true,
@@ -59,6 +64,10 @@ export default defineConfig({
       // Storybook tests project - runs in browser with Playwright
       {
         plugins: [storybookTest()],
+        resolve: { alias },
+        optimizeDeps: {
+          include: ["sb-original/default-loader", "sb-original/image-context"]
+        },
         test: {
           name: "storybook",
           exclude: ["**/node_modules/**", "**/dist/**", "**/.next/**"],

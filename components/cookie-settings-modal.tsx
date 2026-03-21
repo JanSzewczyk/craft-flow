@@ -17,10 +17,10 @@ import {
   ItemDescription,
   ItemGroup,
   ItemMedia,
-  ItemTitle
+  ItemTitle,
+  Switch
 } from "@szum-tech/design-system";
 import { BrandLogo } from "~/components/ui/brand-logo";
-import { Switch } from "~/components/ui/switch";
 
 export type CookiePreferences = { analytics: boolean; marketing: boolean };
 
@@ -107,22 +107,6 @@ export function CookieSettingsModal({
                   />
                 </ItemActions>
               </Item>
-
-              // <div
-              //   key={category.id}
-              //   className={`flex items-center gap-4 py-4 ${index < COOKIE_CATEGORIES.length - 1 ? "border-border border-b" : ""}`}
-              // >
-              //   <div className="bg-muted text-muted-foreground flex size-12 shrink-0 items-center justify-center rounded-lg">
-              //     <Icon className="size-5" />
-              //   </div>
-              //   <div className="flex-1">
-              //     <p className="text-foreground text-base leading-tight font-semibold">{category.name}</p>
-              //     <p className="text-muted-foreground mt-0.5 text-xs">{category.description}</p>
-              //   </div>
-              //   <div className="ml-2 shrink-0">
-
-              //   </div>
-              // </div>
             );
           })}
         </ItemGroup>

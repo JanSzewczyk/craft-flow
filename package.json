@@ -7,6 +7,7 @@
     "analyze": "ANALYZE=true npm run build",
     "build": "next build",
     "dev": "next dev",
+    "postinstall": "patch-package",
     "lint": "eslint .",
     "lint:ci": "eslint . -o eslint-results.sarif -f @microsoft/eslint-formatter-sarif",
     "lint:fix": "eslint --fix .",
@@ -69,11 +70,12 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.1",
-    "@vitejs/plugin-react": "^5.2.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "@vitest/browser-playwright": "^4.1.0",
     "@vitest/coverage-v8": "^4.1.0",
     "@vitest/ui": "^4.1.0",
     "eslint": "^9.39.2",
+    "patch-package": "^8.0.1",
     "playwright": "^1.56.0",
     "prettier": "^3.8.1",
     "semantic-release": "^25.0.0",
@@ -82,7 +84,6 @@
     "storybook-addon-tag-badges": "^3.1.0",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.0"
   }
 }

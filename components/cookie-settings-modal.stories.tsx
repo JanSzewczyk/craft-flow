@@ -1,4 +1,4 @@
-import { expect, fn, waitFor } from "storybook/test";
+import { expect, fn, screen, waitFor } from "storybook/test";
 
 import { CookieSettingsModal } from "./cookie-settings-modal";
 
@@ -21,32 +21,38 @@ const meta = preview.meta({
 export const DefaultPreferences = meta.story({});
 
 // Content & Structure
-DefaultPreferences.test("Renders all expected content", async ({ canvas }) => {
-  await expect(canvas.getByRole("dialog")).toBeVisible();
-  await expect(canvas.getByText("Niezbędne")).toBeVisible();
-  await expect(canvas.getByText("Analityczne")).toBeVisible();
-  await expect(canvas.getByText("Marketingowe")).toBeVisible();
+DefaultPreferences.test("Renders all expected content", async () => {
+  await waitFor(async () => {
+    await expect(screen.getByRole("dialog")).toBeVisible();
+  });
+  await expect(screen.getByText("Niezbędne")).toBeVisible();
+  await expect(screen.getByText("Analityczne")).toBeVisible();
+  await expect(screen.getByText("Marketingowe")).toBeVisible();
 
-  const switches = canvas.getAllByRole("switch");
-  await expect(switches.length).toBe(3);
+  const switches = screen.getAllByRole("switch");
+  await expect(switches).toHaveLength(3);
 
-  const essentialSwitch = canvas.getByRole("switch", { name: "Niezbędne" });
+  const essentialSwitch = screen.getByRole("switch", { name: "Niezbędne" });
   await expect(essentialSwitch).toHaveAttribute("aria-checked", "true");
   await expect(essentialSwitch).toBeDisabled();
 });
 
 // Interaction: Save
-DefaultPreferences.test("Save button calls onSave with current preferences", async ({ canvas, userEvent, args }) => {
-  const saveButton = canvas.getByRole("button", { name: "Zapisz preferencje" });
+DefaultPreferences.test("Save button calls onSave with current preferences", async ({ userEvent, args }) => {
+  const saveButton = screen.getByRole("button", { name: "Zapisz preferencje" });
   await userEvent.click(saveButton);
-  await expect(args.onSave).toHaveBeenCalledWith({ analytics: true, marketing: false });
+  await waitFor(async () => {
+    await expect(args.onSave).toHaveBeenCalledWith({ analytics: true, marketing: false });
+  });
 });
 
 // Interaction: Reject
-DefaultPreferences.test("Reject button calls onRejectOptional", async ({ canvas, userEvent, args }) => {
-  const rejectButton = canvas.getByRole("button", { name: "Odrzuć opcjonalne" });
+DefaultPreferences.test("Reject button calls onRejectOptional", async ({ userEvent, args }) => {
+  const rejectButton = screen.getByRole("button", { name: "Odrzuć opcjonalne" });
   await userEvent.click(rejectButton);
-  await expect(args.onRejectOptional).toHaveBeenCalled();
+  await waitFor(async () => {
+    await expect(args.onRejectOptional).toHaveBeenCalled();
+  });
 });
 
 export const AllEnabled = meta.story({
@@ -55,9 +61,9 @@ export const AllEnabled = meta.story({
   }
 });
 
-AllEnabled.test("Analytics and marketing are checked", async ({ canvas }) => {
-  const analyticsSwitch = canvas.getByRole("switch", { name: "Analityczne" });
-  const marketingSwitch = canvas.getByRole("switch", { name: "Marketingowe" });
+AllEnabled.test("Analytics and marketing are checked", async () => {
+  const analyticsSwitch = screen.getByRole("switch", { name: "Analityczne" });
+  const marketingSwitch = screen.getByRole("switch", { name: "Marketingowe" });
   await expect(analyticsSwitch).toHaveAttribute("aria-checked", "true");
   await expect(marketingSwitch).toHaveAttribute("aria-checked", "true");
 });
@@ -68,29 +74,35 @@ export const AllOptionalDisabled = meta.story({
   }
 });
 
-AllOptionalDisabled.test("Analytics and marketing are unchecked", async ({ canvas }) => {
-  const analyticsSwitch = canvas.getByRole("switch", { name: "Analityczne" });
-  const marketingSwitch = canvas.getByRole("switch", { name: "Marketingowe" });
+AllOptionalDisabled.test("Analytics and marketing are unchecked", async () => {
+  const analyticsSwitch = screen.getByRole("switch", { name: "Analityczne" });
+  const marketingSwitch = screen.getByRole("switch", { name: "Marketingowe" });
   await expect(analyticsSwitch).toHaveAttribute("aria-checked", "false");
   await expect(marketingSwitch).toHaveAttribute("aria-checked", "false");
 });
 
-AllOptionalDisabled.test("Toggle analytics and marketing switches", async ({ canvas, userEvent }) => {
-  const analyticsSwitch = canvas.getByRole("switch", { name: "Analityczne" });
-  const marketingSwitch = canvas.getByRole("switch", { name: "Marketingowe" });
+AllOptionalDisabled.test("Toggle analytics and marketing switches", async ({ step, userEvent }) => {
+  const analyticsSwitch = screen.getByRole("switch", { name: "Analityczne" });
+  const marketingSwitch = screen.getByRole("switch", { name: "Marketingowe" });
 
-  await userEvent.click(analyticsSwitch);
-  await waitFor(async () => {
-    await expect(analyticsSwitch).toHaveAttribute("aria-checked", "true");
+  await step("Enable analytics switch", async () => {
+    await userEvent.click(analyticsSwitch);
+    await waitFor(async () => {
+      await expect(analyticsSwitch).toHaveAttribute("aria-checked", "true");
+    });
   });
 
-  await userEvent.click(marketingSwitch);
-  await waitFor(async () => {
-    await expect(marketingSwitch).toHaveAttribute("aria-checked", "true");
+  await step("Enable marketing switch", async () => {
+    await userEvent.click(marketingSwitch);
+    await waitFor(async () => {
+      await expect(marketingSwitch).toHaveAttribute("aria-checked", "true");
+    });
   });
 
-  await userEvent.click(analyticsSwitch);
-  await waitFor(async () => {
-    await expect(analyticsSwitch).toHaveAttribute("aria-checked", "false");
+  await step("Disable analytics switch", async () => {
+    await userEvent.click(analyticsSwitch);
+    await waitFor(async () => {
+      await expect(analyticsSwitch).toHaveAttribute("aria-checked", "false");
+    });
   });
 });

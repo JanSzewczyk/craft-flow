@@ -1,11 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import { Badge } from "@szum-tech/design-system";
+import { redirect } from "next/navigation";
 import { EmailForm } from "~/features/onboarding/components/forms/email-form";
 import { DEFAULT_EMAIL_BODY, DEFAULT_EMAIL_SUBJECT } from "~/features/onboarding/constants/defaults";
-import { type Plan } from "~/features/onboarding/constants/plans";
+import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
 import { saveStepAndComplete } from "~/features/onboarding/server/actions/save-step-and-complete";
-import { getCachedOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
+import { getCachedOnboardingState } from "~/features/onboarding/server/db";
 
 async function loadData() {
   const { isAuthenticated, userId } = await auth();
@@ -14,17 +14,16 @@ async function loadData() {
   const [error, state] = await getCachedOnboardingState(userId);
   if (error) redirect("/onboarding/plans");
 
-  const formData = state.formData as Record<string, unknown>;
-  const planId = formData["planId"] as Plan | undefined;
+  const planId = await detectClerkPlan();
   if (!planId) redirect("/onboarding/plans");
 
-  return { formData };
+  return { emailConfig: state.emailConfig };
 }
 
 const placeholders = ["{{clientName}}", "{{projectName}}", "{{companyName}}", "{{date}}"];
 
 export default async function EmailPage() {
-  const { formData } = await loadData();
+  const { emailConfig } = await loadData();
 
   return (
     <div>
@@ -46,8 +45,8 @@ export default async function EmailPage() {
 
       <EmailForm
         defaultValues={{
-          emailSubject: (formData["emailSubject"] as string) ?? DEFAULT_EMAIL_SUBJECT,
-          emailBody: (formData["emailBody"] as string) ?? DEFAULT_EMAIL_BODY
+          emailSubject: emailConfig?.emailSubject ?? DEFAULT_EMAIL_SUBJECT,
+          emailBody: emailConfig?.emailBody ?? DEFAULT_EMAIL_BODY
         }}
         action={saveStepAndComplete}
         backHref="/onboarding/template"

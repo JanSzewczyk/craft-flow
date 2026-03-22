@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { Role } from "~/features/auth/constants/roles";
 import { setUserMetadata } from "~/features/auth/server/api/set-user-metadata";
 import { onboardingFormDataSchema } from "~/features/onboarding/schemas/onboarding-form-data-schema";
-import { getOnboardingState, markOnboardingComplete } from "~/features/onboarding/server/api/onboarding-state-service";
+import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
+import { getOnboardingState, markOnboardingComplete } from "~/features/onboarding/server/db";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 
@@ -22,7 +23,14 @@ export async function completeOnboarding(): RedirectAction {
     return { success: false, error: "Nie znaleziono stanu onboardingu" };
   }
 
-  const formData = state.formData as Record<string, unknown>;
+  const planId = await detectClerkPlan();
+  const formData = {
+    ...state.companyDetails,
+    ...state.branding,
+    ...state.templateConfig,
+    ...state.emailConfig,
+    planId
+  };
   const parsed = onboardingFormDataSchema.safeParse(formData);
   if (!parsed.success) {
     logger.warn({ userId, errors: parsed.error.issues }, "Onboarding form data validation failed");

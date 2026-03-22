@@ -6,7 +6,7 @@ import { OnboardingStepper } from "~/features/onboarding/components/onboarding-s
 import { type Plan } from "~/features/onboarding/constants/plans";
 import { resolveStepsForPlan } from "~/features/onboarding/constants/resolve-steps";
 import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
-import { getCachedOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
+import { getCachedOnboardingState } from "~/features/onboarding/server/db";
 
 async function loadData() {
   const { isAuthenticated, userId } = await auth();

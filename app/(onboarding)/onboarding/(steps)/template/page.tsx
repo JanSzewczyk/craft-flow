@@ -3,10 +3,10 @@ import { redirect } from "next/navigation";
 import { TemplateForm } from "~/features/onboarding/components/forms/template-form";
 import { DEFAULT_TEMPLATE_STEPS } from "~/features/onboarding/constants/defaults";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import { type Plan } from "~/features/onboarding/constants/plans";
 import { resolveStepsForPlan } from "~/features/onboarding/constants/resolve-steps";
 import { saveStepAndRedirect } from "~/features/onboarding/server/actions/save-step-and-redirect";
-import { getCachedOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
+import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
+import { getCachedOnboardingState } from "~/features/onboarding/server/db";
 
 async function loadData() {
   const { isAuthenticated, userId } = await auth();
@@ -15,13 +15,14 @@ async function loadData() {
   const [error, state] = await getCachedOnboardingState(userId);
   if (error) redirect("/onboarding/plans");
 
-  const formData = state.formData as Record<string, unknown>;
-  const planId = formData["planId"] as Plan | undefined;
+  const planId = await detectClerkPlan();
   if (!planId) redirect("/onboarding/plans");
 
   const steps = resolveStepsForPlan(planId);
-  const templateSteps = (formData["templateSteps"] as string[] | undefined) ?? DEFAULT_TEMPLATE_STEPS;
-  const backHref = steps.some((s) => s.id === "branding") ? "/onboarding/branding" : "/onboarding/company-details";
+  const templateSteps = state.templateConfig?.templateSteps ?? DEFAULT_TEMPLATE_STEPS;
+  const backHref = steps.some((s) => s.id === OnboardingStep.BRANDING)
+    ? "/onboarding/branding"
+    : "/onboarding/company-details";
 
   return { templateSteps, backHref };
 }

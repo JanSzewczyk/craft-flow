@@ -30,4 +30,4 @@ export { completeOnboarding } from "./server/actions/complete-onboarding";
 export { uploadLogo } from "./server/actions/upload-logo";
 
 // Server API
-export { getCachedOnboardingState } from "./server/api/onboarding-state-service";
+export { getCachedOnboardingState } from "./server/db";

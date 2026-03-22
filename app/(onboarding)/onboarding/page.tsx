@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
-import { getOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
+import { getOnboardingState } from "~/features/onboarding/server/db";
 
 async function loadData() {
   const { isAuthenticated, userId } = await auth();

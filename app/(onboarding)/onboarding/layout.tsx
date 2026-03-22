@@ -4,7 +4,7 @@ import { Header } from "@szum-tech/design-system";
 import { ThemeToggle } from "~/components/ui/theme-toggle";
 import { BrandLogo } from "~/features/marketing/components/brand-logo";
 
-export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
+export default function OnboardingLayout({ children }: LayoutProps<"/onboarding">) {
   return (
     <div className="flex min-h-screen flex-col">
       <Header>

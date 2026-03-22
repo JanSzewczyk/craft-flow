@@ -24,5 +24,10 @@ export { onboardingFormDataSchema, type OnboardingFormData } from "./schemas/onb
 
 // Server actions
 export { saveStep } from "./server/actions/save-step";
+export { saveStepAndRedirect } from "./server/actions/save-step-and-redirect";
+export { saveStepAndComplete } from "./server/actions/save-step-and-complete";
 export { completeOnboarding } from "./server/actions/complete-onboarding";
 export { uploadLogo } from "./server/actions/upload-logo";
+
+// Server API
+export { getCachedOnboardingState } from "./server/api/onboarding-state-service";

@@ -9,7 +9,7 @@ async function loadData() {
   if (!isAuthenticated) redirect("/sign-in");
 
   const [error, state] = await getOnboardingState(userId);
-  if (error || !state || !state.completed) redirect("/onboarding");
+  if (error || !state.completed) redirect("/onboarding");
 
   const formData = state.formData as Record<string, unknown>;
   const plan = PLANS.find((p) => p.id === formData["planId"]);

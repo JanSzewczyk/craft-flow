@@ -18,7 +18,7 @@ export async function completeOnboarding(): RedirectAction {
   }
 
   const [getError, state] = await getOnboardingState(userId);
-  if (getError || !state) {
+  if (getError) {
     return { success: false, error: "Nie znaleziono stanu onboardingu" };
   }
 

@@ -13,8 +13,8 @@ import { createLogger } from "~/lib/logger";
 const logger = createLogger({ module: "onboarding" });
 
 export async function completeOnboarding(): RedirectAction {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId, isAuthenticated } = await auth();
+  if (!isAuthenticated) {
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 

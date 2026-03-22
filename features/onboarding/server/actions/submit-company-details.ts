@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { type CompanyDetailsFormData } from "~/features/onboarding";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
+import { planHasBranding } from "~/features/onboarding/constants/plans";
+import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
 import { type OnboardingState, updateStepData } from "~/features/onboarding/server/db";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
@@ -16,8 +18,11 @@ export async function submitCompanyDetailsAction(
   const { contractorId } = onboardingState;
   logger.info({ contractorId }, "Submitting company details");
 
+  const planId = await detectClerkPlan();
+  const nextStep = planId && planHasBranding(planId) ? OnboardingStep.BRANDING : OnboardingStep.TEMPLATE;
+
   const [error] = await updateStepData(contractorId, {
-    currentStep: OnboardingStep.EMAIL,
+    currentStep: nextStep,
     companyDetails
   });
   if (error) {
@@ -25,6 +30,6 @@ export async function submitCompanyDetailsAction(
     return { success: false, error: "Nie udało się zapisać danych firmy" };
   }
 
-  logger.info({ contractorId }, "Company details saved, redirecting to email step");
-  redirect(OnboardingStep.EMAIL);
+  logger.info({ contractorId, nextStep }, "Company details saved, redirecting to next step");
+  redirect(nextStep);
 }

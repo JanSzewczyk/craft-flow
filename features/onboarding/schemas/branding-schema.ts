@@ -5,4 +5,4 @@ export const brandingSchema = z.object({
   brandColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Nieprawidłowy kolor HEX")
 });
 
-export type BrandingFormData = z.infer<typeof brandingSchema>;
+export type BrandingFormData = z.output<typeof brandingSchema>;

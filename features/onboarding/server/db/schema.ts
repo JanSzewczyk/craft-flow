@@ -1,5 +1,3 @@
-import "server-only";
-
 import { boolean, jsonb, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 import { type BrandingFormData } from "~/features/onboarding/schemas/branding-schema";
 import { type CompanyDetailsFormData } from "~/features/onboarding/schemas/company-details-schema";

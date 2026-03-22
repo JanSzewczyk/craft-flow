@@ -28,11 +28,7 @@ async function loadData() {
       },
       "Failed to load onboarding data"
     );
-    if (onboardingError.isRetryable) {
-      throw onboardingError;
-    } else {
-      throw new Error("Unable to access onboarding data");
-    }
+    throw onboardingError;
   }
 
   let onboardingData = onboarding;
@@ -50,7 +46,6 @@ async function loadData() {
       );
       throw error;
     }
-
     onboardingData = createdOnboarding;
   }
 

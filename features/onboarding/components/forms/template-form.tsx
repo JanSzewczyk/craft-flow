@@ -5,12 +5,12 @@ import { useFieldArray, useForm } from "react-hook-form";
 
 import { Button, Input, toast } from "@szum-tech/design-system";
 import { StepNavigation } from "~/features/onboarding/components/step-navigation";
-import { templateSchema } from "~/features/onboarding/schemas/template-schema";
-import { type ActionResponse } from "~/lib/action-types";
+import { type TemplateFormData, templateSchema } from "~/features/onboarding/schemas/template-schema";
+import { type RedirectAction } from "~/lib/action-types";
 
 type TemplateFormProps = {
   defaultValues: { templateSteps: string[] };
-  action: (formData: Record<string, unknown>) => ActionResponse<true>;
+  onContinueAction: (formData: TemplateFormData) => RedirectAction;
   backHref: string;
 };
 
@@ -18,7 +18,7 @@ type FormValues = {
   steps: { value: string }[];
 };
 
-export function TemplateForm({ defaultValues, action, backHref }: TemplateFormProps) {
+export function TemplateForm({ defaultValues, onContinueAction, backHref }: TemplateFormProps) {
   const form = useForm<FormValues>({
     defaultValues: {
       steps: defaultValues.templateSteps.map((s) => ({ value: s }))
@@ -39,7 +39,7 @@ export function TemplateForm({ defaultValues, action, backHref }: TemplateFormPr
       return;
     }
 
-    const result = await action({ templateSteps });
+    const result = await onContinueAction({ templateSteps });
 
     if (!result.success) {
       toast.error("Błąd", { description: result.error });

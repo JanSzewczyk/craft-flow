@@ -6,6 +6,11 @@ import { env } from "./data/env/server";
 
 const config: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb"
+    }
+  },
   serverExternalPackages: ["pino", "pino-pretty"],
   images: {
     remotePatterns: [new URL("https://lh3.googleusercontent.com/**")]

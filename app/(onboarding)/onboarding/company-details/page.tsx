@@ -8,9 +8,9 @@ import { resolveStepsForPlan } from "~/features/onboarding/constants/resolve-ste
 import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
 import { getOnboardingState, upsertOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
 
-export default async function CompanyDetailsPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+async function loadData() {
+  const { isAuthenticated, userId } = await auth();
+  if (!isAuthenticated) redirect("/sign-in");
 
   const [error, state] = await getOnboardingState(userId);
 
@@ -18,14 +18,12 @@ export default async function CompanyDetailsPage() {
   let planId: Plan | undefined;
 
   if (error || !state) {
-    // First visit — arriving from Clerk PricingTable checkout
     const detectedPlan = await detectClerkPlan();
     if (!detectedPlan) redirect("/onboarding/plans");
 
     planId = detectedPlan;
     formData = { planId };
 
-    // Create initial onboarding state with the detected plan
     await upsertOnboardingState(userId, OnboardingStep.COMPANY_DETAILS, formData);
   } else {
     formData = state.formData as Record<string, unknown>;
@@ -35,6 +33,12 @@ export default async function CompanyDetailsPage() {
 
   const steps = resolveStepsForPlan(planId);
   const nextStep = steps[1]?.id ?? OnboardingStep.TEMPLATE;
+
+  return { formData, planId, steps, nextStep };
+}
+
+export default async function CompanyDetailsPage() {
+  const { formData, steps, nextStep } = await loadData();
 
   return (
     <div>

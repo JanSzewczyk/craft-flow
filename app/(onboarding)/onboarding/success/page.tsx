@@ -4,9 +4,9 @@ import { OnboardingSuccess } from "~/features/onboarding/components/onboarding-s
 import { PLANS } from "~/features/onboarding/constants/plans";
 import { getOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
 
-export default async function SuccessPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+async function loadData() {
+  const { isAuthenticated, userId } = await auth();
+  if (!isAuthenticated) redirect("/sign-in");
 
   const [error, state] = await getOnboardingState(userId);
   if (error || !state || !state.completed) redirect("/onboarding");
@@ -16,6 +16,12 @@ export default async function SuccessPage() {
   const companyName = (formData["companyName"] as string) ?? "";
   const templateSteps = (formData["templateSteps"] as string[]) ?? [];
   const hasBranding = !!(formData["logoUrl"] || formData["brandColor"]);
+
+  return { plan, companyName, hasBranding, templateSteps };
+}
+
+export default async function SuccessPage() {
+  const { plan, companyName, hasBranding, templateSteps } = await loadData();
 
   return (
     <OnboardingSuccess

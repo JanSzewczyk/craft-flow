@@ -8,9 +8,9 @@ import { type Plan } from "~/features/onboarding/constants/plans";
 import { resolveStepsForPlan } from "~/features/onboarding/constants/resolve-steps";
 import { getOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
 
-export default async function TemplatePage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+async function loadData() {
+  const { isAuthenticated, userId } = await auth();
+  if (!isAuthenticated) redirect("/sign-in");
 
   const [error, state] = await getOnboardingState(userId);
   if (error || !state) redirect("/onboarding/plans");
@@ -21,6 +21,12 @@ export default async function TemplatePage() {
 
   const steps = resolveStepsForPlan(planId);
   const templateSteps = (formData["templateSteps"] as string[] | undefined) ?? DEFAULT_TEMPLATE_STEPS;
+
+  return { formData, steps, templateSteps };
+}
+
+export default async function TemplatePage() {
+  const { steps, templateSteps } = await loadData();
 
   return (
     <div>

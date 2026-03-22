@@ -7,9 +7,9 @@ import { type Plan, planHasBranding } from "~/features/onboarding/constants/plan
 import { resolveStepsForPlan } from "~/features/onboarding/constants/resolve-steps";
 import { getOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
 
-export default async function BrandingPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+async function loadData() {
+  const { isAuthenticated, userId } = await auth();
+  if (!isAuthenticated) redirect("/sign-in");
 
   const [error, state] = await getOnboardingState(userId);
   if (error || !state) redirect("/onboarding/plans");
@@ -23,6 +23,12 @@ export default async function BrandingPage() {
   }
 
   const steps = resolveStepsForPlan(planId);
+
+  return { formData, steps };
+}
+
+export default async function BrandingPage() {
+  const { formData, steps } = await loadData();
 
   return (
     <div>

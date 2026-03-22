@@ -13,9 +13,7 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
           <ThemeToggle />
         </div>
       </Header>
-      <div className="container flex flex-1 flex-col items-center py-8">
-        <div className="w-full max-w-4xl">{children}</div>
-      </div>
+      <div className="container mt-8">{children}</div>
     </div>
   );
 }

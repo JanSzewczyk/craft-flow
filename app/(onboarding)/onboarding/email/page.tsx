@@ -8,9 +8,9 @@ import { type Plan } from "~/features/onboarding/constants/plans";
 import { resolveStepsForPlan } from "~/features/onboarding/constants/resolve-steps";
 import { getOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
 
-export default async function EmailPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+async function loadData() {
+  const { isAuthenticated, userId } = await auth();
+  if (!isAuthenticated) redirect("/sign-in");
 
   const [error, state] = await getOnboardingState(userId);
   if (error || !state) redirect("/onboarding/plans");
@@ -20,6 +20,12 @@ export default async function EmailPage() {
   if (!planId) redirect("/onboarding/plans");
 
   const steps = resolveStepsForPlan(planId);
+
+  return { formData, steps };
+}
+
+export default async function EmailPage() {
+  const { formData, steps } = await loadData();
 
   return (
     <div>

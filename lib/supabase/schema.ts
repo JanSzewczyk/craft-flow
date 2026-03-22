@@ -6,5 +6,6 @@ export const onboardingState = pgTable("onboarding_state", {
   formData: jsonb("form_data").$type<Record<string, unknown>>().default({}).notNull(),
   completed: boolean("completed").default(false).notNull(),
   completedAt: timestamp("completed_at", { withTimezone: true }),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });

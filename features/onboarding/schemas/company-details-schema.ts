@@ -5,4 +5,4 @@ export const companyDetailsSchema = z.object({
   industry: z.string().min(1, "Wybierz branżę")
 });
 
-export type CompanyDetailsFormData = z.infer<typeof companyDetailsSchema>;
+export type CompanyDetailsFormData = z.output<typeof companyDetailsSchema>;

@@ -1,44 +1,70 @@
 "use client";
 
-import { CheckIcon } from "lucide-react";
+import * as React from "react";
+
+import { HandshakeIcon } from "lucide-react";
 
 import {
   Stepper,
   StepperIndicator,
   StepperItem,
   StepperNav,
+  StepperPanel,
   StepperTitle,
   StepperTrigger
 } from "@szum-tech/design-system";
-import { type OnboardingStep, type StepConfig } from "~/features/onboarding/constants/onboarding-steps";
+import { usePathname, useRouter } from "next/navigation";
+import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 
 type OnboardingStepperProps = {
-  steps: StepConfig[];
-  currentStepId: OnboardingStep;
+  children: React.ReactNode;
 };
 
-export function OnboardingStepper({ steps, currentStepId }: OnboardingStepperProps) {
-  const currentIndex = steps.findIndex((s) => s.id === currentStepId);
+export function OnboardingStepper({ children }: OnboardingStepperProps) {
+  const pathname = usePathname();
+  const router = useRouter();
 
   return (
-    <div className="mb-8">
-      <p className="text-muted-foreground text-body-sm mb-4 text-center">
-        Krok {currentIndex + 1} z {steps.length}
-      </p>
-      <Stepper defaultValue={String(currentIndex + 1)}>
-        <StepperNav className="pointer-events-none">
-          {steps.map((step, index) => (
-            <StepperItem key={step.id} value={String(index + 1)}>
-              <StepperTrigger>
-                <StepperIndicator>
-                  {index < currentIndex ? <CheckIcon className="size-4" /> : index + 1}
-                </StepperIndicator>
-                <StepperTitle>{step.label}</StepperTitle>
-              </StepperTrigger>
-            </StepperItem>
-          ))}
-        </StepperNav>
-      </Stepper>
-    </div>
+    <Stepper value={pathname} onValueChange={(value) => router.push(value)}>
+      <StepperNav aria-label="Onboarding stepper">
+        <StepperItem value={OnboardingStep.COMPANY_DETAILS}>
+          <StepperTrigger>
+            <StepperIndicator>
+              <HandshakeIcon className="size-4" />
+            </StepperIndicator>
+            <StepperTitle>Firma</StepperTitle>
+          </StepperTrigger>
+        </StepperItem>
+
+        <StepperItem value={OnboardingStep.BRANDING}>
+          <StepperTrigger>
+            <StepperIndicator>
+              <HandshakeIcon className="size-4" />
+            </StepperIndicator>
+            <StepperTitle>Branding</StepperTitle>
+          </StepperTrigger>
+        </StepperItem>
+
+        <StepperItem value={OnboardingStep.TEMPLATE}>
+          <StepperTrigger>
+            <StepperIndicator>
+              <HandshakeIcon className="size-4" />
+            </StepperIndicator>
+            <StepperTitle>Szablony</StepperTitle>
+          </StepperTrigger>
+        </StepperItem>
+
+        <StepperItem value={OnboardingStep.EMAIL}>
+          <StepperTrigger>
+            <StepperIndicator>
+              <HandshakeIcon className="size-4" />
+            </StepperIndicator>
+            <StepperTitle>E-mail</StepperTitle>
+          </StepperTrigger>
+        </StepperItem>
+      </StepperNav>
+
+      <StepperPanel className="mt-8">{children}</StepperPanel>
+    </Stepper>
   );
 }

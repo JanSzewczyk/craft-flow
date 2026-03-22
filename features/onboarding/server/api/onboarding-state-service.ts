@@ -1,25 +1,35 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { eq } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import { categorizeSupabaseError, type SupabaseServiceResult } from "~/lib/services/supabase/errors";
+import {
+  categorizeSupabaseError,
+  SupabaseServiceError,
+  type SupabaseServiceResult
+} from "~/lib/services/supabase/errors";
 import { db } from "~/lib/supabase/db";
 import { onboardingState } from "~/lib/supabase/schema";
 
-const logger = createLogger({ module: "onboarding" });
+const logger = createLogger({ module: "onboarding-db" });
+const RESOURCE_NAME = "OnboardingState";
 
-type OnboardingStateRow = typeof onboardingState.$inferSelect;
+type OnboardingState = typeof onboardingState.$inferSelect;
 
-export async function getOnboardingState(
-  contractorId: string
-): Promise<SupabaseServiceResult<OnboardingStateRow | null>> {
+export async function getOnboardingState(contractorId: string): Promise<SupabaseServiceResult<OnboardingState>> {
   try {
     const rows = await db.select().from(onboardingState).where(eq(onboardingState.contractorId, contractorId));
-    const row = rows[0] ?? null;
+    const row = rows[0];
+    if (!row) {
+      const error = SupabaseServiceError.notFound(RESOURCE_NAME);
+      logger.error({ contractorId, errorCode: error.code }, "Onboarding document not found after update");
+      return [error, null];
+    }
     return [null, row];
   } catch (error) {
-    const serviceError = categorizeSupabaseError(error, "OnboardingState");
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to get onboarding state");
     return [serviceError, null];
   }
@@ -66,7 +76,7 @@ export async function updateStepData(
     const [getError, existing] = await getOnboardingState(contractorId);
     if (getError) return [getError, null];
 
-    const currentFormData = (existing?.formData as Record<string, unknown>) ?? {};
+    const currentFormData = (existing.formData as Record<string, unknown>) ?? {};
     const mergedFormData = { ...currentFormData, ...partialFormData };
 
     await db
@@ -114,3 +124,5 @@ export async function markOnboardingComplete(contractorId: string): Promise<Supa
     return [serviceError, null];
   }
 }
+
+export const getCachedOnboardingState = cache(getOnboardingState);

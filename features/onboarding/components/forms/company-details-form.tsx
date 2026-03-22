@@ -46,7 +46,7 @@ export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyD
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-6">
-      <FieldGroup className="mx-auto max-w-xl">
+      <FieldGroup className="container-xl">
         <Field data-invalid={!!form.formState.errors.companyName}>
           <FieldLabel htmlFor="companyName">Nazwa firmy</FieldLabel>
           <Input

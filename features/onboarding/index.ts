@@ -23,9 +23,10 @@ export { emailSchema, type EmailFormData } from "./schemas/email-schema";
 export { onboardingFormDataSchema, type OnboardingFormData } from "./schemas/onboarding-form-data-schema";
 
 // Server actions
-export { saveStep } from "./server/actions/save-step";
-export { saveStepAndRedirect } from "./server/actions/save-step-and-redirect";
-export { saveStepAndComplete } from "./server/actions/save-step-and-complete";
+export { submitCompanyDetailsAction } from "./server/actions/submit-company-details";
+export { submitBrandingAction } from "./server/actions/submit-branding";
+export { submitTemplateAction } from "./server/actions/submit-template";
+export { submitEmailAction } from "./server/actions/submit-email";
 export { completeOnboarding } from "./server/actions/complete-onboarding";
 export { uploadLogo } from "./server/actions/upload-logo";
 

@@ -12,4 +12,4 @@ export const onboardingFormDataSchema = planSelectionSchema
   .merge(templateSchema)
   .merge(emailSchema);
 
-export type OnboardingFormData = z.infer<typeof onboardingFormDataSchema>;
+export type OnboardingFormData = z.output<typeof onboardingFormDataSchema>;

@@ -10,18 +10,18 @@ import { type RedirectAction } from "~/lib/action-types";
 
 type EmailFormProps = {
   defaultValues: EmailFormData;
-  action: (formData: Record<string, unknown>) => RedirectAction;
+  onContinueAction: (formData: EmailFormData) => RedirectAction;
   backHref: string;
 };
 
-export function EmailForm({ defaultValues, action, backHref }: EmailFormProps) {
+export function EmailForm({ defaultValues, onContinueAction, backHref }: EmailFormProps) {
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
     defaultValues
   });
 
   async function handleSubmit(data: EmailFormData) {
-    const result = await action(data);
+    const result = await onContinueAction(data);
 
     if (!result.success) {
       toast.error("Błąd", { description: result.error });

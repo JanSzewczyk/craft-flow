@@ -5,4 +5,4 @@ export const emailSchema = z.object({
   emailBody: z.string().min(10, "Treść musi mieć co najmniej 10 znaków")
 });
 
-export type EmailFormData = z.infer<typeof emailSchema>;
+export type EmailFormData = z.output<typeof emailSchema>;

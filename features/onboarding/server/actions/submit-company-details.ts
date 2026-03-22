@@ -1,17 +1,30 @@
 "use server";
 
-import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import { completeOnboarding } from "~/features/onboarding/server/actions/complete-onboarding";
-import { saveStep } from "~/features/onboarding/server/actions/save-step";
-import { type RedirectAction } from "~/lib/action-types";
+import { redirect } from "next/navigation";
 import { type CompanyDetailsFormData } from "~/features/onboarding";
+import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
+import { type OnboardingState, updateStepData } from "~/features/onboarding/server/db";
+import { type RedirectAction } from "~/lib/action-types";
+import { createLogger } from "~/lib/logger";
 
-export async function submitCompanyDetailsAction(formData: CompanyDetailsFormData): RedirectAction {
-  const saveResult = await saveStep(OnboardingStep.EMAIL, OnboardingStep.EMAIL, formData);
+const logger = createLogger({ module: "onboarding-actions" });
 
-  if (!saveResult.success) {
-    return saveResult;
+export async function submitCompanyDetailsAction(
+  companyDetails: CompanyDetailsFormData,
+  onboardingState: OnboardingState
+): RedirectAction {
+  const { contractorId } = onboardingState;
+  logger.info({ contractorId }, "Submitting company details");
+
+  const [error] = await updateStepData(contractorId, {
+    currentStep: OnboardingStep.EMAIL,
+    companyDetails
+  });
+  if (error) {
+    logger.error({ contractorId, errorCode: error.code }, "Failed to save company details");
+    return { success: false, error: "Nie udało się zapisać danych firmy" };
   }
 
-  return completeOnboarding();
+  logger.info({ contractorId }, "Company details saved, redirecting to email step");
+  redirect(OnboardingStep.EMAIL);
 }

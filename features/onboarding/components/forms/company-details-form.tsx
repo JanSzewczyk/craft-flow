@@ -26,14 +26,14 @@ import {
 import { type RedirectAction } from "~/lib/action-types";
 
 type CompanyDetailsFormProps = {
-  defaultValues?: DefaultValues<CompanyDetailsFormData>;
+  defaultValues?: DefaultValues<CompanyDetailsFormData> | null;
   onContinueAction(formData: CompanyDetailsFormData): RedirectAction;
 };
 
 export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyDetailsFormProps) {
   const form = useForm<CompanyDetailsFormData>({
     resolver: zodResolver(companyDetailsSchema),
-    defaultValues
+    defaultValues: defaultValues ?? {}
   });
 
   async function handleSubmit(data: CompanyDetailsFormData) {

@@ -2,7 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { OnboardingSuccess } from "~/features/onboarding/components/onboarding-success";
 import { PLANS } from "~/features/onboarding/constants/plans";
-import { getOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
+import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
+import { getOnboardingState } from "~/features/onboarding/server/db";
 
 async function loadData() {
   const { isAuthenticated, userId } = await auth();
@@ -11,11 +12,11 @@ async function loadData() {
   const [error, state] = await getOnboardingState(userId);
   if (error || !state.completed) redirect("/onboarding");
 
-  const formData = state.formData as Record<string, unknown>;
-  const plan = PLANS.find((p) => p.id === formData["planId"]);
-  const companyName = (formData["companyName"] as string) ?? "";
-  const templateSteps = (formData["templateSteps"] as string[]) ?? [];
-  const hasBranding = !!(formData["logoUrl"] || formData["brandColor"]);
+  const planId = await detectClerkPlan();
+  const plan = PLANS.find((p) => p.id === planId);
+  const companyName = state.companyDetails?.companyName ?? "";
+  const templateSteps = state.templateConfig?.templateSteps ?? [];
+  const hasBranding = !!(state.branding?.logoUrl || state.branding?.brandColor);
 
   return { plan, companyName, hasBranding, templateSteps };
 }

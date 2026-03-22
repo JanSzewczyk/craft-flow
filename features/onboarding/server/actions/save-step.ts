@@ -8,7 +8,7 @@ import { brandingSchema } from "~/features/onboarding/schemas/branding-schema";
 import { companyDetailsSchema } from "~/features/onboarding/schemas/company-details-schema";
 import { emailSchema } from "~/features/onboarding/schemas/email-schema";
 import { templateSchema } from "~/features/onboarding/schemas/template-schema";
-import { updateStepData } from "~/features/onboarding/server/api/onboarding-state-service";
+import { updateStepData } from "~/features/onboarding/server/db";
 import { type ActionResponse } from "~/lib/action-types";
 
 const stepSchemas: Record<string, z.ZodType> = {
@@ -44,7 +44,7 @@ export async function saveStep(
     return { success: false, error: "Nieprawidłowe dane", fieldErrors };
   }
 
-  const [error] = await updateStepData(userId, nextStep, parsed.data as Record<string, unknown>);
+  const [error] = await updateStepData(userId, currentStep, nextStep, parsed.data as Record<string, unknown>);
   if (error) return { success: false, error: "Nie udało się zapisać danych" };
 
   return { success: true, data: true };

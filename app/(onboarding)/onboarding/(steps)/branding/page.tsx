@@ -2,10 +2,11 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { BrandingForm } from "~/features/onboarding/components/forms/branding-form";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import { type Plan, planHasBranding } from "~/features/onboarding/constants/plans";
+import { planHasBranding } from "~/features/onboarding/constants/plans";
 import { saveStepAndRedirect } from "~/features/onboarding/server/actions/save-step-and-redirect";
 import { uploadLogo } from "~/features/onboarding/server/actions/upload-logo";
-import { getCachedOnboardingState } from "~/features/onboarding/server/api/onboarding-state-service";
+import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
+import { getCachedOnboardingState } from "~/features/onboarding/server/db";
 
 async function loadData() {
   const { isAuthenticated, userId } = await auth();
@@ -14,19 +15,18 @@ async function loadData() {
   const [error, state] = await getCachedOnboardingState(userId);
   if (error) redirect("/onboarding/plans");
 
-  const formData = state.formData as Record<string, unknown>;
-  const planId = formData["planId"] as Plan | undefined;
+  const planId = await detectClerkPlan();
   if (!planId) redirect("/onboarding/plans");
 
   if (!planHasBranding(planId)) {
     redirect("/onboarding/template");
   }
 
-  return { formData };
+  return { branding: state.branding };
 }
 
 export default async function BrandingPage() {
-  const { formData } = await loadData();
+  const { branding } = await loadData();
 
   const action = saveStepAndRedirect.bind(null, OnboardingStep.BRANDING, OnboardingStep.TEMPLATE);
 
@@ -39,8 +39,8 @@ export default async function BrandingPage() {
 
       <BrandingForm
         defaultValues={{
-          logoUrl: (formData["logoUrl"] as string) ?? null,
-          brandColor: (formData["brandColor"] as string) ?? "#10B981"
+          logoUrl: branding?.logoUrl ?? null,
+          brandColor: branding?.brandColor ?? "#10B981"
         }}
         action={action}
         uploadLogoAction={uploadLogo}

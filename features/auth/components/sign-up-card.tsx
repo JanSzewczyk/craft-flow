@@ -56,7 +56,7 @@ export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
         await getToken({ skipCache: true });
       }
 
-      router.push("/");
+      router.push("/onboarding");
       return {};
     }
 

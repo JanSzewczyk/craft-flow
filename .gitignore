@@ -130,3 +130,7 @@ src/styles
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Supabase
+/.supabase
+/drizzle

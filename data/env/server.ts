@@ -17,7 +17,11 @@ export const env = createEnv({
     LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).optional().default("info"),
     CLERK_SECRET_KEY: z.string(),
     RESEND_API_KEY: z.string(),
-    CONTACT_EMAIL_TO: z.email()
+    CONTACT_EMAIL_TO: z.email(),
+    DATABASE_URL: z.string(),
+    DATABASE_URL_PUBLISH: z.string(),
+    SUPABASE_URL: z.url(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string()
   },
   experimental__runtimeEnv: process.env,
   /**

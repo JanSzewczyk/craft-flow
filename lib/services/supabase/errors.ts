@@ -1,0 +1,211 @@
+/**
+ * Supabase service error handling
+ * Implements ServiceError contract for Supabase/Postgres errors
+ */
+
+import { createLogger } from "~/lib/logger";
+
+const logger = createLogger({ module: "supabase" });
+
+/**
+ * Service error contract for Supabase operations
+ */
+export class SupabaseServiceError extends Error {
+  readonly _tag = "SupabaseServiceError";
+
+  /**
+   * Error code for categorization
+   */
+  readonly code: string;
+
+  /**
+   * Whether the error is retryable (transient)
+   */
+  readonly isRetryable: boolean;
+
+  /**
+   * Whether the error indicates a resource was not found
+   */
+  readonly isNotFound: boolean;
+
+  /**
+   * Whether the error indicates a resource already exists
+   */
+  readonly isAlreadyExists: boolean;
+
+  /**
+   * Whether the error is a permission/authorization issue
+   */
+  readonly isPermissionDenied: boolean;
+
+  constructor(options: {
+    code: string;
+    message: string;
+    isRetryable?: boolean;
+    isNotFound?: boolean;
+    isAlreadyExists?: boolean;
+    isPermissionDenied?: boolean;
+    cause?: unknown;
+  }) {
+    super(options.message);
+    this.name = "SupabaseServiceError";
+    this.code = options.code;
+    this.isRetryable = options.isRetryable ?? false;
+    this.isNotFound = options.isNotFound ?? false;
+    this.isAlreadyExists = options.isAlreadyExists ?? false;
+    this.isPermissionDenied = options.isPermissionDenied ?? false;
+
+    if (options.cause) {
+      this.cause = options.cause;
+    }
+  }
+
+  // Static factory methods following ServiceError contract
+
+  /**
+   * Not found error
+   */
+  static notFound(resourceName: string): SupabaseServiceError {
+    return new SupabaseServiceError({
+      code: "not_found",
+      message: `${resourceName} not found`,
+      isNotFound: true,
+      isRetryable: false
+    });
+  }
+
+  /**
+   * Already exists error (unique constraint violation)
+   */
+  static alreadyExists(resourceName: string): SupabaseServiceError {
+    return new SupabaseServiceError({
+      code: "already_exists",
+      message: `${resourceName} already exists`,
+      isAlreadyExists: true,
+      isRetryable: false
+    });
+  }
+
+  /**
+   * Validation error (e.g. FK constraint)
+   */
+  static validation(message: string): SupabaseServiceError {
+    return new SupabaseServiceError({
+      code: "validation",
+      message,
+      isRetryable: false
+    });
+  }
+
+  /**
+   * Unknown/unexpected error
+   */
+  static unknown(message: string = "An unexpected error occurred"): SupabaseServiceError {
+    return new SupabaseServiceError({
+      code: "unknown",
+      message,
+      isRetryable: false
+    });
+  }
+
+  /**
+   * Connection error
+   */
+  static connection(message: string = "Database connection error"): SupabaseServiceError {
+    return new SupabaseServiceError({
+      code: "connection",
+      message,
+      isRetryable: true
+    });
+  }
+
+  /**
+   * Create from a raw postgres error object
+   * Maps postgres error codes to typed SupabaseServiceError instances
+   */
+  static fromPostgresError(error: unknown, resourceName: string = "Resource"): SupabaseServiceError {
+    if (error && typeof error === "object" && "code" in error) {
+      const pgError = error as { code: string; message?: string };
+      const pgCode = pgError.code;
+
+      logger.error({ pgCode, errorMessage: pgError.message, resourceName }, "Postgres error");
+
+      // 23505 - unique_violation → alreadyExists
+      if (pgCode === "23505") {
+        return new SupabaseServiceError({
+          code: "already_exists",
+          message: `${resourceName} already exists`,
+          isAlreadyExists: true,
+          isRetryable: false,
+          cause: error
+        });
+      }
+
+      // 23503 - foreign_key_violation → validation
+      if (pgCode === "23503") {
+        return new SupabaseServiceError({
+          code: "validation",
+          message: `Invalid reference in ${resourceName}`,
+          isRetryable: false,
+          cause: error
+        });
+      }
+
+      // 42P01 - undefined_table → notFound (relation doesn't exist)
+      if (pgCode === "42P01") {
+        return new SupabaseServiceError({
+          code: "not_found",
+          message: `${resourceName} relation not found`,
+          isNotFound: true,
+          isRetryable: false,
+          cause: error
+        });
+      }
+
+      // 08xxx - connection errors → connection
+      if (pgCode.startsWith("08")) {
+        return new SupabaseServiceError({
+          code: "connection",
+          message: "Database connection error",
+          isRetryable: true,
+          cause: error
+        });
+      }
+    }
+
+    // Fallback for unknown errors
+    const message = error instanceof Error ? error.message : "Unknown database error";
+    logger.error({ errorMessage: message, resourceName }, "Unknown database error");
+    return new SupabaseServiceError({
+      code: "unknown",
+      message,
+      isRetryable: false,
+      cause: error
+    });
+  }
+}
+
+/**
+ * Type guard for SupabaseServiceError
+ */
+export function isSupabaseServiceError(error: unknown): error is SupabaseServiceError {
+  return error instanceof SupabaseServiceError;
+}
+
+/**
+ * Categorize a Supabase/Postgres error and return a SupabaseServiceError
+ * This is the main entry point for error categorization in DB query functions
+ */
+export function categorizeSupabaseError(error: unknown, resourceName: string = "Resource"): SupabaseServiceError {
+  if (isSupabaseServiceError(error)) {
+    return error;
+  }
+
+  return SupabaseServiceError.fromPostgresError(error, resourceName);
+}
+
+/**
+ * Tuple type for service layer operations
+ * [error, data] - if error is null, data is valid, and vice versa
+ */
+export type SupabaseServiceResult<T> = [SupabaseServiceError, null] | [null, T];

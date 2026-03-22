@@ -1,5 +1,6 @@
-import { expect } from "storybook/test";
 import { EyeIcon } from "lucide-react";
+
+import { expect } from "storybook/test";
 
 import { PrivacyRightItem } from "./privacy-right-item";
 

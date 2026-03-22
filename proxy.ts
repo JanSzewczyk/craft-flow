@@ -31,6 +31,9 @@ const isAuthFlowRoute = createRouteMatcher([
 
 const isAccountIssuePage = createRouteMatcher(["/account-issue(.*)"]);
 
+const isAppRoute = createRouteMatcher(["/app(.*)"]);
+const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
+
 function hasRoles(sessionClaims: CustomJwtSessionClaims | null): boolean {
   const roles = sessionClaims?.metadata?.roles;
   return Array.isArray(roles) && roles.length > 0;
@@ -75,12 +78,31 @@ export const proxy = clerkMiddleware(async (auth, request) => {
   }
 
   // Check roles for authenticated users on non-auth-flow routes
-  if (!isAuthFlowRoute(request)) {
+  if (!isAuthFlowRoute(request) && !isOnboardingRoute(request)) {
     const { userId, sessionClaims } = await auth();
 
     if (userId && !hasRoles(sessionClaims)) {
       requestLogger.warn({ userId }, "User has no roles assigned, redirecting to account issue page");
       return NextResponse.redirect(new URL("/account-issue", request.url));
+    }
+  }
+
+  // Onboarding flow protection for contractors
+  if (isAppRoute(request) || isOnboardingRoute(request)) {
+    const { userId, sessionClaims } = await auth();
+
+    if (userId && sessionClaims) {
+      const roles = sessionClaims.metadata?.roles ?? [];
+      const onboardingComplete = sessionClaims.metadata?.onboardingComplete;
+
+      if (roles.includes("CONTRACTOR")) {
+        if (isAppRoute(request) && !onboardingComplete) {
+          return NextResponse.redirect(new URL("/onboarding", request.url));
+        }
+        if (isOnboardingRoute(request) && onboardingComplete) {
+          return NextResponse.redirect(new URL("/app/dashboard", request.url));
+        }
+      }
     }
   }
 

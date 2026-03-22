@@ -1,10 +1,8 @@
-import * as React from "react";
-
 import { expect, fn, screen, waitFor } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { ForgotPasswordForm } from "./forgot-password-form";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Auth/Forms/Forgot Password Form",

@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, toast } from "@szum-tech/design-system";
-
 import {
   forgotPasswordVerifySchema,
   type ForgotPasswordVerifyFormData

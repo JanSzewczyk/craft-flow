@@ -2,13 +2,11 @@
 
 import * as React from "react";
 
-import Link from "next/link";
-
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, toast } from "@szum-tech/design-system";
-
+import Link from "next/link";
 import { forgotPasswordSchema, type ForgotPasswordFormData } from "~/features/auth/schemas/forgot-password-schema";
 
 type ForgotPasswordFormProps = {

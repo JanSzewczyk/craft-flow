@@ -1,4 +1,5 @@
 import { ShieldCheckIcon } from "lucide-react";
+
 import { expect } from "storybook/test";
 
 import { PrivacyCookieType } from "./privacy-cookie-type";

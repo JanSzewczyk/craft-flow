@@ -2,12 +2,11 @@
 
 import * as React from "react";
 
-import { ImageIcon, UploadIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, ImageIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Field, FieldGroup, FieldLabel, Input, toast } from "@szum-tech/design-system";
-import { StepNavigation } from "~/features/onboarding/components/step-navigation";
+import { Button, Field, FieldGroup, FieldLabel, Input, toast } from "@szum-tech/design-system";
 import { brandingSchema, type BrandingFormData } from "~/features/onboarding/schemas/branding-schema";
 import { type ActionResponse, type RedirectAction } from "~/lib/action-types";
 
@@ -18,10 +17,10 @@ type BrandingFormProps = {
   };
   onContinueAction: (formData: BrandingFormData) => RedirectAction;
   uploadLogoAction: (formData: FormData) => ActionResponse<{ url: string }>;
-  backHref: string;
+  onBackAction: () => void;
 };
 
-export function BrandingForm({ defaultValues, onContinueAction, uploadLogoAction, backHref }: BrandingFormProps) {
+export function BrandingForm({ defaultValues, onContinueAction, uploadLogoAction, onBackAction }: BrandingFormProps) {
   const [logoPreview, setLogoPreview] = React.useState<string | null>(defaultValues.logoUrl);
   const [uploading, setUploading] = React.useState(false);
 
@@ -120,7 +119,14 @@ export function BrandingForm({ defaultValues, onContinueAction, uploadLogoAction
         </Field>
       </FieldGroup>
 
-      <StepNavigation backHref={backHref} isSubmitting={form.formState.isSubmitting} />
+      <div className="flex justify-between gap-4 pt-6">
+        <Button variant="outline" startIcon={<ArrowLeftIcon />} onClick={onBackAction}>
+          Wróć
+        </Button>
+        <Button type="submit" loading={form.formState.isSubmitting} endIcon={<ArrowRightIcon />}>
+          Dalej
+        </Button>
+      </div>
     </form>
   );
 }

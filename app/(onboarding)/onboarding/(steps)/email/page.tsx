@@ -57,6 +57,11 @@ const placeholders = ["{{clientName}}", "{{projectName}}", "{{companyName}}", "{
 export default async function EmailPage() {
   const { onboardingState } = await loadData();
 
+  async function handleBack() {
+    "use server";
+    redirect(OnboardingStep.TEMPLATE);
+  }
+
   async function handleSubmitEmail(formData: EmailFormData) {
     "use server";
     return await submitEmailAction(formData, onboardingState);
@@ -86,7 +91,7 @@ export default async function EmailPage() {
           emailBody: onboardingState.emailConfig?.emailBody ?? DEFAULT_EMAIL_BODY
         }}
         onContinueAction={handleSubmitEmail}
-        backHref="/onboarding/template"
+        onBackAction={handleBack}
       />
     </StepperContent>
   );

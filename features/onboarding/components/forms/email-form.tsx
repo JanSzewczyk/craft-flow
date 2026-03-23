@@ -1,20 +1,20 @@
 "use client";
 
+import { ArrowLeftIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Field, FieldError, FieldGroup, FieldLabel, Input, Textarea, toast } from "@szum-tech/design-system";
-import { StepNavigation } from "~/features/onboarding/components/step-navigation";
+import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Textarea, toast } from "@szum-tech/design-system";
 import { emailSchema, type EmailFormData } from "~/features/onboarding/schemas/email-schema";
 import { type RedirectAction } from "~/lib/action-types";
 
 type EmailFormProps = {
   defaultValues: EmailFormData;
   onContinueAction: (formData: EmailFormData) => RedirectAction;
-  backHref: string;
+  onBackAction: () => void;
 };
 
-export function EmailForm({ defaultValues, onContinueAction, backHref }: EmailFormProps) {
+export function EmailForm({ defaultValues, onContinueAction, onBackAction }: EmailFormProps) {
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
     defaultValues
@@ -44,7 +44,14 @@ export function EmailForm({ defaultValues, onContinueAction, backHref }: EmailFo
         </Field>
       </FieldGroup>
 
-      <StepNavigation backHref={backHref} isSubmitting={form.formState.isSubmitting} isLastStep />
+      <div className="flex justify-between gap-4 pt-6">
+        <Button variant="outline" startIcon={<ArrowLeftIcon />} onClick={() => onBackAction()}>
+          Wróć
+        </Button>
+        <Button type="submit" loading={form.formState.isSubmitting}>
+          Zakończ
+        </Button>
+      </div>
     </form>
   );
 }

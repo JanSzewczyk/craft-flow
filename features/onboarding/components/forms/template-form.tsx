@@ -1,24 +1,23 @@
 "use client";
 
-import { GripVerticalIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, GripVerticalIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 
 import { Button, Input, toast } from "@szum-tech/design-system";
-import { StepNavigation } from "~/features/onboarding/components/step-navigation";
 import { type TemplateFormData, templateSchema } from "~/features/onboarding/schemas/template-schema";
 import { type RedirectAction } from "~/lib/action-types";
 
 type TemplateFormProps = {
   defaultValues: { templateSteps: string[] };
   onContinueAction: (formData: TemplateFormData) => RedirectAction;
-  backHref: string;
+  onBackAction: () => void;
 };
 
 type FormValues = {
   steps: { value: string }[];
 };
 
-export function TemplateForm({ defaultValues, onContinueAction, backHref }: TemplateFormProps) {
+export function TemplateForm({ defaultValues, onContinueAction, onBackAction }: TemplateFormProps) {
   const form = useForm<FormValues>({
     defaultValues: {
       steps: defaultValues.templateSteps.map((s) => ({ value: s }))
@@ -68,7 +67,14 @@ export function TemplateForm({ defaultValues, onContinueAction, backHref }: Temp
         Dodaj kolejny etap
       </Button>
 
-      <StepNavigation backHref={backHref} isSubmitting={form.formState.isSubmitting} />
+      <div className="flex justify-between gap-4 pt-6">
+        <Button variant="outline" type="button" startIcon={<ArrowLeftIcon />} onClick={() => onBackAction()}>
+          Wróć
+        </Button>
+        <Button type="submit" loading={form.formState.isSubmitting} endIcon={<ArrowRightIcon />}>
+          Dalej
+        </Button>
+      </div>
     </form>
   );
 }

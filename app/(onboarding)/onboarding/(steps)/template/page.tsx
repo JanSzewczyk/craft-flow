@@ -50,16 +50,21 @@ async function loadData() {
   }
 
   const steps = resolveStepsForPlan(planId);
-  const backHref = steps.some((s) => s.id === OnboardingStep.BRANDING)
-    ? "/onboarding/branding"
-    : "/onboarding/company-details";
+  const backStep = steps.some((s) => s.id === OnboardingStep.BRANDING)
+    ? OnboardingStep.BRANDING
+    : OnboardingStep.COMPANY_DETAILS;
 
   logger.info({ userId }, "Successfully loaded template page data");
-  return { onboardingState: onboarding, backHref };
+  return { onboardingState: onboarding, backStep };
 }
 
 export default async function TemplatePage() {
-  const { onboardingState, backHref } = await loadData();
+  const { onboardingState, backStep } = await loadData();
+
+  async function handleBack() {
+    "use server";
+    redirect(backStep);
+  }
 
   async function handleSubmitTemplate(formData: TemplateFormData) {
     "use server";
@@ -75,7 +80,11 @@ export default async function TemplatePage() {
         <p className="text-muted-foreground text-body-sm mt-2">Z jakich kroków zazwyczaj składa się Twoje zlecenie?</p>
       </div>
 
-      <TemplateForm defaultValues={{ templateSteps }} onContinueAction={handleSubmitTemplate} backHref={backHref} />
+      <TemplateForm
+        defaultValues={{ templateSteps }}
+        onContinueAction={handleSubmitTemplate}
+        onBackAction={handleBack}
+      />
     </StepperContent>
   );
 }

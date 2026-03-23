@@ -2,9 +2,10 @@ import { auth } from "@clerk/nextjs/server";
 import { StepperContent } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
 import { type BrandingFormData } from "~/features/onboarding";
-import { BrandingForm } from "~/features/onboarding/components/forms/branding-form";
+import { BrandingView } from "~/features/onboarding/components/branding-view";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { planHasBranding } from "~/features/onboarding/constants/plans";
+import { deleteLogo } from "~/features/onboarding/server/actions/delete-logo";
 import { submitBrandingAction } from "~/features/onboarding/server/actions/submit-branding";
 import { uploadLogo } from "~/features/onboarding/server/actions/upload-logo";
 import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
@@ -69,13 +70,11 @@ export default async function BrandingPage() {
         <p className="text-muted-foreground text-body-sm mt-2">Wgraj logo i wybierz kolor przewodni swojego portalu</p>
       </div>
 
-      <BrandingForm
-        defaultValues={{
-          logoUrl: onboardingState.branding?.logoUrl ?? null,
-          brandColor: onboardingState.branding?.brandColor ?? "#10B981"
-        }}
+      <BrandingView
+        defaultValues={onboardingState?.branding}
         onContinueAction={handleSubmitBranding}
         uploadLogoAction={uploadLogo}
+        deleteLogoAction={deleteLogo}
         onBackAction={handleBack}
       />
     </StepperContent>

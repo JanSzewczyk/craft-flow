@@ -5,7 +5,6 @@ import { type TemplateFormData } from "~/features/onboarding";
 import { TemplateForm } from "~/features/onboarding/components/forms/template-form";
 import { DEFAULT_TEMPLATE_STEPS } from "~/features/onboarding/constants/defaults";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import { resolveStepsForPlan } from "~/features/onboarding/constants/resolve-steps";
 import { submitTemplateAction } from "~/features/onboarding/server/actions/submit-template";
 import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
 import { getCachedOnboardingState } from "~/features/onboarding/server/db";
@@ -48,22 +47,16 @@ async function loadData() {
     logger.warn({ userId }, "No plan detected, redirecting to plans");
     redirect("/onboarding/plans");
   }
-
-  const steps = resolveStepsForPlan(planId);
-  const backStep = steps.some((s) => s.id === OnboardingStep.BRANDING)
-    ? OnboardingStep.BRANDING
-    : OnboardingStep.COMPANY_DETAILS;
-
   logger.info({ userId }, "Successfully loaded template page data");
-  return { onboardingState: onboarding, backStep };
+  return { onboardingState: onboarding };
 }
 
 export default async function TemplatePage() {
-  const { onboardingState, backStep } = await loadData();
+  const { onboardingState } = await loadData();
 
   async function handleBack() {
     "use server";
-    redirect(backStep);
+    redirect("/");
   }
 
   async function handleSubmitTemplate(formData: TemplateFormData) {

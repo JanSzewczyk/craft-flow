@@ -5,14 +5,14 @@ import { type ActionResponse } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 import { getPublicUrl, uploadFile } from "~/lib/supabase/storage";
 
-const logger = createLogger({ module: "onboarding" });
+const logger = createLogger({ module: "onboarding-action" });
 
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
 export async function uploadLogo(formData: FormData): ActionResponse<{ url: string }> {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId, isAuthenticated } = await auth();
+  if (!isAuthenticated) {
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 

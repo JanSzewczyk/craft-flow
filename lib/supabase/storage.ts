@@ -21,6 +21,11 @@ export async function uploadFile(
   return data;
 }
 
+export async function deleteFile(bucket: string, paths: string[]): Promise<void> {
+  const { error } = await supabaseAdmin.storage.from(bucket).remove(paths);
+  if (error) throw error;
+}
+
 export function getPublicUrl(bucket: string, path: string): string {
   const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;

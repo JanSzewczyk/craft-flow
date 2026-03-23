@@ -13,7 +13,7 @@ export default function OnboardingLayout({ children }: LayoutProps<"/onboarding"
           <ThemeToggle />
         </div>
       </Header>
-      <div className="container mt-8">{children}</div>
+      <div className="container my-8">{children}</div>
     </div>
   );
 }

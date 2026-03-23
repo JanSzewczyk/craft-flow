@@ -1,55 +1,133 @@
-"use client";
-
 import * as React from "react";
 
-import { ArrowLeftIcon, ArrowRightIcon, ImageIcon, UploadIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { ArrowLeftIcon, ArrowRightIcon, ImageIcon, XIcon } from "lucide-react";
+import { Controller, type DefaultValues, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Field, FieldGroup, FieldLabel, Input, toast } from "@szum-tech/design-system";
+import {
+  Button,
+  ColorPicker,
+  ColorPickerArea,
+  ColorPickerContent,
+  ColorPickerEyeDropper,
+  ColorPickerHueSlider,
+  ColorPickerInput,
+  ColorPickerSwatch,
+  ColorPickerTrigger,
+  ColorSwatch,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadItemProgress,
+  FileUploadList,
+  Input,
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+  RadioGroup,
+  RadioGroupItem,
+  toast
+} from "@szum-tech/design-system";
+import { cn } from "@szum-tech/design-system/utils";
+import Image from "next/image";
+import { BRAND_COLOR_PRESETS, DEFAULT_BRAND_COLOR } from "~/features/onboarding/constants/branding-colors";
 import { brandingSchema, type BrandingFormData } from "~/features/onboarding/schemas/branding-schema";
 import { type ActionResponse, type RedirectAction } from "~/lib/action-types";
 
+type LogoState = { mode: "none" } | { mode: "url"; url: string } | { mode: "file"; file: File };
+
+function getInitialLogoState(defaultValues?: DefaultValues<BrandingFormData> | null): LogoState {
+  if (defaultValues?.logoUrl) {
+    return { mode: "url", url: defaultValues.logoUrl as string };
+  }
+  return { mode: "none" };
+}
+
+function getFilenameFromUrl(url: string): string {
+  try {
+    const pathname = new URL(url).pathname;
+    return pathname.split("/").pop() ?? "logo";
+  } catch {
+    return "logo";
+  }
+}
+
 type BrandingFormProps = {
-  defaultValues: {
-    logoUrl: string | null;
-    brandColor: string;
-  };
-  onContinueAction: (formData: BrandingFormData) => RedirectAction;
-  uploadLogoAction: (formData: FormData) => ActionResponse<{ url: string }>;
-  onBackAction: () => void;
+  defaultValues?: DefaultValues<BrandingFormData> | null;
+  onContinueAction(formData: BrandingFormData): RedirectAction;
+  uploadLogoAction(formData: FormData): ActionResponse<{ url: string }>;
+  deleteLogoAction?(logoUrl: string): ActionResponse<void>;
+  onBackAction(): void;
+  onValuesChange?(values: Partial<BrandingFormData>): void;
 };
 
-export function BrandingForm({ defaultValues, onContinueAction, uploadLogoAction, onBackAction }: BrandingFormProps) {
-  const [logoPreview, setLogoPreview] = React.useState<string | null>(defaultValues.logoUrl);
-  const [uploading, setUploading] = React.useState(false);
+export function BrandingForm({
+  defaultValues,
+  onContinueAction,
+  uploadLogoAction,
+  deleteLogoAction,
+  onBackAction,
+  onValuesChange
+}: BrandingFormProps) {
+  const [logoState, setLogoState] = React.useState<LogoState>(() => getInitialLogoState(defaultValues));
+  const [files, setFiles] = React.useState<File[]>([]);
 
   const form = useForm<BrandingFormData>({
     resolver: zodResolver(brandingSchema),
-    defaultValues: {
-      logoUrl: defaultValues.logoUrl,
-      brandColor: defaultValues.brandColor
-    }
+    defaultValues: defaultValues ?? { brandColor: DEFAULT_BRAND_COLOR }
   });
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  form.watch((value) => {
+    onValuesChange?.({ brandColor: value.brandColor, logoUrl: value.logoUrl });
+  });
+
+  async function handleUpload(
+    files: File[],
+    options: {
+      onProgress: (file: File, progress: number) => void;
+      onSuccess: (file: File) => void;
+      onError: (file: File, error: Error) => void;
+    }
+  ) {
+    const file = files[0];
     if (!file) return;
 
-    setUploading(true);
+    options.onProgress(file, 50);
+
     const formData = new FormData();
     formData.append("file", file);
 
     const result = await uploadLogoAction(formData);
 
     if (result.success) {
+      options.onProgress(file, 100);
+      options.onSuccess(file);
       form.setValue("logoUrl", result.data.url);
-      setLogoPreview(result.data.url);
+      setLogoState({ mode: "file", file });
       toast.success("Logo przesłane");
     } else {
+      options.onError(file, new Error(result.error));
       toast.error("Błąd", { description: result.error });
     }
-    setUploading(false);
+  }
+
+  async function handleRemoveLogo() {
+    const currentUrl = form.getValues("logoUrl");
+    if (currentUrl && deleteLogoAction) {
+      await deleteLogoAction(currentUrl);
+    }
+    form.setValue("logoUrl", "", { shouldValidate: false });
+    setFiles([]);
+    setLogoState({ mode: "none" });
   }
 
   async function handleSubmit(data: BrandingFormData) {
@@ -60,63 +138,144 @@ export function BrandingForm({ defaultValues, onContinueAction, uploadLogoAction
     }
   }
 
+  const handleFileReject = React.useCallback((file: File, message: string) => {
+    toast(message, {
+      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`
+    });
+  }, []);
+
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-6">
       <FieldGroup className="container-xl">
         <Field>
           <FieldLabel>Logo firmy</FieldLabel>
-          <label
-            htmlFor="logo-upload"
-            className="border-border hover:border-primary/50 flex cursor-pointer flex-col items-center justify-center gap-3 rounded border-2 border-dashed p-8 transition-colors"
-          >
-            {logoPreview ? (
-              <img src={logoPreview} alt="Logo preview" className="max-h-24 max-w-48 object-contain" />
-            ) : (
-              <>
+          {logoState.mode === "url" && (
+            <Item variant="outline" role="listitem">
+              <ItemMedia variant="image">
+                <Image src={logoState.url} alt="Logo firmy" width="64" height="64" className="max-h-16 max-w-32" />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>{getFilenameFromUrl(logoState.url)}</ItemTitle>
+              </ItemContent>
+              <ItemActions>
+                <Button variant="ghost" size="icon" onClick={handleRemoveLogo}>
+                  <XIcon />
+                </Button>
+              </ItemActions>
+            </Item>
+          )}
+          {logoState.mode === "none" && (
+            <FileUpload
+              value={files}
+              onValueChange={setFiles}
+              maxFiles={1}
+              maxSize={2 * 1024 * 1024}
+              accept="image/png, image/jpeg, image/svg+xml"
+              onUpload={handleUpload}
+              onFileReject={handleFileReject}
+            >
+              <FileUploadDropzone className="flex flex-col items-center justify-center gap-3 p-8">
                 <div className="bg-muted rounded-full p-3">
-                  {uploading ? (
-                    <UploadIcon className="text-muted-foreground size-6 animate-pulse" />
-                  ) : (
-                    <ImageIcon className="text-muted-foreground size-6" />
-                  )}
+                  <ImageIcon className="text-muted-foreground size-6" />
                 </div>
                 <div className="text-center">
-                  <p className="text-body-sm text-foreground font-medium">
-                    {uploading ? "Przesyłanie..." : "Kliknij lub przeciągnij plik"}
-                  </p>
+                  <p className="text-body-sm text-foreground font-medium">Kliknij lub przeciągnij plik</p>
                   <p className="text-body-xs text-muted-foreground mt-1">PNG, JPG lub SVG (max 2MB)</p>
                 </div>
-              </>
-            )}
-            <input
-              id="logo-upload"
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml"
-              className="hidden"
-              onChange={handleFileUpload}
-              disabled={uploading}
-            />
-          </label>
+              </FileUploadDropzone>
+            </FileUpload>
+          )}
+          {logoState.mode === "file" && (
+            <FileUpload
+              value={files}
+              onValueChange={setFiles}
+              maxFiles={1}
+              maxSize={2 * 1024 * 1024}
+              accept="image/png, image/jpeg, image/svg+xml"
+              onUpload={handleUpload}
+              onFileReject={handleFileReject}
+            >
+              <FileUploadList orientation="horizontal">
+                {files.map((file) => (
+                  <FileUploadItem key={file.name} value={file} className="w-full">
+                    <FileUploadItemPreview />
+                    <FileUploadItemMetadata />
+                    <FileUploadItemDelete asChild onClick={handleRemoveLogo}>
+                      <Button variant="ghost" size="icon-sm" aria-label={`Remove ${file.name}`}>
+                        ✕
+                      </Button>
+                    </FileUploadItemDelete>
+                  </FileUploadItem>
+                ))}
+              </FileUploadList>
+            </FileUpload>
+          )}
+          <FieldError errors={[form.formState.errors.logoUrl]} />
         </Field>
 
-        <Field>
-          <FieldLabel htmlFor="brandColor">Kolor przewodni</FieldLabel>
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              id="brandColor"
-              className="size-10 cursor-pointer rounded border-0"
-              value={form.watch("brandColor")}
-              onChange={(e) => form.setValue("brandColor", e.target.value)}
-            />
-            <Input
-              value={form.watch("brandColor")}
-              onChange={(e) => form.setValue("brandColor", e.target.value)}
-              placeholder="#10B981"
-              className="font-mono"
-            />
-          </div>
-        </Field>
+        <Controller
+          control={form.control}
+          name="brandColor"
+          render={({ field: { onChange, value, ...fieldProps }, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="brand-color">Kolor przewodni</FieldLabel>
+              <div className="space-y-6">
+                <RadioGroup
+                  onValueChange={onChange}
+                  value={value}
+                  aria-invalid={!!fieldState.error}
+                  orientation="horizontal"
+                  className="flex flex-row"
+                  {...fieldProps}
+                >
+                  {BRAND_COLOR_PRESETS.map((color) => (
+                    <label
+                      key={color.value}
+                      className="has-focus-visible:border-ring has-focus-visible:ring-ring/50 flex-0 rounded border border-transparent has-focus-visible:ring"
+                    >
+                      <RadioGroupItem value={color.value} aria-label={color.label} className="sr-only" />
+                      <ColorSwatch
+                        className={cn(
+                          "cursor-pointer transition-all",
+                          value === color.value ? "ring-primary ring-2" : ""
+                        )}
+                        style={{ backgroundColor: color.value }}
+                      />
+                    </label>
+                  ))}
+                </RadioGroup>
+
+                <div className="flex flex-row gap-2">
+                  <ColorPicker value={value} onValueChange={onChange} defaultFormat="hex">
+                    <ColorPickerTrigger asChild>
+                      <button type="button" aria-label="Pick Color">
+                        <ColorPickerSwatch className="size-8" style={{ backgroundColor: value }} />
+                      </button>
+                    </ColorPickerTrigger>
+                    <ColorPickerContent>
+                      <ColorPickerArea />
+                      <div className="flex items-center gap-2">
+                        <ColorPickerEyeDropper />
+                        <ColorPickerHueSlider />
+                      </div>
+                      <ColorPickerInput withoutAlpha />
+                    </ColorPickerContent>
+                  </ColorPicker>
+
+                  <Input
+                    id="brand-color"
+                    value={value}
+                    onChange={onChange}
+                    name="brandColor"
+                    aria-invalid={!!fieldState.error}
+                  />
+                </div>
+              </div>
+
+              <FieldError errors={[fieldState.error]} />
+            </Field>
+          )}
+        />
       </FieldGroup>
 
       <div className="flex justify-between gap-4 pt-6">

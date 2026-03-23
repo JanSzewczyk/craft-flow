@@ -1,6 +1,5 @@
 // Components
 export { OnboardingStepper } from "./components/onboarding-stepper";
-export { StepNavigation } from "./components/step-navigation";
 export { OnboardingSuccess } from "./components/onboarding-success";
 export { CompanyDetailsForm } from "./components/forms/company-details-form";
 export { BrandingForm } from "./components/forms/branding-form";

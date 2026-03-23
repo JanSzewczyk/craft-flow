@@ -52,6 +52,11 @@ async function loadData() {
 export default async function BrandingPage() {
   const { onboardingState } = await loadData();
 
+  async function handleBack() {
+    "use server";
+    redirect(OnboardingStep.COMPANY_DETAILS);
+  }
+
   async function handleSubmitBranding(formData: BrandingFormData) {
     "use server";
     return await submitBrandingAction(formData, onboardingState);
@@ -71,7 +76,7 @@ export default async function BrandingPage() {
         }}
         onContinueAction={handleSubmitBranding}
         uploadLogoAction={uploadLogo}
-        backHref="/onboarding/company-details"
+        onBackAction={handleBack}
       />
     </StepperContent>
   );

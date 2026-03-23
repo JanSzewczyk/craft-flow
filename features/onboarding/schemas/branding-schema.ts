@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const brandingSchema = z.object({
-  logoUrl: z.string().url().nullable().optional(),
+  logoUrl: z.url(),
   brandColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Nieprawidłowy kolor HEX")
 });
 

@@ -13,7 +13,10 @@ const config: NextConfig = {
   },
   serverExternalPackages: ["pino", "pino-pretty"],
   images: {
-    remotePatterns: [new URL("https://lh3.googleusercontent.com/**")]
+    remotePatterns: [
+      new URL("https://lh3.googleusercontent.com/**"),
+      new URL("https://kytzzajvfnibphyzgwcz.supabase.co/storage/v1/**")
+    ]
   },
   reactCompiler: true,
   async rewrites() {

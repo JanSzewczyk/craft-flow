@@ -1,12 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { StepperContent } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
-import { type TemplateFormData } from "~/features/onboarding";
 import { TemplateForm } from "~/features/onboarding/components/forms/template-form";
-import { DEFAULT_TEMPLATE_STEPS } from "~/features/onboarding/constants/defaults";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
+import { type TemplateFormData } from "~/features/onboarding/schemas";
 import { submitTemplateAction } from "~/features/onboarding/server/actions/submit-template";
-import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
 import { getCachedOnboardingState } from "~/features/onboarding/server/db";
 import { createLogger } from "~/lib/logger";
 
@@ -20,8 +18,8 @@ async function loadData() {
   }
   logger.info({ userId }, "Loading onboarding template page data");
 
-  const [onboardingError, onboarding] = await getCachedOnboardingState(userId);
-  if (onboardingError && !onboardingError.isNotFound) {
+  const [onboardingError, onboardingState] = await getCachedOnboardingState(userId);
+  if (onboardingError) {
     logger.error(
       {
         userId,
@@ -30,25 +28,12 @@ async function loadData() {
       },
       "Failed to load onboarding data"
     );
-    if (onboardingError.isRetryable) {
-      throw onboardingError;
-    } else {
-      throw new Error("Unable to access onboarding data");
-    }
+
+    throw onboardingError;
   }
 
-  if (onboardingError?.isNotFound || !onboarding) {
-    logger.warn({ userId }, "No onboarding state found, redirecting to plans");
-    redirect("/onboarding/plans");
-  }
-
-  const planId = await detectClerkPlan();
-  if (!planId) {
-    logger.warn({ userId }, "No plan detected, redirecting to plans");
-    redirect("/onboarding/plans");
-  }
   logger.info({ userId }, "Successfully loaded template page data");
-  return { onboardingState: onboarding };
+  return { onboardingState };
 }
 
 export default async function TemplatePage() {
@@ -64,8 +49,6 @@ export default async function TemplatePage() {
     return await submitTemplateAction(formData, onboardingState);
   }
 
-  const templateSteps = onboardingState.templateConfig?.templateSteps ?? DEFAULT_TEMPLATE_STEPS;
-
   return (
     <StepperContent value={OnboardingStep.TEMPLATE}>
       <div className="mb-8 text-center">
@@ -74,7 +57,7 @@ export default async function TemplatePage() {
       </div>
 
       <TemplateForm
-        defaultValues={{ templateSteps }}
+        defaultValues={onboardingState.templateConfig}
         onContinueAction={handleSubmitTemplate}
         onBackAction={handleBack}
       />

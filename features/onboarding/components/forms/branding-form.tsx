@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 
 import { ArrowLeftIcon, ArrowRightIcon, ImageIcon, XIcon } from "lucide-react";
@@ -25,7 +27,6 @@ import {
   FileUploadItemDelete,
   FileUploadItemMetadata,
   FileUploadItemPreview,
-  FileUploadItemProgress,
   FileUploadList,
   Input,
   Item,

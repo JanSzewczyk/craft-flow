@@ -1,7 +1,13 @@
 import { z } from "zod";
 
-export const templateSchema = z.object({
-  templateSteps: z.array(z.string().min(1, "Nazwa etapu nie może być pusta")).min(1, "Dodaj co najmniej jeden etap")
+export const templateStepSchema = z.object({
+  title: z.string().min(1, "Nazwa etapu nie może być pusta"),
+  description: z.string()
 });
 
-export type TemplateFormData = z.output<typeof templateSchema>;
+export const templateSchema = z.object({
+  templateSteps: z.array(templateStepSchema)
+});
+
+export type TemplateStepFormData = z.input<typeof templateStepSchema>;
+export type TemplateFormData = z.input<typeof templateSchema>;

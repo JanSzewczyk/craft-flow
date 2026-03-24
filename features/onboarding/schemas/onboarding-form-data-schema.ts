@@ -1,8 +1,7 @@
 import { type z } from "zod";
 
-import { companyDetailsSchema } from "~/features/onboarding";
-
 import { brandingSchema } from "./branding-schema";
+import { companyDetailsSchema } from "./company-details-schema";
 import { emailSchema } from "./email-schema";
 import { planSelectionSchema } from "./plan-selection-schema";
 import { templateSchema } from "./template-schema";

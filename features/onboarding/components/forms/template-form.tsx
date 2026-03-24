@@ -1,44 +1,63 @@
 "use client";
 
-import { ArrowLeftIcon, ArrowRightIcon, GripVerticalIcon, PlusIcon, TrashIcon } from "lucide-react";
-import { useFieldArray, useForm } from "react-hook-form";
+import * as React from "react";
 
-import { Button, Input, toast } from "@szum-tech/design-system";
-import { type TemplateFormData, templateSchema } from "~/features/onboarding/schemas/template-schema";
+import { ArrowLeftIcon, ArrowRightIcon, PlusIcon } from "lucide-react";
+import { type DefaultValues, type FieldArrayWithId, useFieldArray, useForm } from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Sortable, SortableItem, toast } from "@szum-tech/design-system";
+import { TemplateStepFormDialog } from "~/features/onboarding/components/forms/template-step-form-dialog";
+import { TemplateStepItemForm } from "~/features/onboarding/components/forms/template-step-item";
+import { DEFAULT_TEMPLATE_STEPS } from "~/features/onboarding/constants/defaults";
+import {
+  type TemplateFormData,
+  templateSchema,
+  type TemplateStepFormData
+} from "~/features/onboarding/schemas/template-schema";
 import { type RedirectAction } from "~/lib/action-types";
 
 type TemplateFormProps = {
-  defaultValues: { templateSteps: string[] };
-  onContinueAction: (formData: TemplateFormData) => RedirectAction;
-  onBackAction: () => void;
-};
-
-type FormValues = {
-  steps: { value: string }[];
+  defaultValues?: DefaultValues<TemplateFormData> | null;
+  onContinueAction(formData: TemplateFormData): RedirectAction;
+  onBackAction(): void;
 };
 
 export function TemplateForm({ defaultValues, onContinueAction, onBackAction }: TemplateFormProps) {
-  const form = useForm<FormValues>({
-    defaultValues: {
-      steps: defaultValues.templateSteps.map((s) => ({ value: s }))
+  const form = useForm<TemplateFormData>({
+    resolver: zodResolver(templateSchema),
+    defaultValues: defaultValues ?? {
+      templateSteps: DEFAULT_TEMPLATE_STEPS
     }
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const templateStepsFields = useFieldArray({
     control: form.control,
-    name: "steps"
+    name: "templateSteps"
   });
 
-  async function handleSubmit(data: FormValues) {
-    const templateSteps = data.steps.map((s) => s.value).filter((v) => v.trim() !== "");
+  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
 
-    const parsed = templateSchema.safeParse({ templateSteps });
-    if (!parsed.success) {
-      toast.error("Błąd", { description: "Dodaj co najmniej jeden etap" });
-      return;
-    }
+  function handleOpenAddDialog() {
+    setIsAddModalOpen(true);
+  }
 
-    const result = await onContinueAction({ templateSteps });
+  function handleAddTemplateStep(step: TemplateStepFormData) {
+    templateStepsFields.append(step);
+  }
+  function handleRemoveTemplateStep(index: number) {
+    templateStepsFields.remove(index);
+  }
+  function handleUpdateTemplateStep(index: number, updatedStep: TemplateStepFormData) {
+    templateStepsFields.update(index, updatedStep);
+  }
+
+  function handleSortChange(sorted: Array<FieldArrayWithId<TemplateFormData, "templateSteps">>) {
+    templateStepsFields.replace(sorted.map(({ title, description }) => ({ title, description })));
+  }
+
+  async function handleSubmit(data: TemplateFormData) {
+    const result = await onContinueAction(data);
 
     if (!result.success) {
       toast.error("Błąd", { description: result.error });
@@ -46,29 +65,47 @@ export function TemplateForm({ defaultValues, onContinueAction, onBackAction }: 
   }
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3">
-        {fields.map((field, index) => (
-          <div key={field.id} className="flex items-center gap-2">
-            <GripVerticalIcon className="text-muted-foreground size-5 shrink-0 cursor-grab" />
-            <span className="text-muted-foreground text-body-sm w-6 shrink-0 text-center">{index + 1}.</span>
-            <Input placeholder="Nazwa etapu" {...form.register(`steps.${index}.value`)} />
-            {fields.length > 1 && (
-              <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
-                <TrashIcon className="size-4" />
-              </Button>
-            )}
-          </div>
-        ))}
+    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
+      <div className="container-xl space-y-4">
+        <Sortable
+          value={templateStepsFields.fields}
+          onValueChange={handleSortChange}
+          getItemValue={(s) => s.id}
+          strategy="vertical"
+          className="space-y-2"
+        >
+          {templateStepsFields.fields.map((field, index) => (
+            <SortableItem key={field.id} value={field.id} asChild>
+              <div>
+                <TemplateStepItemForm
+                  templateStep={field}
+                  canRemove={templateStepsFields.fields.length > 1}
+                  onUpdate={(updatedStep) => handleUpdateTemplateStep(index, updatedStep)}
+                  onRemove={() => handleRemoveTemplateStep(index)}
+                />
+              </div>
+            </SortableItem>
+          ))}
+        </Sortable>
+
+        <Button
+          type="button"
+          fullWidth
+          size="lg"
+          variant="outline"
+          startIcon={<PlusIcon />}
+          onClick={handleOpenAddDialog}
+        >
+          Dodaj etap
+        </Button>
       </div>
 
-      <Button type="button" variant="outline" onClick={() => append({ value: "" })} className="self-start">
-        <PlusIcon className="size-4" />
-        Dodaj kolejny etap
-      </Button>
+      {isAddModalOpen ? (
+        <TemplateStepFormDialog onOpenChange={setIsAddModalOpen} onSubmit={handleAddTemplateStep} />
+      ) : null}
 
-      <div className="flex justify-between gap-4 pt-6">
-        <Button variant="outline" type="button" startIcon={<ArrowLeftIcon />} onClick={() => onBackAction()}>
+      <div className="flex justify-between gap-4 pt-12">
+        <Button variant="outline" type="button" startIcon={<ArrowLeftIcon />} onClick={onBackAction}>
           Wróć
         </Button>
         <Button type="submit" loading={form.formState.isSubmitting} endIcon={<ArrowRightIcon />}>

@@ -1,5 +1,3 @@
-import "server-only";
-
 import { eq } from "drizzle-orm";
 
 import { type OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";

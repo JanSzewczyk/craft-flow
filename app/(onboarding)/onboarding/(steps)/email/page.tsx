@@ -1,7 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { Badge, StepperContent } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
-import { type EmailFormData } from "~/features/onboarding";
 import { EmailForm } from "~/features/onboarding/components/forms/email-form";
 import { DEFAULT_EMAIL_BODY, DEFAULT_EMAIL_SUBJECT } from "~/features/onboarding/constants/defaults";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
@@ -9,6 +8,7 @@ import { submitEmailAction } from "~/features/onboarding/server/actions/submit-e
 import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
 import { getCachedOnboardingState } from "~/features/onboarding/server/db";
 import { createLogger } from "~/lib/logger";
+import { type EmailFormData } from "~/features/onboarding/schemas";
 
 const logger = createLogger({ module: "onboarding-email-page" });
 

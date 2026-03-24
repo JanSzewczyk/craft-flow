@@ -1,10 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { StepperContent } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
-import { type BrandingFormData } from "~/features/onboarding";
 import { BrandingView } from "~/features/onboarding/components/branding-view";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { planHasBranding } from "~/features/onboarding/constants/plans";
+import { type BrandingFormData } from "~/features/onboarding/schemas";
 import { deleteLogo } from "~/features/onboarding/server/actions/delete-logo";
 import { submitBrandingAction } from "~/features/onboarding/server/actions/submit-branding";
 import { uploadLogo } from "~/features/onboarding/server/actions/upload-logo";

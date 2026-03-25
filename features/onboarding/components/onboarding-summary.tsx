@@ -6,7 +6,6 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   BuildingIcon,
-  ImageIcon,
   LayoutTemplateIcon,
   MailIcon,
   PaletteIcon,
@@ -127,7 +126,7 @@ export function OnboardingSummary({
                     {branding?.brandColor && (
                       <span className="flex items-center gap-3">
                         <ColorSwatch color={branding.brandColor} />
-                        <span className="text-muted-foreground font-mono">{branding.brandColor}</span>
+                        <span className="text-muted-foreground font-code uppercase">{branding.brandColor}</span>
                       </span>
                     )}
                   </div>

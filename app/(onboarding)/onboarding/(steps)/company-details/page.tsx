@@ -3,10 +3,10 @@ import { StepperContent } from "@szum-tech/design-system";
 import { notFound, redirect } from "next/navigation";
 import { CompanyDetailsForm } from "~/features/onboarding/components/forms/company-details-form";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
+import { type CompanyDetailsFormData } from "~/features/onboarding/schemas";
 import { submitCompanyDetailsAction } from "~/features/onboarding/server/actions/submit-company-details";
 import { createOnboardingState, getCachedOnboardingState } from "~/features/onboarding/server/db";
 import { createLogger } from "~/lib/logger";
-import { CompanyDetailsFormData } from "~/features/onboarding/schemas";
 
 const logger = createLogger({ module: "onboarding-company-details-page" });
 

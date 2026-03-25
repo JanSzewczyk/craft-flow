@@ -77,21 +77,17 @@ export const proxy = clerkMiddleware(async (auth, request) => {
     await auth.protect();
   }
 
-  // Check roles for authenticated users on non-auth-flow routes
-  if (!isAuthFlowRoute(request) && !isOnboardingRoute(request)) {
+  // Check roles and onboarding state for authenticated users
+  if (!isAuthFlowRoute(request)) {
     const { userId, sessionClaims } = await auth();
 
-    if (userId && !hasRoles(sessionClaims)) {
+    if (userId && !hasRoles(sessionClaims) && !isOnboardingRoute(request)) {
       requestLogger.warn({ userId }, "User has no roles assigned, redirecting to account issue page");
       return NextResponse.redirect(new URL("/account-issue", request.url));
     }
-  }
 
-  // Onboarding flow protection for contractors
-  if (isAppRoute(request) || isOnboardingRoute(request)) {
-    const { userId, sessionClaims } = await auth();
-
-    if (userId && sessionClaims) {
+    // Onboarding flow protection for contractors
+    if ((isAppRoute(request) || isOnboardingRoute(request)) && userId && sessionClaims) {
       const roles = sessionClaims.metadata?.roles ?? [];
       const onboardingComplete = sessionClaims.metadata?.onboardingComplete;
 

@@ -4,67 +4,22 @@
  */
 
 import { createLogger } from "~/lib/logger";
+import { BaseServiceError, type ServiceErrorOptions, type ServiceResult } from "~/lib/services/errors";
 
 const logger = createLogger({ module: "supabase" });
 
 /**
  * Service error contract for Supabase operations
  */
-export class SupabaseServiceError extends Error {
-  readonly _tag = "SupabaseServiceError";
+export class SupabaseServiceError extends BaseServiceError {
+  readonly _tag = "SupabaseServiceError" as const;
 
-  /**
-   * Error code for categorization
-   */
-  readonly code: string;
-
-  /**
-   * Whether the error is retryable (transient)
-   */
-  readonly isRetryable: boolean;
-
-  /**
-   * Whether the error indicates a resource was not found
-   */
-  readonly isNotFound: boolean;
-
-  /**
-   * Whether the error indicates a resource already exists
-   */
-  readonly isAlreadyExists: boolean;
-
-  /**
-   * Whether the error is a permission/authorization issue
-   */
-  readonly isPermissionDenied: boolean;
-
-  constructor(options: {
-    code: string;
-    message: string;
-    isRetryable?: boolean;
-    isNotFound?: boolean;
-    isAlreadyExists?: boolean;
-    isPermissionDenied?: boolean;
-    cause?: unknown;
-  }) {
-    super(options.message);
-    this.name = "SupabaseServiceError";
-    this.code = options.code;
-    this.isRetryable = options.isRetryable ?? false;
-    this.isNotFound = options.isNotFound ?? false;
-    this.isAlreadyExists = options.isAlreadyExists ?? false;
-    this.isPermissionDenied = options.isPermissionDenied ?? false;
-
-    if (options.cause) {
-      this.cause = options.cause;
-    }
+  constructor(options: ServiceErrorOptions) {
+    super("SupabaseServiceError", options);
   }
 
   // Static factory methods following ServiceError contract
 
-  /**
-   * Not found error
-   */
   static notFound(resourceName: string): SupabaseServiceError {
     return new SupabaseServiceError({
       code: "not_found",
@@ -74,9 +29,6 @@ export class SupabaseServiceError extends Error {
     });
   }
 
-  /**
-   * Already exists error (unique constraint violation)
-   */
   static alreadyExists(resourceName: string): SupabaseServiceError {
     return new SupabaseServiceError({
       code: "already_exists",
@@ -86,9 +38,6 @@ export class SupabaseServiceError extends Error {
     });
   }
 
-  /**
-   * Validation error (e.g. FK constraint)
-   */
   static validation(message: string): SupabaseServiceError {
     return new SupabaseServiceError({
       code: "validation",
@@ -97,9 +46,6 @@ export class SupabaseServiceError extends Error {
     });
   }
 
-  /**
-   * Unknown/unexpected error
-   */
   static unknown(message: string = "An unexpected error occurred"): SupabaseServiceError {
     return new SupabaseServiceError({
       code: "unknown",
@@ -108,9 +54,6 @@ export class SupabaseServiceError extends Error {
     });
   }
 
-  /**
-   * Connection error
-   */
   static connection(message: string = "Database connection error"): SupabaseServiceError {
     return new SupabaseServiceError({
       code: "connection",
@@ -119,10 +62,6 @@ export class SupabaseServiceError extends Error {
     });
   }
 
-  /**
-   * Create from a raw postgres error object
-   * Maps postgres error codes to typed SupabaseServiceError instances
-   */
   static fromPostgresError(error: unknown, resourceName: string = "Resource"): SupabaseServiceError {
     if (error && typeof error === "object" && "code" in error) {
       const pgError = error as { code: string; message?: string };
@@ -205,7 +144,6 @@ export function categorizeSupabaseError(error: unknown, resourceName: string = "
 }
 
 /**
- * Tuple type for service layer operations
- * [error, data] - if error is null, data is valid, and vice versa
+ * Tuple type for Supabase service layer operations
  */
-export type SupabaseServiceResult<T> = [SupabaseServiceError, null] | [null, T];
+export type SupabaseServiceResult<T> = ServiceResult<SupabaseServiceError, T>;

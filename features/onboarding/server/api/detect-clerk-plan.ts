@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { auth } from "@clerk/nextjs/server";
 import { CLERK_PLAN_SLUGS, Plan } from "~/features/onboarding/constants/plans";
 
@@ -8,7 +10,7 @@ import { CLERK_PLAN_SLUGS, Plan } from "~/features/onboarding/constants/plans";
  * Checks plans in descending order (premium → standard → basic)
  * so the highest active plan wins.
  */
-export async function detectClerkPlan(): Promise<Plan | null> {
+async function _detectClerkPlan(): Promise<Plan | null> {
   const { has } = await auth();
 
   if (has({ plan: CLERK_PLAN_SLUGS[Plan.PREMIUM] })) return Plan.PREMIUM;
@@ -17,3 +19,5 @@ export async function detectClerkPlan(): Promise<Plan | null> {
 
   return null;
 }
+
+export const detectClerkPlan = cache(_detectClerkPlan);

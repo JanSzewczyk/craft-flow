@@ -4,68 +4,23 @@
  */
 
 import { isClerkAPIResponseError, isNetworkError } from "@clerk/shared/error";
-import logger from "~/lib/logger";
+import { createLogger } from "~/lib/logger";
+import { BaseServiceError, type ServiceErrorOptions, type ServiceResult } from "~/lib/services/errors";
 
 const clerkLogger = createLogger({ module: "clerk" });
 
 /**
  * Service error contract for Clerk operations
  */
-export class ClerkServiceError extends Error {
-  readonly _tag = "ClerkServiceError";
+export class ClerkServiceError extends BaseServiceError {
+  readonly _tag = "ClerkServiceError" as const;
 
-  /**
-   * Error code for categorization
-   */
-  readonly code: string;
-
-  /**
-   * Whether the error is retryable (transient)
-   */
-  readonly isRetryable: boolean;
-
-  /**
-   * Whether the error indicates a resource was not found
-   */
-  readonly isNotFound: boolean;
-
-  /**
-   * Whether the error indicates a resource already exists
-   */
-  readonly isAlreadyExists: boolean;
-
-  /**
-   * Whether the error is a permission/authorization issue
-   */
-  readonly isPermissionDenied: boolean;
-
-  constructor(options: {
-    code: string;
-    message: string;
-    isRetryable?: boolean;
-    isNotFound?: boolean;
-    isAlreadyExists?: boolean;
-    isPermissionDenied?: boolean;
-    cause?: unknown;
-  }) {
-    super(options.message);
-    this.name = "ClerkServiceError";
-    this.code = options.code;
-    this.isRetryable = options.isRetryable ?? false;
-    this.isNotFound = options.isNotFound ?? false;
-    this.isAlreadyExists = options.isAlreadyExists ?? false;
-    this.isPermissionDenied = options.isPermissionDenied ?? false;
-
-    if (options.cause) {
-      this.cause = options.cause;
-    }
+  constructor(options: ServiceErrorOptions) {
+    super("ClerkServiceError", options);
   }
 
   // Static factory methods following ServiceError contract
 
-  /**
-   * Not found error
-   */
   static notFound(resourceName: string): ClerkServiceError {
     return new ClerkServiceError({
       code: "not_found",
@@ -75,9 +30,6 @@ export class ClerkServiceError extends Error {
     });
   }
 
-  /**
-   * Already exists error
-   */
   static alreadyExists(resourceName: string): ClerkServiceError {
     return new ClerkServiceError({
       code: "already_exists",
@@ -87,9 +39,6 @@ export class ClerkServiceError extends Error {
     });
   }
 
-  /**
-   * Validation error
-   */
   static validation(message: string): ClerkServiceError {
     return new ClerkServiceError({
       code: "validation",
@@ -98,9 +47,6 @@ export class ClerkServiceError extends Error {
     });
   }
 
-  /**
-   * Permission denied error
-   */
   static permissionDenied(resourceName?: string): ClerkServiceError {
     return new ClerkServiceError({
       code: "permission_denied",
@@ -110,9 +56,6 @@ export class ClerkServiceError extends Error {
     });
   }
 
-  /**
-   * Unauthorized error
-   */
   static unauthorized(): ClerkServiceError {
     return new ClerkServiceError({
       code: "unauthorized",
@@ -122,9 +65,6 @@ export class ClerkServiceError extends Error {
     });
   }
 
-  /**
-   * Rate limit error
-   */
   static rateLimit(): ClerkServiceError {
     return new ClerkServiceError({
       code: "rate_limit",
@@ -133,9 +73,6 @@ export class ClerkServiceError extends Error {
     });
   }
 
-  /**
-   * Network error
-   */
   static network(message: string = "Network error"): ClerkServiceError {
     return new ClerkServiceError({
       code: "network",
@@ -144,9 +81,6 @@ export class ClerkServiceError extends Error {
     });
   }
 
-  /**
-   * Unknown/unexpected error
-   */
   static unknown(message: string = "An unexpected error occurred"): ClerkServiceError {
     return new ClerkServiceError({
       code: "unknown",
@@ -155,12 +89,8 @@ export class ClerkServiceError extends Error {
     });
   }
 
-  /**
-   * Create from Clerk API error
-   */
   static fromClerkError(error: unknown, resourceName?: string): ClerkServiceError {
     if (isClerkAPIResponseError(error)) {
-      // Log the Clerk API error with context
       clerkLogger.error(
         {
           statusCode: error.status,
@@ -171,7 +101,6 @@ export class ClerkServiceError extends Error {
         "Clerk API error"
       );
 
-      // Map status codes to error types
       if (error.status === 404) {
         return new ClerkServiceError({
           code: "not_found",
@@ -272,24 +201,6 @@ export function categorizeClerkError(error: unknown, resourceName?: string): Cle
 }
 
 /**
- * Helper function to create logger with context
+ * Tuple type for Clerk service layer operations
  */
-function createLogger(context: Record<string, unknown>) {
-  return {
-    error: (data: Record<string, unknown>, message: string) => {
-      logger.error({ ...context, ...data }, message);
-    },
-    warn: (data: Record<string, unknown>, message: string) => {
-      logger.warn({ ...context, ...data }, message);
-    },
-    info: (data: Record<string, unknown>, message: string) => {
-      logger.info({ ...context, ...data }, message);
-    }
-  };
-}
-
-/**
- * Tuple type for service layer operations
- * [error, data] - if error is null, data is valid, and vice versa
- */
-export type ClerkServiceResult<T> = [ClerkServiceError, null] | [null, T];
+export type ClerkServiceResult<T> = ServiceResult<ClerkServiceError, T>;

@@ -1,23 +1,37 @@
 "use client";
 
 import { ArrowLeftIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { type DefaultValues, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Field, FieldError, FieldGroup, FieldLabel, Input, Textarea, toast } from "@szum-tech/design-system";
+import {
+  Badge,
+  Button,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  Input,
+  Textarea,
+  toast
+} from "@szum-tech/design-system";
+import { DEFAULT_EMAIL_BODY, DEFAULT_EMAIL_PLACEHOLDERS, DEFAULT_EMAIL_SUBJECT } from "~/features/onboarding/constants";
 import { emailSchema, type EmailFormData } from "~/features/onboarding/schemas/email-schema";
 import { type RedirectAction } from "~/lib/action-types";
 
 type EmailFormProps = {
-  defaultValues: EmailFormData;
-  onContinueAction: (formData: EmailFormData) => RedirectAction;
-  onBackAction: () => void;
+  defaultValues?: DefaultValues<EmailFormData> | null;
+  onContinueAction(formData: EmailFormData): RedirectAction;
+  onBackAction(): void;
 };
 
 export function EmailForm({ defaultValues, onContinueAction, onBackAction }: EmailFormProps) {
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
-    defaultValues
+    defaultValues: defaultValues ?? {
+      emailSubject: DEFAULT_EMAIL_SUBJECT,
+      emailBody: DEFAULT_EMAIL_BODY
+    }
   });
 
   async function handleSubmit(data: EmailFormData) {
@@ -30,7 +44,18 @@ export function EmailForm({ defaultValues, onContinueAction, onBackAction }: Ema
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-6">
-      <FieldGroup>
+      <FieldGroup className="container-xl">
+        <div>
+          <span className="text-body-sm text-muted-foreground">Dostępne zmienne:</span>
+          <div className="flex flex-wrap gap-2">
+            {DEFAULT_EMAIL_PLACEHOLDERS.map((p) => (
+              <Badge key={p} variant="outline" className="font-code">
+                {p}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
         <Field data-invalid={!!form.formState.errors.emailSubject}>
           <FieldLabel htmlFor="emailSubject">Temat</FieldLabel>
           <Input id="emailSubject" placeholder="Temat wiadomości" {...form.register("emailSubject")} />

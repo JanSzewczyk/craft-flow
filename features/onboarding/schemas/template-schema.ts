@@ -6,7 +6,9 @@ export const templateStepSchema = z.object({
 });
 
 export const templateSchema = z.object({
-  templateSteps: z.array(templateStepSchema)
+  name: z.string().min(1, "Nazwa szablonu nie może być pusta"),
+  description: z.string().optional(),
+  steps: z.array(templateStepSchema)
 });
 
 export type TemplateStepFormData = z.input<typeof templateStepSchema>;

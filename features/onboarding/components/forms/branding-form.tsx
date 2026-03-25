@@ -87,9 +87,12 @@ export function BrandingForm({
     defaultValues: defaultValues ?? { brandColor: DEFAULT_BRAND_COLOR }
   });
 
-  form.watch((value) => {
-    onValuesChange?.({ brandColor: value.brandColor, logoUrl: value.logoUrl });
-  });
+  React.useEffect(() => {
+    const subscription = form.watch((value) => {
+      onValuesChange?.({ brandColor: value.brandColor, logoUrl: value.logoUrl });
+    });
+    return () => subscription.unsubscribe();
+  }, [form, onValuesChange]);
 
   async function handleUpload(
     files: File[],

@@ -1,0 +1,42 @@
+/**
+ * Base service error contract shared across all service layers (Supabase, Clerk, etc.)
+ */
+export type ServiceErrorOptions = {
+  code: string;
+  message: string;
+  isRetryable?: boolean;
+  isNotFound?: boolean;
+  isAlreadyExists?: boolean;
+  isPermissionDenied?: boolean;
+  cause?: unknown;
+};
+
+export abstract class BaseServiceError extends Error {
+  abstract readonly _tag: string;
+
+  readonly code: string;
+  readonly isRetryable: boolean;
+  readonly isNotFound: boolean;
+  readonly isAlreadyExists: boolean;
+  readonly isPermissionDenied: boolean;
+
+  constructor(name: string, options: ServiceErrorOptions) {
+    super(options.message);
+    this.name = name;
+    this.code = options.code;
+    this.isRetryable = options.isRetryable ?? false;
+    this.isNotFound = options.isNotFound ?? false;
+    this.isAlreadyExists = options.isAlreadyExists ?? false;
+    this.isPermissionDenied = options.isPermissionDenied ?? false;
+
+    if (options.cause) {
+      this.cause = options.cause;
+    }
+  }
+}
+
+/**
+ * Tuple type for service layer operations
+ * [error, data] - if error is null, data is valid, and vice versa
+ */
+export type ServiceResult<E extends BaseServiceError, T> = [E, null] | [null, T];

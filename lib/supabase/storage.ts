@@ -2,7 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 import { env } from "~/data/env/server";
-import { SupabaseServiceError, type SupabaseServiceResult } from "~/lib/services/supabase/errors";
+import { SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 const supabaseAdmin = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 

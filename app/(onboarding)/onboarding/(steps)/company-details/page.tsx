@@ -54,12 +54,7 @@ async function loadData() {
     notFound();
   }
 
-  logger.info(
-    {
-      userId
-    },
-    "Successfully loaded page data"
-  );
+  logger.info({ userId }, "Successfully loaded page data");
   return { onboardingState: onboardingData };
 }
 

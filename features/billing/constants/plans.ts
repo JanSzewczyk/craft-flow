@@ -1,8 +1,42 @@
-export const PLANS = [
+export const PlanId = {
+  BASIC: "basic",
+  STANDARD: "standard",
+  PREMIUM: "premium"
+} as const;
+
+export type PlanId = (typeof PlanId)[keyof typeof PlanId];
+
+export type PhotoResolution = "standard" | "hd" | "4k";
+
+export type PlanLimits = {
+  projectsPerMonth: number | null;
+  templates: number | null;
+  photosPerProject: number | null;
+  photoResolution: PhotoResolution;
+  branding: boolean;
+  whitelabelEmails: boolean;
+  supportResponseHours: number | null;
+};
+
+export type Plan = {
+  id: PlanId;
+  name: string;
+  price: number;
+  currency: string;
+  description: string;
+  trial: boolean;
+  featured: boolean;
+  features: readonly string[];
+  limits: PlanLimits;
+  clerkSlug: string;
+};
+
+export const PLANS: readonly Plan[] = [
   {
-    id: "basic" as const,
+    id: PlanId.BASIC,
     name: "Basic",
     price: 79,
+    currency: "PLN",
     description: "Idealne na start – kontroluj projekty i buduj zaufanie klientów.",
     trial: true,
     featured: false,
@@ -19,16 +53,18 @@ export const PLANS = [
       projectsPerMonth: 5,
       templates: 2,
       photosPerProject: 10,
-      photoResolution: "standard" as const,
+      photoResolution: "standard",
       branding: false,
       whitelabelEmails: false,
       supportResponseHours: 48
-    }
+    },
+    clerkSlug: "basic"
   },
   {
-    id: "standard" as const,
+    id: PlanId.STANDARD,
     name: "Standard",
     price: 149,
+    currency: "PLN",
     description: "Dla rozwijających się warsztatów – własny branding i bez limitów zdjęć.",
     featured: true,
     trial: false,
@@ -46,16 +82,18 @@ export const PLANS = [
       projectsPerMonth: 20,
       templates: 10,
       photosPerProject: null,
-      photoResolution: "hd" as const,
+      photoResolution: "hd",
       branding: true,
       whitelabelEmails: true,
       supportResponseHours: 24
-    }
+    },
+    clerkSlug: "standard"
   },
   {
-    id: "premium" as const,
+    id: PlanId.PREMIUM,
     name: "Premium",
     price: 299,
+    currency: "PLN",
     description: "Bez kompromisów – nieograniczone możliwości i priorytetowe wsparcie.",
     trial: false,
     featured: false,
@@ -73,13 +111,11 @@ export const PLANS = [
       projectsPerMonth: null,
       templates: null,
       photosPerProject: null,
-      photoResolution: "4k" as const,
+      photoResolution: "4k",
       branding: true,
       whitelabelEmails: true,
       supportResponseHours: null
-    }
+    },
+    clerkSlug: "premium"
   }
-] as const;
-
-export type Plan = (typeof PLANS)[number];
-export type PlanId = Plan["id"];
+];

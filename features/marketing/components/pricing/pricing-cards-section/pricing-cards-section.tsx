@@ -1,4 +1,4 @@
-import { PLANS } from "~/constants";
+import { PLANS } from "~/features/billing";
 import { PricingCard } from "~/features/marketing/components";
 import { selectPlan } from "~/features/marketing/server/actions/select-plan";
 

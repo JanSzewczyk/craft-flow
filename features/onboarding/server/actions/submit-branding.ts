@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { type BrandingFormData } from "~/features/onboarding/schemas/branding-schema";
 import { type OnboardingState, updateStepData } from "~/features/onboarding/server/db";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 
@@ -16,8 +17,14 @@ export async function submitBrandingAction(
   const { contractorId } = onboardingState;
   logger.info({ contractorId }, "Submitting branding");
 
+  const config = await getOnboardingPlanConfig(OnboardingStep.BRANDING);
+  if (!config) {
+    logger.error({ contractorId }, "No active plan found");
+    return { success: false, error: "Nie znaleziono aktywnego planu" };
+  }
+
   const [error] = await updateStepData(contractorId, {
-    currentStep: OnboardingStep.TEMPLATE,
+    currentStep: config.nextStep,
     branding
   });
   if (error) {
@@ -25,6 +32,6 @@ export async function submitBrandingAction(
     return { success: false, error: "Nie udało się zapisać danych brandingu" };
   }
 
-  logger.info({ contractorId }, "Branding saved, redirecting to template step");
-  redirect(OnboardingStep.TEMPLATE);
+  logger.info({ contractorId }, "Branding saved, redirecting to next step");
+  redirect(config.nextStep);
 }

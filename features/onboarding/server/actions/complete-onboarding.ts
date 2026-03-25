@@ -4,9 +4,10 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Role } from "~/features/auth/constants/roles";
 import { setUserMetadata } from "~/features/auth/server/api/set-user-metadata";
+import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { onboardingFormDataSchema } from "~/features/onboarding/schemas/onboarding-form-data-schema";
-import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
 import { getCachedOnboardingState, markOnboardingComplete } from "~/features/onboarding/server/db";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 
@@ -23,13 +24,13 @@ export async function completeOnboarding(): RedirectAction {
     return { success: false, error: "Nie znaleziono stanu onboardingu" };
   }
 
-  const planId = await detectClerkPlan();
+  const config = await getOnboardingPlanConfig(OnboardingStep.EMAIL);
   const formData = {
     ...state.companyDetails,
     ...state.branding,
     ...state.templateConfig,
     ...state.emailConfig,
-    planId
+    planId: config?.plan.id
   };
   const parsed = onboardingFormDataSchema.safeParse(formData);
   if (!parsed.success) {

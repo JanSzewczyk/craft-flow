@@ -6,6 +6,7 @@ import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps
 import { type TemplateFormData } from "~/features/onboarding/schemas";
 import { submitTemplateAction } from "~/features/onboarding/server/actions/submit-template";
 import { getCachedOnboardingState } from "~/features/onboarding/server/db";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "onboarding-template-page" });
@@ -18,6 +19,9 @@ async function loadData() {
   }
   logger.info({ userId }, "Loading onboarding template page data");
 
+  const config = await getOnboardingPlanConfig(OnboardingStep.TEMPLATE);
+  if (!config) throw new Error("onboarding branding page data is missing");
+
   const [onboardingError, onboardingState] = await getCachedOnboardingState(userId);
   if (onboardingError) {
     logger.error(
@@ -28,20 +32,19 @@ async function loadData() {
       },
       "Failed to load onboarding data"
     );
-
     throw onboardingError;
   }
 
   logger.info({ userId }, "Successfully loaded template page data");
-  return { onboardingState };
+  return { onboardingState, config };
 }
 
 export default async function TemplatePage() {
-  const { onboardingState } = await loadData();
+  const { onboardingState, config } = await loadData();
 
   async function handleBack() {
     "use server";
-    redirect("/");
+    redirect(config.previousStep);
   }
 
   async function handleSubmitTemplate(formData: TemplateFormData) {

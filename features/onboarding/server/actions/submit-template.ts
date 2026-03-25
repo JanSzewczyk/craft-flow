@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { type TemplateFormData } from "~/features/onboarding/schemas/template-schema";
 import { type OnboardingState, updateStepData } from "~/features/onboarding/server/db";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 
@@ -16,8 +17,14 @@ export async function submitTemplateAction(
   const { contractorId } = onboardingState;
   logger.info({ contractorId }, "Submitting template config");
 
+  const config = await getOnboardingPlanConfig(OnboardingStep.TEMPLATE);
+  if (!config) {
+    logger.error({ contractorId }, "No active plan found");
+    return { success: false, error: "Nie znaleziono aktywnego planu" };
+  }
+
   const [error] = await updateStepData(contractorId, {
-    currentStep: OnboardingStep.EMAIL,
+    currentStep: config.nextStep,
     templateConfig
   });
   if (error) {
@@ -25,6 +32,6 @@ export async function submitTemplateAction(
     return { success: false, error: "Nie udało się zapisać konfiguracji szablonu" };
   }
 
-  logger.info({ contractorId }, "Template config saved, redirecting to email step");
-  redirect(OnboardingStep.EMAIL);
+  logger.info({ contractorId }, "Template config saved, redirecting to next step");
+  redirect(config.nextStep);
 }

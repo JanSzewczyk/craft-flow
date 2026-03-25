@@ -3,23 +3,21 @@ import * as React from "react";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { OnboardingStepper } from "~/features/onboarding/components/onboarding-stepper";
-import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
-import { getCachedOnboardingState } from "~/features/onboarding/server/db";
+import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 
 async function loadData() {
-  const { isAuthenticated, userId } = await auth();
+  const { isAuthenticated } = await auth();
   if (!isAuthenticated) redirect("/sign-in");
 
-  const [, state] = await getCachedOnboardingState(userId);
+  const config = await getOnboardingPlanConfig(OnboardingStep.COMPANY_DETAILS);
+  if (!config) redirect("/onboarding/plans");
 
-  const planId = await detectClerkPlan();
-  if (!planId) redirect("/onboarding/plans");
-
-  // return resolveStepsForPlan(planId);
+  return config.steps;
 }
 
 export default async function StepsLayout({ children }: LayoutProps<"/onboarding">) {
-  await loadData();
+  const steps = await loadData();
 
-  return <OnboardingStepper>{children}</OnboardingStepper>;
+  return <OnboardingStepper steps={steps}>{children}</OnboardingStepper>;
 }

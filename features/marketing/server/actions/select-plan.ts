@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { PLANS, type PlanId } from "~/features/billing";
+import { type PlanId, PLANS } from "~/features/billing/constants";
 import { getVisibleBillingPlans } from "~/features/billing/server";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";

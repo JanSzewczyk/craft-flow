@@ -13,11 +13,11 @@ async function loadData() {
   const config = await getOnboardingPlanConfig(OnboardingStep.COMPANY_DETAILS);
   if (!config) redirect("/onboarding/plans");
 
-  return config.steps;
+  return { steps: config.steps };
 }
 
 export default async function StepsLayout({ children }: LayoutProps<"/onboarding">) {
-  const steps = await loadData();
+  const { steps } = await loadData();
 
   return <OnboardingStepper steps={steps}>{children}</OnboardingStepper>;
 }

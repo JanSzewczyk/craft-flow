@@ -1,12 +1,15 @@
 import "server-only";
 
-import { type Plan } from "~/features/billing";
+import { type Plan } from "~/features/billing/constants";
 import { canUseWhitelabelEmails, detectClerkPlan, getPlanById, planHasBranding } from "~/features/billing/server";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 
 type FirstOnboardingStep = typeof OnboardingStep.COMPANY_DETAILS;
-type LastOnboardingStep = typeof OnboardingStep.EMAIL;
-type MiddleOnboardingStep = typeof OnboardingStep.BRANDING | typeof OnboardingStep.TEMPLATE;
+type LastOnboardingStep = typeof OnboardingStep.SUMMARY;
+type MiddleOnboardingStep =
+  | typeof OnboardingStep.BRANDING
+  | typeof OnboardingStep.TEMPLATE
+  | typeof OnboardingStep.EMAIL;
 
 export type StepConfig = {
   step: OnboardingStep;
@@ -57,7 +60,8 @@ const STEP_PIPELINE: readonly (StepConfig & { condition?: (features: PlanFeature
   { step: OnboardingStep.COMPANY_DETAILS, label: "Firma" },
   { step: OnboardingStep.BRANDING, label: "Branding", condition: (f) => f.branding },
   { step: OnboardingStep.TEMPLATE, label: "Szablony" },
-  { step: OnboardingStep.EMAIL, label: "E-mail" }
+  { step: OnboardingStep.EMAIL, label: "E-mail" },
+  { step: OnboardingStep.SUMMARY, label: "Podsumowanie" }
 ];
 
 /** Index of a step in the full (unfiltered) pipeline — used for fallback resolution. */

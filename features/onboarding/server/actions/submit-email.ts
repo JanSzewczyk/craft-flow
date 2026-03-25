@@ -1,9 +1,10 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { type EmailFormData } from "~/features/onboarding/schemas/email-schema";
-import { completeOnboarding } from "~/features/onboarding/server/actions/complete-onboarding";
 import { type OnboardingState, updateStepData } from "~/features/onboarding/server/db";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 
@@ -13,8 +14,14 @@ export async function submitEmailAction(emailConfig: EmailFormData, onboardingSt
   const { contractorId } = onboardingState;
   logger.info({ contractorId }, "Submitting email config");
 
+  const config = await getOnboardingPlanConfig(OnboardingStep.EMAIL);
+  if (!config) {
+    logger.error({ contractorId }, "No active plan found");
+    return { success: false, error: "Nie znaleziono aktywnego planu" };
+  }
+
   const [error] = await updateStepData(contractorId, {
-    currentStep: OnboardingStep.EMAIL,
+    currentStep: config.nextStep,
     emailConfig
   });
   if (error) {
@@ -22,6 +29,6 @@ export async function submitEmailAction(emailConfig: EmailFormData, onboardingSt
     return { success: false, error: "Nie udało się zapisać konfiguracji e-mail" };
   }
 
-  logger.info({ contractorId }, "Email config saved, completing onboarding");
-  return completeOnboarding();
+  logger.info({ contractorId, nextStep: config.nextStep }, "Email config saved, redirecting to next step");
+  redirect(config.nextStep);
 }

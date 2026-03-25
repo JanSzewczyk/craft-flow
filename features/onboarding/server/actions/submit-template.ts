@@ -32,6 +32,6 @@ export async function submitTemplateAction(
     return { success: false, error: "Nie udało się zapisać konfiguracji szablonu" };
   }
 
-  logger.info({ contractorId }, "Template config saved, redirecting to next step");
+  logger.info({ contractorId, nextStep: config.nextStep }, "Template config saved, redirecting to next step");
   redirect(config.nextStep);
 }

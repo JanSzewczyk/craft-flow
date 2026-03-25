@@ -6,6 +6,7 @@ import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps
 import { type EmailFormData } from "~/features/onboarding/schemas";
 import { submitEmailAction } from "~/features/onboarding/server/actions/submit-email";
 import { getCachedOnboardingState } from "~/features/onboarding/server/db";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "onboarding-email-page" });
@@ -17,6 +18,9 @@ async function loadData() {
     redirect("/sign-in");
   }
   logger.info({ userId }, "Loading onboarding email page data");
+
+  const config = await getOnboardingPlanConfig(OnboardingStep.EMAIL);
+  if (!config) throw new Error("onboarding branding page data is missing");
 
   const [onboardingError, onboarding] = await getCachedOnboardingState(userId);
   if (onboardingError) {
@@ -32,15 +36,15 @@ async function loadData() {
   }
 
   logger.info({ userId }, "Successfully loaded email page data");
-  return { onboardingState: onboarding };
+  return { onboardingState: onboarding, config };
 }
 
 export default async function EmailPage() {
-  const { onboardingState } = await loadData();
+  const { onboardingState, config } = await loadData();
 
   async function handleBack() {
     "use server";
-    redirect(OnboardingStep.TEMPLATE);
+    redirect(config.previousStep);
   }
 
   async function handleSubmitEmail(formData: EmailFormData) {

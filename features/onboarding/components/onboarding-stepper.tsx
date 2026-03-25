@@ -14,54 +14,34 @@ import {
   StepperTrigger
 } from "@szum-tech/design-system";
 import { usePathname, useRouter } from "next/navigation";
-import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
+
+type StepItem = {
+  step: string;
+  label: string;
+};
 
 type OnboardingStepperProps = {
+  steps: StepItem[];
   children: React.ReactNode;
 };
 
-export function OnboardingStepper({ children }: OnboardingStepperProps) {
+export function OnboardingStepper({ steps, children }: OnboardingStepperProps) {
   const pathname = usePathname();
   const router = useRouter();
 
   return (
     <Stepper value={pathname} onValueChange={(value) => router.push(value)}>
       <StepperNav aria-label="Onboarding stepper">
-        <StepperItem value={OnboardingStep.COMPANY_DETAILS}>
-          <StepperTrigger>
-            <StepperIndicator>
-              <HandshakeIcon className="size-4" />
-            </StepperIndicator>
-            <StepperTitle>Firma</StepperTitle>
-          </StepperTrigger>
-        </StepperItem>
-
-        <StepperItem value={OnboardingStep.BRANDING}>
-          <StepperTrigger>
-            <StepperIndicator>
-              <HandshakeIcon className="size-4" />
-            </StepperIndicator>
-            <StepperTitle>Branding</StepperTitle>
-          </StepperTrigger>
-        </StepperItem>
-
-        <StepperItem value={OnboardingStep.TEMPLATE}>
-          <StepperTrigger>
-            <StepperIndicator>
-              <HandshakeIcon className="size-4" />
-            </StepperIndicator>
-            <StepperTitle>Szablony</StepperTitle>
-          </StepperTrigger>
-        </StepperItem>
-
-        <StepperItem value={OnboardingStep.EMAIL}>
-          <StepperTrigger>
-            <StepperIndicator>
-              <HandshakeIcon className="size-4" />
-            </StepperIndicator>
-            <StepperTitle>E-mail</StepperTitle>
-          </StepperTrigger>
-        </StepperItem>
+        {steps.map((item) => (
+          <StepperItem key={item.step} value={item.step}>
+            <StepperTrigger>
+              <StepperIndicator>
+                <HandshakeIcon className="size-4" />
+              </StepperIndicator>
+              <StepperTitle>{item.label}</StepperTitle>
+            </StepperTrigger>
+          </StepperItem>
+        ))}
       </StepperNav>
 
       <StepperPanel className="mt-8">{children}</StepperPanel>

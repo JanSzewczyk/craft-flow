@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { PLANS, type PlanId } from "~/constants/plans";
+import { PLANS, type PlanId } from "~/features/billing";
+import { getVisibleBillingPlans } from "~/features/billing/server";
 import { type RedirectAction } from "~/lib/action-types";
-import { getVisibleBillingPlans } from "~/lib/clerk";
 import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "pricing-page-actions" });

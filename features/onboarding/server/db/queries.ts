@@ -3,12 +3,8 @@ import { cache } from "react";
 import { eq } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import {
-  categorizeSupabaseError,
-  SupabaseServiceError,
-  type SupabaseServiceResult
-} from "~/lib/services/supabase/errors";
 import { db } from "~/lib/supabase/db";
+import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { onboardingState, type OnboardingState } from "./schema";
 

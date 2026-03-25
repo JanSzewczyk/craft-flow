@@ -1,7 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
+import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { getOnboardingState } from "~/features/onboarding/server/db";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 
 async function loadData() {
   const { isAuthenticated, userId } = await auth();
@@ -10,8 +11,8 @@ async function loadData() {
   const [error, state] = await getOnboardingState(userId);
 
   if (error) {
-    const plan = await detectClerkPlan();
-    redirect(plan ? "/onboarding/company-details" : "/onboarding/plans");
+    const config = await getOnboardingPlanConfig(OnboardingStep.COMPANY_DETAILS);
+    redirect(config ? config.firstStep : "/onboarding/plans");
   }
 
   return state.currentStep;

@@ -26,7 +26,7 @@ export function BrandingView({
   deleteLogoAction,
   onBackAction
 }: BrandingViewProps) {
-  const [state, setState] = React.useState<Partial<BrandingFormData>>();
+  const [state, setState] = React.useState<Partial<BrandingFormData>>(defaultValues ?? {});
 
   return (
     <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[1fr_auto]">

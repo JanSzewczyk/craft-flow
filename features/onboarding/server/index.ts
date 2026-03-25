@@ -1,5 +1,7 @@
-export * from "./api/detect-clerk-plan";
+import "server-only";
+
 export * from "./db";
+export * from "./services/step-service";
 export * from "./actions/complete-onboarding";
 export { deleteLogo } from "./actions/delete-logo";
 export { submitBrandingAction } from "./actions/submit-branding";

@@ -1,7 +1,7 @@
 import { type BillingPlan } from "@clerk/backend";
 import { clerkClient } from "@clerk/nextjs/server";
+import { categorizeClerkError, type ClerkServiceResult } from "~/lib/clerk/errors";
 import { createLogger } from "~/lib/logger";
-import { categorizeClerkError, type ClerkServiceResult } from "~/lib/services/clerk/errors";
 
 const logger = createLogger({ module: "clerk-billing" });
 

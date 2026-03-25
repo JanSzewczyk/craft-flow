@@ -6,7 +6,7 @@ import { CheckCircle2 } from "lucide-react";
 
 import { Badge, Button, Card } from "@szum-tech/design-system";
 import { cn } from "@szum-tech/design-system/utils";
-import { type Plan } from "~/constants";
+import { type Plan } from "~/features/billing";
 import { type RedirectAction } from "~/lib/action-types";
 
 export type PricingCardProps = {

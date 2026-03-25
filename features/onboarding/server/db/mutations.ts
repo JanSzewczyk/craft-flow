@@ -2,12 +2,8 @@ import { eq } from "drizzle-orm";
 
 import { type OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { createLogger } from "~/lib/logger";
-import {
-  SupabaseServiceError,
-  categorizeSupabaseError,
-  type SupabaseServiceResult
-} from "~/lib/services/supabase/errors";
 import { db } from "~/lib/supabase/db";
+import { SupabaseServiceError, categorizeSupabaseError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { type OnboardingState, onboardingState } from "./schema";
 

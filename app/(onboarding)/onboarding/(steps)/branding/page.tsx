@@ -3,13 +3,12 @@ import { StepperContent } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
 import { BrandingView } from "~/features/onboarding/components/branding-view";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import { planHasBranding } from "~/features/onboarding/constants/plans";
 import { type BrandingFormData } from "~/features/onboarding/schemas";
 import { deleteLogo } from "~/features/onboarding/server/actions/delete-logo";
 import { submitBrandingAction } from "~/features/onboarding/server/actions/submit-branding";
 import { uploadLogo } from "~/features/onboarding/server/actions/upload-logo";
-import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
 import { getCachedOnboardingState } from "~/features/onboarding/server/db";
+import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "onboarding-branding-page" });
@@ -22,11 +21,18 @@ async function loadData() {
   }
   logger.info({ userId }, "Loading onboarding branding page data");
 
+  const config = await getOnboardingPlanConfig(OnboardingStep.BRANDING);
+  if (!config) throw new Error("onboarding branding page data is missing");
+  if (config.wasRedirected) {
+    logger.info({ userId, planId: config.plan.id }, "Plan does not include branding, redirecting");
+    redirect(config.currentStep);
+  }
+
   const [onboardingError, onboardingState] = await getCachedOnboardingState(userId);
   if (onboardingError) {
     if (onboardingError.isNotFound) {
-      logger.warn({ userId }, "No onboarding state found, redirecting to plans");
-      redirect(OnboardingStep.COMPANY_DETAILS);
+      logger.warn({ userId }, "No onboarding state found, redirecting to first step");
+      redirect(config.firstStep);
     } else {
       logger.error(
         {
@@ -40,22 +46,16 @@ async function loadData() {
     }
   }
 
-  const planId = await detectClerkPlan();
-  if (planId && !planHasBranding(planId)) {
-    logger.info({ userId, planId }, "Plan does not include branding, redirecting to template");
-    redirect("/onboarding/template");
-  }
-
   logger.info({ userId }, "Successfully loaded branding page data");
-  return { onboardingState };
+  return { onboardingState, config };
 }
 
 export default async function BrandingPage() {
-  const { onboardingState } = await loadData();
+  const { onboardingState, config } = await loadData();
 
   async function handleBack() {
     "use server";
-    redirect(OnboardingStep.COMPANY_DETAILS);
+    redirect(config.previousStep);
   }
 
   async function handleSubmitBranding(formData: BrandingFormData) {

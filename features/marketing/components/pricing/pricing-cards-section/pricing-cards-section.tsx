@@ -1,4 +1,4 @@
-import { PLANS } from "~/features/billing";
+import { PLANS } from "~/features/billing/constants";
 import { PricingCard } from "~/features/marketing/components";
 import { selectPlan } from "~/features/marketing/server/actions/select-plan";
 
@@ -16,7 +16,7 @@ export function PricingCardsSection() {
 
       <div className="mb-24 grid grid-cols-1 items-center gap-8 md:grid-cols-3">
         {PLANS.map((plan, index) => (
-          <div key={plan.id} className={plan.featured && index === 1 ? "order-first md:order-none" : ""}>
+          <div key={plan.id} className={plan.featured && index === 1 ? "order-first md:order-0" : ""}>
             <PricingCard plan={plan} onSelectAction={selectPlan} />
           </div>
         ))}

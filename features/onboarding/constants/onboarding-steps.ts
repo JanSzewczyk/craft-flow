@@ -3,7 +3,8 @@ export const OnboardingStep = {
   COMPANY_DETAILS: "/onboarding/company-details",
   BRANDING: "/onboarding/branding",
   TEMPLATE: "/onboarding/template",
-  EMAIL: "/onboarding/email"
+  EMAIL: "/onboarding/email",
+  SUMMARY: "/onboarding/summary"
 } as const;
 
 export type OnboardingStep = (typeof OnboardingStep)[keyof typeof OnboardingStep];

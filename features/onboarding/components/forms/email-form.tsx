@@ -74,7 +74,7 @@ export function EmailForm({ defaultValues, onContinueAction, onBackAction }: Ema
           Wróć
         </Button>
         <Button type="submit" loading={form.formState.isSubmitting}>
-          Zakończ
+          Dalej
         </Button>
       </div>
     </form>

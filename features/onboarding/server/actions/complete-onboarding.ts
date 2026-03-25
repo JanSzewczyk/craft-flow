@@ -6,7 +6,7 @@ import { Role } from "~/features/auth/constants/roles";
 import { setUserMetadata } from "~/features/auth/server/api/set-user-metadata";
 import { onboardingFormDataSchema } from "~/features/onboarding/schemas/onboarding-form-data-schema";
 import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";
-import { getOnboardingState, markOnboardingComplete } from "~/features/onboarding/server/db";
+import { getCachedOnboardingState, markOnboardingComplete } from "~/features/onboarding/server/db";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 
@@ -18,7 +18,7 @@ export async function completeOnboarding(): RedirectAction {
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [getError, state] = await getOnboardingState(userId);
+  const [getError, state] = await getCachedOnboardingState(userId);
   if (getError) {
     return { success: false, error: "Nie znaleziono stanu onboardingu" };
   }
@@ -37,16 +37,20 @@ export async function completeOnboarding(): RedirectAction {
     return { success: false, error: "Niekompletne dane onboardingu" };
   }
 
-  const [markError] = await markOnboardingComplete(userId);
+  const [markResult, metadataResult] = await Promise.all([
+    markOnboardingComplete(userId),
+    setUserMetadata(userId, {
+      roles: [Role.CONTRACTOR],
+      onboardingComplete: true
+    })
+  ]);
+
+  const [markError] = markResult;
   if (markError) {
     return { success: false, error: "Nie udało się zakończyć onboardingu" };
   }
 
-  const [metadataError] = await setUserMetadata(userId, {
-    roles: [Role.CONTRACTOR],
-    onboardingComplete: true
-  });
-
+  const [metadataError] = metadataResult;
   if (metadataError) {
     logger.error({ userId }, "Failed to update user metadata after onboarding");
     return { success: false, error: "Nie udało się zaktualizować profilu" };

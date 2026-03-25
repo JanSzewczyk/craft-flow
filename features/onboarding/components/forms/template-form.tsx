@@ -6,10 +6,22 @@ import { ArrowLeftIcon, ArrowRightIcon, PlusIcon } from "lucide-react";
 import { type DefaultValues, type FieldArrayWithId, useFieldArray, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Sortable, SortableItem, toast } from "@szum-tech/design-system";
+import {
+  Button,
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  Input,
+  Sortable,
+  SortableItem,
+  Textarea,
+  toast
+} from "@szum-tech/design-system";
 import { TemplateStepFormDialog } from "~/features/onboarding/components/forms/template-step-form-dialog";
 import { TemplateStepItemForm } from "~/features/onboarding/components/forms/template-step-item";
-import { DEFAULT_TEMPLATE_STEPS } from "~/features/onboarding/constants/defaults";
+import { DEFAULT_TEMPLATE_NAME, DEFAULT_TEMPLATE_STEPS } from "~/features/onboarding/constants/defaults";
 import {
   type TemplateFormData,
   templateSchema,
@@ -27,13 +39,15 @@ export function TemplateForm({ defaultValues, onContinueAction, onBackAction }: 
   const form = useForm<TemplateFormData>({
     resolver: zodResolver(templateSchema),
     defaultValues: defaultValues ?? {
-      templateSteps: DEFAULT_TEMPLATE_STEPS
+      name: DEFAULT_TEMPLATE_NAME,
+      description: "",
+      steps: DEFAULT_TEMPLATE_STEPS
     }
   });
 
-  const templateStepsFields = useFieldArray({
+  const stepsFields = useFieldArray({
     control: form.control,
-    name: "templateSteps"
+    name: "steps"
   });
 
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
@@ -43,17 +57,17 @@ export function TemplateForm({ defaultValues, onContinueAction, onBackAction }: 
   }
 
   function handleAddTemplateStep(step: TemplateStepFormData) {
-    templateStepsFields.append(step);
+    stepsFields.append(step);
   }
   function handleRemoveTemplateStep(index: number) {
-    templateStepsFields.remove(index);
+    stepsFields.remove(index);
   }
   function handleUpdateTemplateStep(index: number, updatedStep: TemplateStepFormData) {
-    templateStepsFields.update(index, updatedStep);
+    stepsFields.update(index, updatedStep);
   }
 
-  function handleSortChange(sorted: Array<FieldArrayWithId<TemplateFormData, "templateSteps">>) {
-    templateStepsFields.replace(sorted.map(({ title, description }) => ({ title, description })));
+  function handleSortChange(sorted: Array<FieldArrayWithId<TemplateFormData, "steps">>) {
+    stepsFields.replace(sorted.map(({ title, description }) => ({ title, description })));
   }
 
   async function handleSubmit(data: TemplateFormData) {
@@ -66,39 +80,56 @@ export function TemplateForm({ defaultValues, onContinueAction, onBackAction }: 
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
-      <div className="container-xl space-y-4">
-        <Sortable
-          value={templateStepsFields.fields}
-          onValueChange={handleSortChange}
-          getItemValue={(s) => s.id}
-          strategy="vertical"
-          className="space-y-2"
-        >
-          {templateStepsFields.fields.map((field, index) => (
-            <SortableItem key={field.id} value={field.id} asChild>
-              <div>
-                <TemplateStepItemForm
-                  templateStep={field}
-                  canRemove={templateStepsFields.fields.length > 1}
-                  onUpdate={(updatedStep) => handleUpdateTemplateStep(index, updatedStep)}
-                  onRemove={() => handleRemoveTemplateStep(index)}
-                />
-              </div>
-            </SortableItem>
-          ))}
-        </Sortable>
+      <FieldGroup className="container-xl">
+        <Field data-invalid={!!form.formState.errors.name}>
+          <FieldLabel htmlFor="name">Nazwa szablonu</FieldLabel>
+          <Input id="name" placeholder="Np. Remont łazienki" {...form.register("name")} />
+          <FieldError errors={[form.formState.errors.name]} />
+        </Field>
 
-        <Button
-          type="button"
-          fullWidth
-          size="lg"
-          variant="outline"
-          startIcon={<PlusIcon />}
-          onClick={handleOpenAddDialog}
-        >
-          Dodaj etap
-        </Button>
-      </div>
+        <Field data-invalid={!!form.formState.errors.description}>
+          <FieldLabel htmlFor="description">Opis (opcjonalnie)</FieldLabel>
+          <Textarea id="description" rows={3} placeholder="Krótki opis szablonu..." {...form.register("description")} />
+        </Field>
+
+        <Field data-invalid={!!form.formState.errors.steps}>
+          <FieldLabel>Kroki</FieldLabel>
+          <FieldDescription>
+            Zdefiniuj kolejne kroki, które będą wyświetlane podczas realizacji zadań utworzonych na podstawie tego
+            szablonu. Możesz je później edytować lub usuwać, a także zmieniać ich kolejność przeciągając.
+          </FieldDescription>
+          <Sortable
+            value={stepsFields.fields}
+            onValueChange={handleSortChange}
+            getItemValue={(s) => s.id}
+            strategy="vertical"
+            className="space-y-2"
+          >
+            {stepsFields.fields.map((field, index) => (
+              <SortableItem key={field.id} value={field.id} asChild>
+                <div>
+                  <TemplateStepItemForm
+                    templateStep={field}
+                    canRemove={stepsFields.fields.length > 1}
+                    onUpdate={(updatedStep) => handleUpdateTemplateStep(index, updatedStep)}
+                    onRemove={() => handleRemoveTemplateStep(index)}
+                  />
+                </div>
+              </SortableItem>
+            ))}
+          </Sortable>
+          <Button
+            type="button"
+            fullWidth
+            size="lg"
+            variant="outline"
+            startIcon={<PlusIcon />}
+            onClick={handleOpenAddDialog}
+          >
+            Dodaj etap
+          </Button>
+        </Field>
+      </FieldGroup>
 
       {isAddModalOpen ? (
         <TemplateStepFormDialog onOpenChange={setIsAddModalOpen} onSubmit={handleAddTemplateStep} />

@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { type CompanyDetailsFormData } from "~/features/onboarding";
+import { type CompanyDetailsFormData } from "~/features/onboarding/schemas";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { planHasBranding } from "~/features/onboarding/constants/plans";
 import { detectClerkPlan } from "~/features/onboarding/server/api/detect-clerk-plan";

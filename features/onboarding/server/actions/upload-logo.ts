@@ -29,21 +29,21 @@ export async function uploadLogo(formData: FormData): ActionResponse<{ url: stri
     return { success: false, error: "Maksymalny rozmiar pliku to 2MB" };
   }
 
-  try {
-    const buffer = await file.arrayBuffer();
-    const extension = file.name.split(".").pop() ?? "png";
-    const path = `${userId}/logo.${extension}`;
+  const buffer = await file.arrayBuffer();
+  const extension = file.name.split(".").pop() ?? "png";
+  const path = `${userId}/logo.${extension}`;
 
-    await uploadFile("logos", path, buffer, {
-      contentType: file.type,
-      upsert: true
-    });
+  const [error] = await uploadFile("logos", path, buffer, {
+    contentType: file.type,
+    upsert: true
+  });
 
-    const url = getPublicUrl("logos", path);
-    logger.info({ userId }, "Logo uploaded successfully");
-    return { success: true, data: { url } };
-  } catch (error) {
-    logger.error({ userId, error }, "Failed to upload logo");
+  if (error) {
+    logger.error({ userId, errorCode: error.code }, "Failed to upload logo");
     return { success: false, error: "Nie udało się przesłać logo" };
   }
+
+  const url = getPublicUrl("logos", path);
+  logger.info({ userId }, "Logo uploaded successfully");
+  return { success: true, data: { url } };
 }

@@ -15,7 +15,7 @@ async function loadData() {
   const planId = await detectClerkPlan();
   const plan = PLANS.find((p) => p.id === planId);
   const companyName = state.companyDetails?.companyName ?? "";
-  const templateSteps = state.templateConfig?.templateSteps ?? [];
+  const templateSteps = state.templateConfig?.steps ?? [];
   const hasBranding = !!(state.branding?.logoUrl || state.branding?.brandColor);
 
   return { plan, companyName, hasBranding, templateSteps };

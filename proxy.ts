@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { Role } from "~/features/auth/constants/roles";
 import logger from "~/lib/logger";
 
 const isPublicRoute = createRouteMatcher([
@@ -33,6 +34,13 @@ const isAccountIssuePage = createRouteMatcher(["/account-issue(.*)"]);
 
 const isAppRoute = createRouteMatcher(["/app(.*)"]);
 const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
+const isEntranceRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/forgot-password(.*)"
+  // /sso-callback pominięty — jest częścią OAuth flow
+]);
 
 function hasRoles(sessionClaims: CustomJwtSessionClaims | null): boolean {
   const roles = sessionClaims?.metadata?.roles;
@@ -77,6 +85,20 @@ export const proxy = clerkMiddleware(async (auth, request) => {
     await auth.protect();
   }
 
+  // Smart redirect: authenticated users on entrance routes
+  if (isEntranceRoute(request)) {
+    const { userId, sessionClaims } = await auth();
+    if (userId && hasRoles(sessionClaims)) {
+      const roles = sessionClaims?.metadata?.roles ?? [];
+      const onboardingComplete = sessionClaims?.metadata?.onboardingComplete;
+      if (roles.includes(Role.CONTRACTOR)) {
+        const destination = onboardingComplete ? "/app/dashboard" : "/onboarding";
+        requestLogger.info({ userId, destination }, "Redirecting authenticated user from entrance route");
+        return NextResponse.redirect(new URL(destination, request.url));
+      }
+    }
+  }
+
   // Check roles and onboarding state for authenticated users
   if (!isAuthFlowRoute(request)) {
     const { userId, sessionClaims } = await auth();
@@ -91,7 +113,7 @@ export const proxy = clerkMiddleware(async (auth, request) => {
       const roles = sessionClaims.metadata?.roles ?? [];
       const onboardingComplete = sessionClaims.metadata?.onboardingComplete;
 
-      if (roles.includes("CONTRACTOR")) {
+      if (roles.includes(Role.CONTRACTOR)) {
         if (isAppRoute(request) && !onboardingComplete) {
           return NextResponse.redirect(new URL("/onboarding", request.url));
         }

@@ -1,0 +1,77 @@
+import { eq } from "drizzle-orm";
+
+import { createLogger } from "~/lib/logger";
+import { db } from "~/lib/supabase/db";
+import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
+
+import { clients, type Client } from "./schema";
+
+const logger = createLogger({ module: "crm-db" });
+const RESOURCE_NAME = "Client";
+
+type ClientInput = Pick<Client, "name" | "email"> & Partial<Pick<Client, "phone" | "clerkUserId">>;
+
+export async function createClient(contractorId: string, data: ClientInput): Promise<SupabaseServiceResult<Client>> {
+  try {
+    const rows = await db
+      .insert(clients)
+      .values({ contractorId, ...data })
+      .returning();
+
+    const row = rows[0];
+    if (!row) {
+      const error = SupabaseServiceError.unknown(`Failed to create ${RESOURCE_NAME} — no row returned`);
+      logger.error({ contractorId, errorCode: error.code }, "Insert returned no rows");
+      return [error, null];
+    }
+
+    logger.info({ contractorId, clientId: row.id }, "Created client");
+    return [null, row];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
+    logger.error({ contractorId, errorCode: serviceError.code }, "Failed to create client");
+    return [serviceError, null];
+  }
+}
+
+export async function updateClient(id: string, data: Partial<ClientInput>): Promise<SupabaseServiceResult<Client>> {
+  try {
+    const [row] = await db
+      .update(clients)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(clients.id, id))
+      .returning();
+
+    if (!row) {
+      const error = SupabaseServiceError.notFound(RESOURCE_NAME);
+      logger.error({ id, errorCode: error.code }, "Update returned no rows");
+      return [error, null];
+    }
+
+    logger.info({ id }, "Updated client");
+    return [null, row];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
+    logger.error({ id, errorCode: serviceError.code }, "Failed to update client");
+    return [serviceError, null];
+  }
+}
+
+export async function deleteClient(id: string): Promise<SupabaseServiceResult<Client>> {
+  try {
+    const [row] = await db.delete(clients).where(eq(clients.id, id)).returning();
+
+    if (!row) {
+      const error = SupabaseServiceError.notFound(RESOURCE_NAME);
+      logger.error({ id, errorCode: error.code }, "Delete returned no rows");
+      return [error, null];
+    }
+
+    logger.info({ id }, "Deleted client");
+    return [null, row];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
+    logger.error({ id, errorCode: serviceError.code }, "Failed to delete client");
+    return [serviceError, null];
+  }
+}

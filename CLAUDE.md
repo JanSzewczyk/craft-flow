@@ -76,20 +76,25 @@ npm run analyze               # Bundle analyzer
 
 ### Tech Stack
 
-- **Next.js**: 16.1.4 (App Router, Turbopack, React Compiler)
+- **Next.js**: 16.2.1 (App Router, Turbopack, React Compiler)
 - **React**: 19.2.0 with React Compiler enabled
 - **TypeScript**: 5.9.3 (strict mode with `noUncheckedIndexedAccess`)
 - **Tailwind CSS**: 4.1.11 (CSS-first config)
-- **@szum-tech/design-system**: 3.12.3
+- **@szum-tech/design-system**: 3.15.0
 - **Vitest**: 4.0.16 (unit & integration tests)
 - **Playwright**: 1.58.x (E2E tests)
 - **Storybook**: 10.1.11 (component development)
 - **Zod**: 4.3.6 (validation)
 - **Pino**: 10.3.0 (logging)
 - **next-themes**: 0.4.6 (theming)
-- **@clerk/nextjs**: 7.0.4 (authentication)
+- **@clerk/nextjs**: 7.0.6 (authentication)
 - **react-hook-form**: 7.71.1 (form handling)
 - **Resend**: 6.9.3 (email service)
+- **drizzle-orm**: 0.45.x (ORM for PostgreSQL)
+- **postgres**: 3.4.x (PostgreSQL client)
+- **@supabase/supabase-js**: 2.99.x (Supabase client)
+- **@react-email/components**: 1.0.x (email template components)
+- **@react-email/render**: 2.0.x (email rendering)
 
 ### Path Aliases
 
@@ -105,7 +110,8 @@ import { env } from "~/data/env/server";
 - **app/**: Next.js App Router pages, layouts, and API routes
 - **features/**: Feature-based modules (see structure below)
 - **components/**: Shared reusable components (ui/, layout/, providers/)
-- **lib/**: Utilities and configurations (logger)
+- **lib/**: Utilities and configurations (logger, supabase)
+- **lib/supabase/**: Drizzle ORM client (`db.ts`), central schema exports (`schema.ts`) — server-only
 - **data/env/**: T3 Env type-safe environment variables (server.ts, client.ts)
 - **constants/**: Static data and configuration constants
 - **tests/e2e/**: Playwright E2E tests (\*.e2e.ts pattern)
@@ -118,9 +124,15 @@ Features follow a **feature-driven architecture** where each domain is self-cont
 
 **Current Features:**
 - **auth**: Authentication flows (sign-in, sign-up, forgot-password, email verification)
-- **marketing**: Pure presentation/layout components (hero, features, about sections)
+- **billing**: Plan detection and feature gating based on subscription plan
 - **contact**: Complete contact feature (form, validation, email sending)
+- **contractor**: Contractor profile and email template management
+- **crm**: Client management system
+- **marketing**: Pure presentation/layout components (hero, features, about sections)
+- **onboarding**: 6-step onboarding flow (plans → company-details → branding → template → email → summary)
 - **pricing**: Pricing display and related components
+- **projects**: Project and project steps management (linked to clients)
+- **templates**: Custom template management with configurable steps
 
 **Feature Structure:**
 ```
@@ -129,6 +141,9 @@ features/{domain}/
 ├── constants/          # Static data
 ├── schemas/            # Zod validation schemas (if needed)
 ├── server/             # Server actions, db queries
+│   ├── actions/        # Server Actions
+│   ├── db/             # Drizzle queries, mutations, schema
+│   └── services/       # Business logic (step gating, plan checks, etc.)
 ├── index.ts            # Clean feature exports
 └── README.md           # Feature documentation
 ```
@@ -143,7 +158,7 @@ See `docs/ARCHITECTURE.md` for detailed design patterns and guidelines.
 
 Environment variables are validated at build-time using T3 Env:
 
-- Server variables: `data/env/server.ts` (NODE_ENV, CLERK_SECRET_KEY, RESEND_API_KEY, CONTACT_EMAIL_TO, LOG_LEVEL, etc.)
+- Server variables: `data/env/server.ts` (NODE_ENV, CLERK_SECRET_KEY, RESEND_API_KEY, CONTACT_EMAIL_TO, LOG_LEVEL, DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, etc.)
 - Client variables: `data/env/client.ts` (must be prefixed with `NEXT_PUBLIC_`, e.g., NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY)
 - Skip validation with `SKIP_ENV_VALIDATION=true` (useful for Docker builds)
 - Empty strings are treated as undefined for type safety
@@ -164,6 +179,29 @@ const apiLogger = createLogger({ module: "api" });
 
 Log levels controlled via `LOG_LEVEL` env var (fatal, error, warn, info, debug, trace).
 Request logging is handled automatically via `proxy.ts` with request ID tracking.
+
+### Database
+
+Uses **Drizzle ORM** with **PostgreSQL** hosted on Supabase:
+
+- **Client**: `lib/supabase/db.ts` (server-only, uses `postgres-js`)
+- **Central schema**: `lib/supabase/schema.ts` (exports all table definitions)
+- **Migrations**: `drizzle-kit` via `drizzle.config.ts`
+- **Model**: contractor-centric — all tables linked to `contractorProfile`
+
+```
+contractorProfile (PK: id)
+├─ onboardingState (FK: contractorId)
+├─ clients (FK: contractorId)
+│  └─ projects (FK: clientId, contractorId)
+│     └─ projectSteps (FK: projectId)
+├─ templates (FK: contractorId)
+│  └─ templateSteps (FK: templateId)
+└─ emailTemplates (FK: contractorId)
+```
+
+Feature-level DB files live in `features/{domain}/server/db/` (schema, queries, mutations).
+Use React `cache()` for query optimization in server components.
 
 ### Testing Configuration
 

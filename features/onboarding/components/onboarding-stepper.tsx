@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { HandshakeIcon } from "lucide-react";
+import { BuildingIcon, LayoutTemplateIcon, MailIcon, PaletteIcon, SparklesIcon } from "lucide-react";
 
 import {
   Stepper,
@@ -14,14 +14,12 @@ import {
   StepperTrigger
 } from "@szum-tech/design-system";
 import { usePathname, useRouter } from "next/navigation";
+import { type StepConfig } from "~/features/onboarding/server";
 
-type StepItem = {
-  step: string;
-  label: string;
-};
+import { OnboardingStep } from "../constants";
 
 type OnboardingStepperProps = {
-  steps: StepItem[];
+  steps: Array<StepConfig>;
   children: React.ReactNode;
 };
 
@@ -36,7 +34,17 @@ export function OnboardingStepper({ steps, children }: OnboardingStepperProps) {
           <StepperItem key={item.step} value={item.step}>
             <StepperTrigger>
               <StepperIndicator>
-                <HandshakeIcon className="size-4" />
+                {item.step === OnboardingStep.COMPANY_DETAILS ? (
+                  <BuildingIcon className="size-4" />
+                ) : item.step === OnboardingStep.BRANDING ? (
+                  <PaletteIcon className="size-4" />
+                ) : item.step === OnboardingStep.TEMPLATE ? (
+                  <LayoutTemplateIcon className="size-4" />
+                ) : item.step === OnboardingStep.EMAIL ? (
+                  <MailIcon className="size-4" />
+                ) : item.step === OnboardingStep.SUMMARY ? (
+                  <SparklesIcon className="size-4" />
+                ) : null}
               </StepperIndicator>
               <StepperTitle>{item.label}</StepperTitle>
             </StepperTrigger>

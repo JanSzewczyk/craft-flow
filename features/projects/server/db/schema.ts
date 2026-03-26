@@ -1,5 +1,5 @@
 import { boolean, integer, pgEnum, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
-import { contractorProfile } from "~/features/contractor/server/db/schema";
+import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { clients } from "~/features/crm/server/db/schema";
 
 export const projectStatusEnum = pgEnum("project_status", ["DRAFT", "ACTIVE", "COMPLETED", "ARCHIVED", "DELETED"]);
@@ -37,7 +37,7 @@ export type Project = typeof projects.$inferSelect;
 export type ProjectStep = typeof projectSteps.$inferSelect;
 
 export type ProjectStatus = (typeof projectStatusEnum.enumValues)[number];
-const ProjectStatus = {
+export const ProjectStatus = {
   DRAFT: "DRAFT",
   ACTIVE: "ACTIVE",
   COMPLETED: "COMPLETED",

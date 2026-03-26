@@ -84,6 +84,21 @@ export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyD
           )}
         />
 
+        <Field data-invalid={!!form.formState.errors.phone}>
+          <FieldLabel htmlFor="phone">
+            Telefon <span className="text-muted-foreground">(opcjonalny)</span>
+          </FieldLabel>
+          <Input
+            id="phone"
+            type="tel"
+            placeholder="np. +48 123 456 789"
+            autoComplete="tel"
+            aria-invalid={!!form.formState.errors.phone}
+            {...form.register("phone")}
+          />
+          <FieldError errors={[form.formState.errors.phone]} />
+        </Field>
+
         <Alert>
           <InfoIcon />
           <AlertTitle>Ustawienia możesz później zmienić w panelu</AlertTitle>

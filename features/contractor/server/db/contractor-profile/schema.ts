@@ -7,8 +7,6 @@ export const contractorProfile = pgTable("contractor_profile", {
   phone: varchar("phone", { length: 50 }),
   brandColor: varchar("brand_color", { length: 7 }).default("#10B981"),
   logoUrl: text("logo_url"),
-  defaultEmailMessage: text("default_email_message"),
-  defaultEmailSubject: text("default_email_subject"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });

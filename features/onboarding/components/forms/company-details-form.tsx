@@ -94,7 +94,7 @@ export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyD
             placeholder="np. +48 123 456 789"
             autoComplete="tel"
             aria-invalid={!!form.formState.errors.phone}
-            {...form.register("phone")}
+            {...form.register("phone", { setValueAs: (val) => val || null })}
           />
           <FieldError errors={[form.formState.errors.phone]} />
         </Field>

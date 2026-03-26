@@ -20,7 +20,7 @@ export function TemplateStepFormFields({ form }: TemplateFormFieldsProps) {
         <Textarea
           id="step-description"
           placeholder="Dodaj krótki opis czynności..."
-          {...form.register("description")}
+          {...form.register("description", { setValueAs: (val) => val || null })}
         />
         <FieldError errors={[form.formState.errors.description]} />
       </Field>

@@ -40,7 +40,7 @@ export function TemplateForm({ defaultValues, onContinueAction, onBackAction }: 
     resolver: zodResolver(templateSchema),
     defaultValues: defaultValues ?? {
       name: DEFAULT_TEMPLATE_NAME,
-      description: "",
+      description: null,
       steps: DEFAULT_TEMPLATE_STEPS
     }
   });
@@ -88,8 +88,15 @@ export function TemplateForm({ defaultValues, onContinueAction, onBackAction }: 
         </Field>
 
         <Field data-invalid={!!form.formState.errors.description}>
-          <FieldLabel htmlFor="description">Opis (opcjonalnie)</FieldLabel>
-          <Textarea id="description" rows={3} placeholder="Krótki opis szablonu..." {...form.register("description")} />
+          <FieldLabel htmlFor="description">
+            Opis <span className="text-muted-foreground">(opcjonalny)</span>
+          </FieldLabel>
+          <Textarea
+            id="description"
+            rows={3}
+            placeholder="Krótki opis szablonu..."
+            {...form.register("description", { setValueAs: (val) => val || null })}
+          />
         </Field>
 
         <Field data-invalid={!!form.formState.errors.steps}>

@@ -1,5 +1,5 @@
 import { integer, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
-import { contractorProfile } from "~/features/contractor/server/db/schema";
+import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 
 export const templates = pgTable("templates", {
   id: uuid("id").primaryKey().defaultRandom(),

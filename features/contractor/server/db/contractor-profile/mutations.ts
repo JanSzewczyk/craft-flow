@@ -10,7 +10,7 @@ const logger = createLogger({ module: "contractor-db" });
 const RESOURCE_NAME = "ContractorProfile";
 
 type UpsertData = Pick<ContractorProfile, "companyName" | "industry"> &
-  Partial<Pick<ContractorProfile, "phone" | "brandColor" | "logoUrl" | "defaultEmailMessage" | "defaultEmailSubject">>;
+  Partial<Pick<ContractorProfile, "phone" | "brandColor" | "logoUrl">>;
 
 export async function upsertContractorProfile(
   contractorId: string,

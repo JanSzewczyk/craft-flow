@@ -86,8 +86,9 @@ export function OnboardingSummary({
                 <span className="bg-muted-foreground/30 size-1 rounded-full" />
                 <Badge
                   variant={plan.id === PlanId.BASIC ? "outline" : plan.id === PlanId.STANDARD ? "secondary" : "primary"}
+                  asChild
                 >
-                  {plan.name}
+                  <span>{plan.name}</span>
                 </Badge>
               </span>
             </ItemDescription>
@@ -153,8 +154,8 @@ export function OnboardingSummary({
           <ItemContent>
             <ItemTitle className="text-muted-foreground font-bold uppercase">Proces Pracy</ItemTitle>
             <ItemDescription>
-              <span className="text-foreground text-heading-h4">{templateConfig?.name}</span>
-              <p>{templateConfig?.description}</p>
+              <span className="text-foreground font-bold">{templateConfig?.name}</span>
+              <p className="text-mute">{templateConfig?.description}</p>
             </ItemDescription>
 
             <div className="mt-4 flex flex-wrap items-start gap-4">

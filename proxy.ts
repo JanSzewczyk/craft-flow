@@ -34,6 +34,7 @@ const isAccountIssuePage = createRouteMatcher(["/account-issue(.*)"]);
 
 const isAppRoute = createRouteMatcher(["/app(.*)"]);
 const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
+const isOnboardingSuccessRoute = createRouteMatcher(["/onboarding/success(.*)"]);
 const isEntranceRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
@@ -117,7 +118,7 @@ export const proxy = clerkMiddleware(async (auth, request) => {
         if (isAppRoute(request) && !onboardingComplete) {
           return NextResponse.redirect(new URL("/onboarding", request.url));
         }
-        if (isOnboardingRoute(request) && onboardingComplete) {
+        if (isOnboardingRoute(request) && !isOnboardingSuccessRoute(request) && onboardingComplete) {
           return NextResponse.redirect(new URL("/app/dashboard", request.url));
         }
       }

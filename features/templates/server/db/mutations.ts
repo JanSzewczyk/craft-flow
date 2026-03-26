@@ -7,11 +7,11 @@ import { templateSteps, templates, type Template } from "./schema";
 const logger = createLogger({ module: "templates-db" });
 const RESOURCE_NAME = "Template";
 
-type TemplateStepInput = { title: string; description?: string };
+type TemplateStepInput = { title: string; description?: string | null };
 
 export async function createTemplateWithSteps(
   contractorId: string,
-  templateData: { name: string; description?: string; steps: TemplateStepInput[] }
+  templateData: { name: string; description?: string | null; steps: TemplateStepInput[] }
 ): Promise<SupabaseServiceResult<Template>> {
   try {
     const result = await db.transaction(async (tx) => {

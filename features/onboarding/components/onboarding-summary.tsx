@@ -115,7 +115,7 @@ export function OnboardingSummary({
               <ItemContent>
                 <ItemTitle className="text-muted-foreground font-bold uppercase">Wygląd Portalu</ItemTitle>
                 <ItemDescription>
-                  <div className="mt-1 flex items-center gap-6">
+                  <span className="mt-1 flex items-center gap-6">
                     {branding?.logoUrl && (
                       <span className="text-foreground flex items-center gap-2 text-base font-medium">
                         <Avatar className="size-10">
@@ -130,7 +130,7 @@ export function OnboardingSummary({
                         <span className="text-muted-foreground font-code uppercase">{branding.brandColor}</span>
                       </span>
                     )}
-                  </div>
+                  </span>
                 </ItemDescription>
               </ItemContent>
               <ItemActions>
@@ -155,7 +155,7 @@ export function OnboardingSummary({
             <ItemTitle className="text-muted-foreground font-bold uppercase">Proces Pracy</ItemTitle>
             <ItemDescription>
               <span className="text-foreground font-bold">{templateConfig?.name}</span>
-              <p className="text-mute">{templateConfig?.description}</p>
+              <span className="text-mute">{templateConfig?.description}</span>
             </ItemDescription>
 
             <div className="mt-4 flex flex-wrap items-start gap-4">

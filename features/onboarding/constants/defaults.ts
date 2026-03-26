@@ -3,9 +3,9 @@ import { type TemplateStepFormData } from "~/features/onboarding/schemas/templat
 export const DEFAULT_TEMPLATE_NAME = "Mój szablon";
 
 export const DEFAULT_TEMPLATE_STEPS: TemplateStepFormData[] = [
-  { title: "Wycena", description: "" },
-  { title: "Pomiary", description: "" },
-  { title: "Zamówienie materiałów", description: "" },
-  { title: "Realizacja", description: "" },
-  { title: "Odbiór", description: "" }
+  { title: "Wycena", description: null },
+  { title: "Pomiary", description: null },
+  { title: "Zamówienie materiałów", description: null },
+  { title: "Realizacja", description: null },
+  { title: "Odbiór", description: null }
 ];

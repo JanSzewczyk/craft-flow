@@ -6,8 +6,7 @@ export const companyDetailsSchema = z.object({
   phone: z
     .string()
     .regex(/^\+?[\d\s\-()/]{7,20}$/, "Nieprawidłowy numer telefonu")
-    .optional()
-    .or(z.literal(""))
+    .nullable()
 });
 
 export type CompanyDetailsFormData = z.output<typeof companyDetailsSchema>;

@@ -7,18 +7,23 @@ When using this configuration in other projects, update this file with your proj
 
 | Category | Technology | Version | Status |
 |----------|------------|---------|--------|
-| Framework | Next.js | 16.1.4 (App Router, Turbopack) | ✅ Installed |
+| Framework | Next.js | 16.2.1 (App Router, Turbopack) | ✅ Installed |
 | UI Library | React | 19.2.0 (with React Compiler) | ✅ Installed |
 | Styling | Tailwind CSS | 4.1.11 (CSS-first config) | ✅ Installed |
-| Design System | @szum-tech/design-system | 3.12.3 (shadcn/ui based) | ✅ Installed |
+| Design System | @szum-tech/design-system | 3.15.0 (shadcn/ui based) | ✅ Installed |
 | Type Safety | TypeScript | 5.9.3 (strict mode) | ✅ Installed |
 | Env Validation | T3 Env | @t3-oss/env-nextjs 0.13.8 | ✅ Installed |
 | Logging | Pino | 10.3.0 (pretty-printing in dev) | ✅ Installed |
 | Forms | React Hook Form | 7.71.1 | ✅ Installed |
 | Validation | Zod | 4.3.6 | ✅ Installed |
 | Theme | next-themes | 0.4.6 | ✅ Installed |
-| Auth | @clerk/nextjs | 7.0.4 | ✅ Installed |
+| Auth | @clerk/nextjs | 7.0.6 | ✅ Installed |
 | Email | Resend | 6.9.3 | ✅ Installed |
+| ORM | drizzle-orm | 0.45.x | ✅ Installed |
+| Database | postgres (postgres-js) | 3.4.x | ✅ Installed |
+| Database Host | @supabase/supabase-js | 2.99.x | ✅ Installed |
+| Email Templates | @react-email/components | 1.0.x | ✅ Installed |
+| Email Rendering | @react-email/render | 2.0.x | ✅ Installed |
 
 ## Testing Stack
 
@@ -41,6 +46,9 @@ When using this configuration in other projects, update this file with your proj
 | Environment vars | `data/env/server.ts`, `data/env/client.ts` |
 | Vitest config | `vitest.config.ts` |
 | Storybook | `.storybook/` |
+| Drizzle config | `drizzle.config.ts` |
+| DB client | `lib/supabase/db.ts` (server-only) |
+| DB schema | `lib/supabase/schema.ts` (central schema exports) |
 
 ## Import Conventions
 
@@ -75,11 +83,25 @@ Features follow a modular architecture pattern:
 features/
 └── [feature-name]/
     ├── components/       # Feature-specific components
+    ├── constants/        # Static data
     ├── schemas/          # Zod validation schemas
     └── server/           # Server-side logic
         ├── actions/      # Server Actions
-        └── db/           # Database queries (when DB added)
+        ├── db/           # Drizzle schema, queries, mutations
+        └── services/     # Business logic (plan gating, step navigation, etc.)
 ```
+
+## Database
+
+Drizzle ORM + PostgreSQL via Supabase.
+
+- **DB client**: `lib/supabase/db.ts` — `import "server-only"`, uses `postgres-js`
+- **Central schema**: `lib/supabase/schema.ts` — re-exports all table definitions from features
+- **Feature schemas**: `features/{domain}/server/db/schema.ts` — Drizzle table definitions
+- **Queries/mutations**: `features/{domain}/server/db/queries.ts` / `mutations.ts`
+- **Migrations**: `npx drizzle-kit generate` / `npx drizzle-kit migrate`
+
+Use React `cache()` for read queries in Server Components.
 
 ## Logging
 
@@ -123,6 +145,12 @@ The app uses `next-themes` for dark/light/system theme switching:
 | Feature | Description |
 |---------|-------------|
 | auth | Authentication flows (sign-in, sign-up, forgot-password, email verification) via Clerk |
-| marketing | Pure presentation/layout components (hero, features, about, legal sections) |
+| billing | Plan detection and feature gating based on subscription plan |
 | contact | Complete contact feature (form, validation, email sending via Resend) |
+| contractor | Contractor profile and email template management |
+| crm | Client management system |
+| marketing | Pure presentation/layout components (hero, features, about, legal sections) |
+| onboarding | 6-step onboarding flow: plans → company-details → branding → template → email → summary |
 | pricing | Pricing display and related components |
+| projects | Project and project steps management (linked to clients) |
+| templates | Custom template management with configurable steps |

@@ -52,6 +52,11 @@ type MiddleStepConfig = BaseOnboardingPlanConfig & {
 
 export type OnboardingPlanConfig = FirstStepConfig | LastStepConfig | MiddleStepConfig;
 
+export type OnboardingPlanBaseConfig = Omit<
+  BaseOnboardingPlanConfig,
+  "currentStep" | "requestedStep" | "wasRedirected"
+>;
+
 /**
  * All possible onboarding steps in order.
  * Steps with a `condition` are included only when the condition returns true.
@@ -60,7 +65,7 @@ const STEP_PIPELINE: readonly (StepConfig & { condition?: (features: PlanFeature
   { step: OnboardingStep.COMPANY_DETAILS, label: "Firma" },
   { step: OnboardingStep.BRANDING, label: "Branding", condition: (f) => f.branding },
   { step: OnboardingStep.TEMPLATE, label: "Szablony" },
-  { step: OnboardingStep.EMAIL, label: "E-mail" },
+  { step: OnboardingStep.EMAIL, label: "E-mail", condition: (f) => f.whitelabelEmails },
   { step: OnboardingStep.SUMMARY, label: "Podsumowanie" }
 ];
 
@@ -100,13 +105,20 @@ function resolveClosestActiveStep(requestedStep: OnboardingStep, activeSteps: St
  * `currentStep` is corrected to the closest preceding active step
  * and `wasRedirected` is set to `true`.
  *
+ * Called without `currentStep` — returns plan/features/steps without
+ * any step-navigation context (`currentStep`, `requestedStep`, `wasRedirected`,
+ * `nextStep`, `previousStep` are omitted).
+ *
  * Returns `null` when the user has no active plan.
  */
+export async function getOnboardingPlanConfig(): Promise<OnboardingPlanBaseConfig | null>;
 export async function getOnboardingPlanConfig(currentStep: FirstOnboardingStep): Promise<FirstStepConfig | null>;
 export async function getOnboardingPlanConfig(currentStep: LastOnboardingStep): Promise<LastStepConfig | null>;
 export async function getOnboardingPlanConfig(currentStep: MiddleOnboardingStep): Promise<MiddleStepConfig | null>;
 export async function getOnboardingPlanConfig(currentStep: OnboardingStep): Promise<OnboardingPlanConfig | null>;
-export async function getOnboardingPlanConfig(currentStep: OnboardingStep): Promise<OnboardingPlanConfig | null> {
+export async function getOnboardingPlanConfig(
+  currentStep?: OnboardingStep
+): Promise<OnboardingPlanConfig | OnboardingPlanBaseConfig | null> {
   const planId = await detectClerkPlan();
   if (!planId) return null;
 
@@ -121,24 +133,31 @@ export async function getOnboardingPlanConfig(currentStep: OnboardingStep): Prom
   const steps = resolveActiveSteps(features);
   const stepIndex = new Map(steps.map((s, i) => [s.step, i]));
 
+  const base: OnboardingPlanBaseConfig = {
+    plan,
+    features,
+    steps,
+    firstStep: steps[0]!.step,
+    lastStep: steps[steps.length - 1]!.step,
+    isStepActive(step: OnboardingStep): boolean {
+      return stepIndex.has(step);
+    }
+  };
+
+  if (!currentStep) {
+    return base;
+  }
+
   const isActive = stepIndex.has(currentStep);
   const resolvedStep = isActive ? currentStep : resolveClosestActiveStep(currentStep, steps);
   const resolvedIdx = stepIndex.get(resolvedStep)!;
 
   return {
-    plan,
-    features,
+    ...base,
     currentStep: resolvedStep,
     requestedStep: currentStep,
     wasRedirected: !isActive,
-    steps,
-    firstStep: steps[0]!.step,
-    lastStep: steps[steps.length - 1]!.step,
     nextStep: resolvedIdx < steps.length - 1 ? steps[resolvedIdx + 1]!.step : null,
-    previousStep: resolvedIdx > 0 ? steps[resolvedIdx - 1]!.step : null,
-
-    isStepActive(step: OnboardingStep): boolean {
-      return stepIndex.has(step);
-    }
+    previousStep: resolvedIdx > 0 ? steps[resolvedIdx - 1]!.step : null
   } as OnboardingPlanConfig;
 }

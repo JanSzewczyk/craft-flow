@@ -2,7 +2,7 @@ import { build, oneOf, sequence } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import  { type OnboardingState } from "~/features/onboarding/server/db/schema";
+import { type OnboardingState } from "~/features/onboarding/server/db/schema";
 
 import { brandingFormBuilder } from "./branding-form.builder";
 import { companyDetailsFormBuilder } from "./company-details-form.builder";

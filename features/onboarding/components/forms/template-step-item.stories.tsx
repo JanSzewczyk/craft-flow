@@ -3,11 +3,9 @@ import * as React from "react";
 import { Sortable, SortableItem } from "@szum-tech/design-system";
 import { expect, fn, waitFor, within } from "storybook/test";
 
-
 import { TemplateStepItemForm } from "./template-step-item";
 
 import preview from "~/.storybook/preview";
-
 
 const MOCK_STEP_ID = "story-step-id";
 

@@ -1,7 +1,7 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import  { type CompanyDetailsFormData } from "~/features/onboarding/schemas/company-details-schema";
+import { type CompanyDetailsFormData } from "~/features/onboarding/schemas/company-details-schema";
 
 /**
  * Builder for CompanyDetailsFormData test data.

@@ -5,7 +5,6 @@ import { EmailForm } from "./email-form";
 
 import preview from "~/.storybook/preview";
 
-
 const meta = preview.meta({
   title: "Features/Onboarding/Forms/Email Form",
   component: EmailForm,
@@ -16,7 +15,7 @@ const meta = preview.meta({
 
 export const DefaultValues = meta.story({
   args: {
-    onContinueAction: fn(async () => ({ success: true as const, data: null })),
+    onContinueAction: fn(async () => ({ success: true as const, data: null })) as never,
     onBackAction: fn()
   }
 });
@@ -47,7 +46,7 @@ export const Empty = meta.story({
       emailSubject: "",
       emailBody: ""
     },
-    onContinueAction: fn(async () => ({ success: true as const, data: null })),
+    onContinueAction: fn(async () => ({ success: true as const, data: null })) as never,
     onBackAction: fn()
   }
 });
@@ -79,7 +78,7 @@ export const FilledValid = meta.story({
       emailSubject: "Temat testowy",
       emailBody: "Treść wiadomości testowej długa"
     },
-    onContinueAction: fn(async () => ({ success: true as const, data: null })),
+    onContinueAction: fn(async () => ({ success: true as const, data: null })) as never,
     onBackAction: fn()
   }
 });

@@ -1,7 +1,7 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import  { type EmailFormData } from "~/features/onboarding/schemas/email-schema";
+import { type EmailFormData } from "~/features/onboarding/schemas/email-schema";
 
 /**
  * Builder for EmailFormData test data.

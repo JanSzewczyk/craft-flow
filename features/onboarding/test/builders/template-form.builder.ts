@@ -1,7 +1,7 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import  { type TemplateFormData } from "~/features/onboarding/schemas/template-schema";
+import { type TemplateFormData } from "~/features/onboarding/schemas/template-schema";
 
 import { templateStepFormBuilder } from "./template-step-form.builder";
 

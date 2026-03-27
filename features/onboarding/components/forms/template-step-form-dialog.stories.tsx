@@ -4,7 +4,6 @@ import { TemplateStepFormDialog } from "./template-step-form-dialog";
 
 import preview from "~/.storybook/preview";
 
-
 const meta = preview.meta({
   title: "Features/Onboarding/Forms/Template Step Form Dialog",
   component: TemplateStepFormDialog,

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import  { type ImageProps } from "next/image";
+import { type ImageProps } from "next/image";
 
 type Props = Omit<ImageProps, "src"> & { src: string };
 

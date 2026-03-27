@@ -1,6 +1,7 @@
 import { type Metadata } from "next";
 
-import { ContactHeader, ContactSection, sendContactEmail } from "~/features/contact";
+import { ContactHeader, ContactSection } from "~/features/contact/components";
+import { sendContactEmail } from "~/features/contact/server/actions/send-contact-email";
 
 export const metadata: Metadata = {
   title: "Kontakt",

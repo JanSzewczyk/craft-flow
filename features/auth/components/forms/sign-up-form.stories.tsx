@@ -91,11 +91,9 @@ EmptyForm.test("Submits form with valid data and calls onEmailSignUp", async ({ 
   });
 });
 
-EmptyForm.test("Google button is disabled and does not call onGoogleSignUp", async ({ canvas, args, userEvent }) => {
+EmptyForm.test("Google button is disabled and does not call onGoogleSignUp", async ({ canvas }) => {
   const googleButton = canvas.getByRole("button", { name: /zarejestruj się przez google/i });
   await expect(googleButton).toBeDisabled();
-  // await userEvent.click(googleButton);
-  // await expect(args.onGoogleSignUp).not.toHaveBeenCalled();
 });
 
 export const RegistrationError = meta.story({

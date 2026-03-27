@@ -1,6 +1,11 @@
-import logger, { createLogger } from "~/lib/logger";
+import logger, { createLogger } from "./logger";
 
 describe("logger", () => {
+  beforeEach(() => {
+    vi.unmock("./logger");
+    vi.resetModules();
+  });
+
   test("exports default logger instance", () => {
     expect(logger).toBeDefined();
     expect(typeof logger.info).toBe("function");

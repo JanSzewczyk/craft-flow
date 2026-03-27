@@ -60,6 +60,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
     "@chromatic-com/storybook": "^5.0.2",
+    "@faker-js/faker": "^10.4.0",
     "@playwright/test": "^1.58.0",
     "@storybook-community/storybook-dark-mode": "^7.1.0",
     "@storybook/addon-a11y": "^10.3.1",
@@ -84,6 +85,7 @@
     "dotenv": "^17.3.1",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.2",
+    "mimicry-js": "^1.3.0",
     "patch-package": "^8.0.1",
     "playwright": "^1.56.0",
     "prettier": "^3.8.1",

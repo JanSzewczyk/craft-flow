@@ -178,11 +178,8 @@ export function OnboardingSuccess({
             } as React.CSSProperties
           }
         >
-          <Button size="lg" className="h-14 rounded-2xl" asChild>
-            <Link href="/app/dashboard">
-              Otwórz Dashboard
-              <ArrowRightIcon className="size-4" />
-            </Link>
+          <Button size="lg" className="h-14 rounded-2xl" endIcon={<ArrowRightIcon />} asChild>
+            <Link href="/app/dashboard">Otwórz Dashboard</Link>
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/app/settings">Przejdź do konfiguracji warsztatu</Link>

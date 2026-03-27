@@ -107,6 +107,9 @@ jest-results.json
 /test-results
 /playwright-report
 /.playwright-mcp
+/coverage
+/coverage-storybook
+/coverage-unit
 
 # Develpment
 .vscode/

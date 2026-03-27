@@ -69,7 +69,7 @@ const meta = preview.meta({
     layout: "padded"
   },
   args: {
-    onFinalizeAction: fn(async () => ({ success: true as const, data: null })),
+    onFinalizeAction: fn(async () => ({ success: true as const, data: null })) as never,
     onBackAction: fn()
   }
 });

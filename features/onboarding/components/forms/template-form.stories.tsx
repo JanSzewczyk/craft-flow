@@ -4,7 +4,6 @@ import { TemplateForm } from "./template-form";
 
 import preview from "~/.storybook/preview";
 
-
 const meta = preview.meta({
   title: "Features/Onboarding/Forms/Template Form",
   component: TemplateForm,
@@ -12,7 +11,7 @@ const meta = preview.meta({
     layout: "padded"
   },
   args: {
-    onContinueAction: fn(async () => ({ success: true as const, data: null })),
+    onContinueAction: fn(async () => ({ success: true as const, data: null })) as never,
     onBackAction: fn()
   }
 });

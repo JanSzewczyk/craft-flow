@@ -4,7 +4,6 @@ import { BrandingPreview } from "./branding-preview";
 
 import preview from "~/.storybook/preview";
 
-
 const meta = preview.meta({
   title: "Features/Onboarding/Branding Preview",
   component: BrandingPreview,

@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { expect, fn, screen, waitFor } from "storybook/test";
 
 import { EmailVerificationForm } from "./email-verification-form";

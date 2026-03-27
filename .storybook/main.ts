@@ -42,7 +42,8 @@ export default defineMain({
       plugins: [],
       resolve: {
         alias: {
-          "@clerk/nextjs": path.resolve(__dirname, "../__mocks__/@clerk/nextjs.tsx")
+          "@clerk/nextjs": path.resolve(__dirname, "../__mocks__/@clerk/nextjs.tsx"),
+          "next/image": path.resolve(__dirname, "../__mocks__/next/image.tsx")
         }
       }
     });

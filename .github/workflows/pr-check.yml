@@ -76,6 +76,10 @@ jobs:
   lint:
     name: ESlint ⬣
     runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
@@ -86,16 +90,14 @@ jobs:
           cache: "npm"
       - name: Install dependencies ⚙️
         run: npm ci
-      - name: Install utils ⚙️
-        run: npm install --save-dev @microsoft/eslint-formatter-sarif
-      - name: ESlint Check ⬣
-        run: npm run lint:ci
-        continue-on-error: true
-      - name: Upload ESlint results to GitHub
-        uses: github/codeql-action/upload-sarif@v4
+      - name: ESLint Check (annotations) ⬣
+        uses: reviewdog/action-eslint@v1
         with:
-          sarif_file: eslint-results.sarif
-          wait-for-processing: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          filter_mode: added
+          eslint_flags: "."
+          fail_on_error: false
 
   type-check:
     name: TypeScript 🛠️

@@ -49,7 +49,6 @@ export default defineConfig({
       ]
     },
     projects: [
-      // Unit tests project - runs in Node environment
       {
         plugins: [],
         resolve: { alias },
@@ -61,7 +60,6 @@ export default defineConfig({
           setupFiles: ["tests/unit/vitest.setup.ts"]
         }
       },
-      // Storybook tests project - runs in browser with Playwright
       {
         plugins: [storybookTest()],
         resolve: { alias },

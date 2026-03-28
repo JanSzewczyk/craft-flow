@@ -28,7 +28,6 @@
     "incremental": true,
     "types": ["vitest/globals", "@vitest/browser-playwright"],
     /* Path Aliases */
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./*"]
     }

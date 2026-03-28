@@ -1,10 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import * as React from "react";
 
 import { ArrowRightIcon, CheckCircle2Icon, CheckIcon, SparklesIcon } from "lucide-react";
 
-import { Badge, Button, Card, CardContent } from "@szum-tech/design-system";
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  Item,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+  ItemDescription
+} from "@szum-tech/design-system";
 import Link from "next/link";
 import { type Plan } from "~/features/billing/constants";
 import { type PlanFeatures } from "~/features/onboarding/server/services/step-service";
@@ -32,7 +42,7 @@ export function OnboardingSuccess({
   hasEmail,
   templateCount
 }: OnboardingSuccessProps) {
-  const confetti = useMemo(
+  const confetti = React.useMemo(
     () =>
       Array.from({ length: 50 }, (_, i) => ({
         id: i,
@@ -62,24 +72,7 @@ export function OnboardingSuccess({
   ].filter((s) => s.show);
 
   return (
-    <>
-      <style>{`
-        @keyframes pop-in {
-          0%   { transform: scale(0.8); opacity: 0; }
-          100% { transform: scale(1);   opacity: 1; }
-        }
-        @keyframes confetti-fall {
-          0%   { transform: translateY(0) rotate(0deg);      opacity: 1; }
-          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        .animate-pop-in {
-          animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .animate-confetti {
-          animation: confetti-fall var(--duration) ease-in-out var(--delay) infinite;
-        }
-      `}</style>
-
+    <div>
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         {confetti.map((piece) => (
           <div
@@ -115,42 +108,33 @@ export function OnboardingSuccess({
         </div>
 
         {/* Summary Card */}
-        <Card
-          className="w-full max-w-4xl overflow-hidden"
-          style={
-            {
-              animation: "pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards",
-              opacity: 0
-            } as React.CSSProperties
-          }
-        >
+        <Card className="animate-pop-in w-full max-w-4xl overflow-hidden">
           <CardContent className="grid grid-cols-1 p-0 md:grid-cols-2">
             {/* Left: Plan */}
             <div className="border-border p-8 md:border-r">
               <div className="mb-6 flex items-center gap-2">
-                <span className="text-muted-foreground text-[10px] tracking-widest uppercase">Twój Plan</span>
+                <span className="text-muted-foreground text-small uppercase">Twój Plan</span>
                 <Badge variant="secondary">Aktywny</Badge>
               </div>
               <h3 className="text-heading-h2 mb-2">{plan.name}</h3>
               <p className="text-body-sm text-muted-foreground mb-8">
                 Wszystkie narzędzia potrzebne do skalowania Twojego warsztatu.
               </p>
-              <div className="bg-muted flex items-center gap-4 rounded-xl p-4">
-                <div className="bg-background text-primary flex h-10 w-10 items-center justify-center rounded-lg shadow-sm">
-                  <SparklesIcon className="size-5" />
-                </div>
-                <div>
-                  <p className="text-body-sm font-semibold">Demo Project Ready</p>
-                  <p className="text-muted-foreground text-[12px]">Zasoby, harmonogram i budżet</p>
-                </div>
-              </div>
+
+              <Item variant="outline">
+                <ItemMedia variant="icon">
+                  <SparklesIcon />
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle>Demo Project Ready</ItemTitle>
+                  <ItemDescription>Zasoby, harmonogram i budżet</ItemDescription>
+                </ItemContent>
+              </Item>
             </div>
 
             {/* Right: Completed Steps */}
             <div className="p-8">
-              <span className="text-muted-foreground mb-6 block text-[10px] tracking-widest uppercase">
-                Konfiguracja zakończona
-              </span>
+              <span className="text-muted-foreground text-small mb-6 block uppercase">Konfiguracja zakończona</span>
               <div className="flex flex-col gap-4">
                 {steps.map((step) => (
                   <div key={step.label} className="flex items-center gap-3">
@@ -158,7 +142,7 @@ export function OnboardingSuccess({
                       className={`size-5 shrink-0 ${step.done === false ? "text-muted-foreground" : "text-primary"}`}
                     />
                     <div>
-                      <p className="text-muted-foreground text-[10px] tracking-widest uppercase">{step.label}</p>
+                      <p className="text-muted-foreground text-body-xs uppercase">{step.label}</p>
                       <p className="text-body-sm text-foreground font-semibold">{step.value}</p>
                     </div>
                   </div>
@@ -169,16 +153,8 @@ export function OnboardingSuccess({
         </Card>
 
         {/* Actions */}
-        <div
-          className="flex w-full max-w-sm flex-col gap-3"
-          style={
-            {
-              animation: "pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s forwards",
-              opacity: 0
-            } as React.CSSProperties
-          }
-        >
-          <Button size="lg" className="h-14 rounded-2xl" endIcon={<ArrowRightIcon />} asChild>
+        <div className="animate-pop-in flex w-full max-w-sm flex-col gap-3">
+          <Button size="lg" endIcon={<ArrowRightIcon />} asChild>
             <Link href="/app/dashboard">Otwórz Dashboard</Link>
           </Button>
           <Button variant="ghost" asChild>
@@ -186,6 +162,6 @@ export function OnboardingSuccess({
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

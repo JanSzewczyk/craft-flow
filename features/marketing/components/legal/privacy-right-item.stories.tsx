@@ -22,24 +22,17 @@ const meta = preview.meta({
 
 export const PrivacyRightItemStory = meta.story({ name: "Privacy Right Item" });
 
-PrivacyRightItemStory.test("renders title text", async ({ canvas, step }) => {
-  await step("Verify title is visible", async () => {
-    const title = canvas.getByText("Prawo dostępu");
-    await expect(title).toBeVisible();
+PrivacyRightItemStory.test("Renders all expected content", async ({ canvas, step }) => {
+  await step("Renders title and description", async () => {
+    await expect(canvas.getByText("Prawo dostępu")).toBeVisible();
+    await expect(
+      canvas.getByText(
+        "Masz prawo uzyskać informację, czy przetwarzamy Twoje dane osobowe, a jeśli tak – uzyskać do nich dostęp."
+      )
+    ).toBeVisible();
   });
-});
 
-PrivacyRightItemStory.test("renders description text", async ({ canvas, step }) => {
-  await step("Verify description is visible", async () => {
-    const description = canvas.getByText(
-      "Masz prawo uzyskać informację, czy przetwarzamy Twoje dane osobowe, a jeśli tak – uzyskać do nich dostęp."
-    );
-    await expect(description).toBeVisible();
-  });
-});
-
-PrivacyRightItemStory.test("renders icon wrapper element", async ({ canvas, step }) => {
-  await step("Verify icon span is present in the DOM", async () => {
+  await step("Renders icon wrapper element", async () => {
     const title = canvas.getByText("Prawo dostępu");
     const titleContainer = title.closest("div");
     await expect(titleContainer).toBeInTheDocument();

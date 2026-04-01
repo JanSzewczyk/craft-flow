@@ -1,8 +1,10 @@
-import { type Meta, type StoryObj } from "@storybook/react";
+import { expect, screen, within } from "storybook/test";
+
+import preview from "~/.storybook/preview";
 
 import { MarketingHeader } from "./header";
 
-const meta: Meta<typeof MarketingHeader> = {
+const meta = preview.meta({
   title: "Marketing/Header",
   component: MarketingHeader,
   parameters: {
@@ -15,44 +17,94 @@ const meta: Meta<typeof MarketingHeader> = {
     }
   },
   tags: ["autodocs"]
-};
-
-export default meta;
-type Story = StoryObj<typeof MarketingHeader>;
+});
 
 /**
- * Default story showing the MarketingHeader component on desktop viewport.
- * Displays logo, navigation links, theme toggle, and action buttons.
+ * Desktop navigation state showing the full header with logo, nav links,
+ * theme toggle, and action buttons.
  */
-export const Default: Story = {};
+export const DesktopNav = meta.story({});
+
+DesktopNav.test("Renders all expected navigation content", async ({ canvas, step }) => {
+  await step("Renders BrandLogo link to homepage", async () => {
+    const brandLink = canvas.getByRole("link", { name: /craftflow/i });
+    await expect(brandLink).toBeVisible();
+    await expect(brandLink).toHaveAttribute("href", "/");
+  });
+
+  await step("Renders all navigation links with correct hrefs", async () => {
+    const navLinks = [
+      { name: "Funkcje", href: "/features" },
+      { name: "Cennik", href: "/pricing" },
+      { name: "O nas", href: "/about-us" },
+      { name: "Kontakt", href: "/contact" }
+    ];
+
+    for (const { name, href } of navLinks) {
+      const link = canvas.getByRole("link", { name });
+      await expect(link).toHaveAttribute("href", href);
+    }
+  });
+
+  await step("Renders theme toggle and no active link on homepage", async () => {
+    await expect(canvas.getByRole("button", { name: /toggle theme/i })).toBeVisible();
+
+    for (const name of ["Funkcje", "Cennik", "O nas", "Kontakt"]) {
+      const link = canvas.getByRole("link", { name });
+      await expect(link).not.toHaveAttribute("aria-current", "page");
+    }
+  });
+});
+
+/**
+ * Story showing the header with an active navigation link (Cennik/Pricing page).
+ */
+export const ActiveLink = meta.story({
+  parameters: {
+    nextjs: {
+      navigation: {
+        pathname: "/pricing"
+      }
+    }
+  }
+});
+
+ActiveLink.test("Cennik link is active, other nav links are not", async ({ canvas }) => {
+  const cennikLink = canvas.getByRole("link", { name: "Cennik" });
+  await expect(cennikLink).toHaveAttribute("aria-current", "page");
+
+  for (const name of ["Funkcje", "O nas", "Kontakt"]) {
+    const link = canvas.getByRole("link", { name });
+    await expect(link).not.toHaveAttribute("aria-current", "page");
+  }
+});
 
 /**
  * Story showing the header on mobile viewport.
  * Hides desktop navigation and shows mobile menu button.
  */
-export const Mobile: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: "iphone12"
-    }
+export const Mobile = meta.story({
+  globals: {
+    viewport: { value: "mobile2", isRotated: false }
   }
-};
+});
 
-/**
- * Story for accessibility testing.
- * This story is tagged as test-only and will be run by the test suite.
- */
-export const Accessibility: Story = {
-  tags: ["test-only"],
-  parameters: {
-    a11y: {
-      config: {
-        rules: [
-          { id: "color-contrast", enabled: true },
-          { id: "button-name", enabled: true },
-          { id: "link-name", enabled: true }
-        ]
-      }
-    }
+Mobile.test("Mobile menu opens with all links and closes on link click", async ({ canvas, userEvent }) => {
+  const menuButton = canvas.getByRole("button", { name: "Open menu" });
+  await expect(menuButton).toBeVisible();
+
+  await userEvent.click(menuButton);
+
+  const dialog = await screen.findByRole("dialog");
+  const dialogScope = within(dialog);
+
+  for (const name of ["Funkcje", "Cennik", "O nas", "Kontakt"]) {
+    await expect(dialogScope.getByRole("link", { name })).toBeVisible();
   }
-};
+
+  await expect(dialogScope.getByRole("link", { name: "Rozpocznij okres próbny" })).toBeVisible();
+  await expect(dialogScope.getByRole("link", { name: "Zaloguj się" })).toBeVisible();
+
+  await userEvent.click(dialogScope.getByRole("link", { name: "Funkcje" }));
+  await expect(screen.queryByRole("dialog")).toBeNull();
+});

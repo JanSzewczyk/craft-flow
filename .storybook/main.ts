@@ -41,10 +41,20 @@ export default defineMain({
     return mergeConfig(config, {
       plugins: [],
       resolve: {
-        alias: {
-          "@clerk/nextjs": path.resolve(__dirname, "../__mocks__/@clerk/nextjs.tsx"),
-          "next/image": path.resolve(__dirname, "../__mocks__/next/image.tsx")
-        }
+        alias: [
+          {
+            find: "@clerk/nextjs/server",
+            replacement: path.resolve(__dirname, "../__mocks__/@clerk/nextjs/server.ts")
+          },
+          {
+            find: "@clerk/nextjs",
+            replacement: path.resolve(__dirname, "../__mocks__/@clerk/nextjs/index.tsx")
+          },
+          {
+            find: "next/image",
+            replacement: path.resolve(__dirname, "../__mocks__/next/image.tsx")
+          }
+        ]
       }
     });
   }

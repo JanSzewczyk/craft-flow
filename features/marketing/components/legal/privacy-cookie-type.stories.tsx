@@ -21,22 +21,15 @@ const meta = preview.meta({
 
 export const PrivacyCookieTypeStory = meta.story({ name: "Privacy Cookie Type" });
 
-PrivacyCookieTypeStory.test("renders cookie name as bold text", async ({ canvas, step }) => {
-  await step("Verify cookie name is visible", async () => {
-    const name = canvas.getByText("Niezbędne");
-    await expect(name).toBeVisible();
+PrivacyCookieTypeStory.test("Renders all expected content", async ({ canvas, step }) => {
+  await step("Renders cookie name and description", async () => {
+    await expect(canvas.getByText("Niezbędne")).toBeVisible();
+    await expect(
+      canvas.getByText("Wymagane do prawidłowego funkcjonowania serwisu. Nie można ich wyłączyć.")
+    ).toBeVisible();
   });
-});
 
-PrivacyCookieTypeStory.test("renders cookie description", async ({ canvas, step }) => {
-  await step("Verify description text is visible", async () => {
-    const description = canvas.getByText("Wymagane do prawidłowego funkcjonowania serwisu. Nie można ich wyłączyć.");
-    await expect(description).toBeVisible();
-  });
-});
-
-PrivacyCookieTypeStory.test("renders container with border", async ({ canvas, step }) => {
-  await step("Verify container element is in the DOM", async () => {
+  await step("Renders container element", async () => {
     const name = canvas.getByText("Niezbędne");
     const container = name.closest("div");
     await expect(container).toBeInTheDocument();

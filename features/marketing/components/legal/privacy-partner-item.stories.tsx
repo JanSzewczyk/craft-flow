@@ -18,16 +18,9 @@ const meta = preview.meta({
 
 export const PrivacyPartnerItemStory = meta.story({ name: "Privacy Partner Item" });
 
-PrivacyPartnerItemStory.test("renders partner name", async ({ canvas, step }) => {
-  await step("Verify partner name is visible", async () => {
-    const name = canvas.getByText("Clerk");
-    await expect(name).toBeVisible();
-  });
-});
-
-PrivacyPartnerItemStory.test("renders partner category label", async ({ canvas, step }) => {
-  await step("Verify category label is visible", async () => {
-    const category = canvas.getByText("Autentykacja");
-    await expect(category).toBeVisible();
+PrivacyPartnerItemStory.test("Renders partner name and category", async ({ canvas, step }) => {
+  await step("Renders partner name and category label", async () => {
+    await expect(canvas.getByText("Clerk")).toBeVisible();
+    await expect(canvas.getByText("Autentykacja")).toBeVisible();
   });
 });

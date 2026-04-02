@@ -21,8 +21,8 @@ HistorySectionStory.test("Renders all expected content", async ({ canvas, step }
     await expect(canvas.getByRole("img", { name: /artisan workshop with tools/i })).toBeVisible();
   });
 
-  await step("Renders contact link with correct href", async () => {
-    const link = canvas.getByRole("link", { name: /skontaktuj się z nami/i });
+  await step("Renders contact button with correct href", async () => {
+    const link = canvas.getByRole("button", { name: /skontaktuj się z nami/i });
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute("href", "/contact");
   });

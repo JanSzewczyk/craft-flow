@@ -64,7 +64,21 @@ export default defineConfig({
         plugins: [storybookTest()],
         resolve: { alias },
         optimizeDeps: {
-          include: ["sb-original/default-loader", "sb-original/image-context"]
+          include: [
+            "sb-original/default-loader",
+            "sb-original/image-context",
+            "@clerk/react",
+            "@react-email/render",
+            "@supabase/supabase-js",
+            "@t3-oss/env-nextjs",
+            "drizzle-orm",
+            "drizzle-orm/pg-core",
+            "drizzle-orm/postgres-js",
+            "next/headers",
+            "next/server",
+            "postgres",
+            "resend"
+          ]
         },
         test: {
           name: "storybook",

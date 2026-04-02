@@ -25,14 +25,14 @@ HeroSectionStory.test("Renders all expected content", async ({ canvas, step }) =
     await expect(canvas.getByText(/CraftFlow to Twój cyfrowy asystent/i)).toBeVisible();
   });
 
-  await step("Renders CTA links with correct hrefs", async () => {
-    const trialLink = canvas.getByRole("link", {
+  await step("Renders CTA buttons with correct hrefs", async () => {
+    const trialLink = canvas.getByRole("button", {
       name: /Rozpocznij 14-dniowy okres próbny/i
     });
     await expect(trialLink).toBeVisible();
     await expect(trialLink).toHaveAttribute("href", "/pricing");
 
-    const featuresLink = canvas.getByRole("link", {
+    const featuresLink = canvas.getByRole("button", {
       name: /Zobacz jak to działa/i
     });
     await expect(featuresLink).toBeVisible();

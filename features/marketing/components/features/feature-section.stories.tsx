@@ -68,8 +68,8 @@ FullFeature.test("Renders all expected content and CTA link", async ({ canvas, s
     await expect(canvas.getByText("Zadowolonych klientów")).toBeVisible();
   });
 
-  await step("Renders CTA link with correct href", async () => {
-    const ctaLink = canvas.getByRole("link", { name: "Rozpocznij teraz" });
+  await step("Renders CTA button with correct href", async () => {
+    const ctaLink = canvas.getByRole("button", { name: "Rozpocznij teraz" });
     await expect(ctaLink).toBeVisible();
     await expect(ctaLink).toHaveAttribute("href", "/sign-up");
   });

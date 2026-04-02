@@ -1,4 +1,4 @@
-import { expect } from "storybook/test";
+import { expect, waitFor } from "storybook/test";
 
 import preview from "~/.storybook/preview";
 
@@ -37,8 +37,10 @@ PricingFAQStory.test(
     await step("Clicking the same question again collapses it", async () => {
       const trigger = canvas.getByText("Jak działa darmowy trial?");
       await userEvent.click(trigger);
-      const content = canvas.queryByText(/Darmowy trial 14-dniowy dotyczy wyłącznie planu Basic/i);
-      await expect(content).not.toBeVisible();
+      await waitFor(async () => {
+        const content = canvas.queryByText(/Darmowy trial 14-dniowy dotyczy wyłącznie planu Basic/i);
+        await expect(content).not.toBeVisible();
+      });
     });
   }
 );

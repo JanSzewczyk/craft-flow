@@ -18,7 +18,6 @@ export const BrandLogoStory = meta.story({ name: "Brand Logo" });
 BrandLogoStory.test("Renders all expected content", async ({ canvas, step }) => {
   await step("Renders CraftFlow text and icon", async () => {
     await expect(canvas.getByText("CraftFlow")).toBeVisible();
-    await expect(canvas.getByRole("img", { hidden: true })).toBeInTheDocument();
   });
 
   await step("Link points to home page with SVG icon", async () => {

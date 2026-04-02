@@ -1,4 +1,4 @@
-import { expect, screen, within } from "storybook/test";
+import { expect, screen, waitFor, within } from "storybook/test";
 
 import preview from "~/.storybook/preview";
 
@@ -47,7 +47,7 @@ DesktopNav.test("Renders all expected navigation content", async ({ canvas, step
   });
 
   await step("Renders theme toggle and no active link on homepage", async () => {
-    await expect(canvas.getByRole("button", { name: /toggle theme/i })).toBeVisible();
+    await expect(canvas.getByRole("button", { name: /current:/i })).toBeVisible();
 
     for (const name of ["Funkcje", "Cennik", "O nas", "Kontakt"]) {
       const link = canvas.getByRole("link", { name });
@@ -89,7 +89,7 @@ export const Mobile = meta.story({
   }
 });
 
-Mobile.test("Mobile menu opens with all links and closes on link click", async ({ canvas, userEvent }) => {
+Mobile.test("Mobile menu opens with all links and closes on Escape", async ({ canvas, userEvent }) => {
   const menuButton = canvas.getByRole("button", { name: "Open menu" });
   await expect(menuButton).toBeVisible();
 
@@ -98,13 +98,19 @@ Mobile.test("Mobile menu opens with all links and closes on link click", async (
   const dialog = await screen.findByRole("dialog");
   const dialogScope = within(dialog);
 
-  for (const name of ["Funkcje", "Cennik", "O nas", "Kontakt"]) {
-    await expect(dialogScope.getByRole("link", { name })).toBeVisible();
-  }
+  await waitFor(async () => {
+    for (const name of ["Funkcje", "Cennik", "O nas", "Kontakt"]) {
+      await expect(dialogScope.getByRole("link", { name })).toBeVisible();
+    }
+  });
 
-  await expect(dialogScope.getByRole("link", { name: "Rozpocznij okres próbny" })).toBeVisible();
-  await expect(dialogScope.getByRole("link", { name: "Zaloguj się" })).toBeVisible();
+  await expect(dialogScope.getByRole("button", { name: "Rozpocznij okres próbny" })).toBeVisible();
+  await expect(dialogScope.getByRole("button", { name: "Zaloguj się" })).toBeVisible();
 
-  await userEvent.click(dialogScope.getByRole("link", { name: "Funkcje" }));
-  await expect(screen.queryByRole("dialog")).toBeNull();
+  // Use Escape to close — clicking a nav link causes real browser navigation
+  // which disconnects Vitest's WebSocket connection in headless Chromium
+  await userEvent.keyboard("{Escape}");
+  await waitFor(async () => {
+    await expect(screen.queryByRole("dialog")).toBeNull();
+  });
 });

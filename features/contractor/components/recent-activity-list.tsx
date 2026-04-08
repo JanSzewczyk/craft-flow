@@ -1,13 +1,4 @@
-import {
-  Avatar,
-  AvatarFallback,
-  Badge,
-  type BadgeVariant,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from "@szum-tech/design-system";
+import { Avatar, AvatarFallback, Badge, type BadgeVariant, Card } from "@szum-tech/design-system";
 
 import type { RecentActivityItem } from "~/features/contractor/server/db/dashboard";
 
@@ -57,37 +48,42 @@ type RecentActivityListProps = {
 
 export function RecentActivityList({ items }: RecentActivityListProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Ostatnia aktywność</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <section className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold">Ostatnia aktywność</h2>
+        <button className="text-primary text-sm font-semibold hover:underline">Zobacz wszystko</button>
+      </div>
+
+      <Card className="rounded-xl p-2">
         {items.length === 0 ? (
           <p className="text-muted-foreground py-8 text-center text-sm">Brak aktywności do wyświetlenia</p>
         ) : (
-          <ul className="space-y-4">
+          <ul className="divide-y">
             {items.map((item) => (
-              <li key={item.projectId} className="flex items-start gap-3">
-                <Avatar className="mt-0.5 size-9">
-                  <AvatarFallback className="text-xs">{getInitials(item.clientName)}</AvatarFallback>
+              <li
+                key={item.projectId}
+                className="group hover:bg-muted/50 flex items-center gap-6 p-6 transition-colors"
+              >
+                <Avatar className="size-12 shrink-0">
+                  <AvatarFallback>{getInitials(item.clientName)}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium">{item.projectName}</p>
-                    <Badge variant={STATUS_VARIANTS[item.projectStatus] ?? "outline"} className="shrink-0">
-                      {STATUS_LABELS[item.projectStatus] ?? item.projectStatus}
-                    </Badge>
-                  </div>
-                  <p className="text-muted-foreground truncate text-xs">
-                    {item.clientName} &middot; {item.clientEmail}
+                  <p className="text-base font-bold">{item.clientName}</p>
+                  <p className="text-muted-foreground truncate text-sm">
+                    Projekt: <span className="text-foreground font-medium">{item.projectName}</span>
                   </p>
-                  <p className="text-muted-foreground text-xs">{formatRelativeTime(item.updatedAt)}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-muted-foreground font-mono text-xs">{formatRelativeTime(item.updatedAt)}</p>
+                  <Badge variant={STATUS_VARIANTS[item.projectStatus] ?? "outline"} className="mt-1">
+                    {STATUS_LABELS[item.projectStatus] ?? item.projectStatus}
+                  </Badge>
                 </div>
               </li>
             ))}
           </ul>
         )}
-      </CardContent>
-    </Card>
+      </Card>
+    </section>
   );
 }

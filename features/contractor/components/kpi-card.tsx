@@ -11,10 +11,10 @@ type KpiCardProps = {
 
 export function KpiCard({ title, value, icon: Icon, variant = "default" }: KpiCardProps) {
   return (
-    <Card className="gap-2">
+    <Card className="gap-2 rounded-xl transition-transform hover:-translate-y-1">
       <CardHeader>
         <div
-          className={`mb-2 flex size-12 shrink-0 items-center justify-center rounded ${
+          className={`mb-2 flex size-12 shrink-0 items-center justify-center rounded-lg ${
             variant === "warning" ? "bg-error/10 text-error" : "bg-primary/10 text-primary"
           }`}
         >
@@ -23,7 +23,7 @@ export function KpiCard({ title, value, icon: Icon, variant = "default" }: KpiCa
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-display-sm">{value}</p>
+        <p className="font-mono text-3xl font-bold">{value}</p>
       </CardContent>
     </Card>
   );

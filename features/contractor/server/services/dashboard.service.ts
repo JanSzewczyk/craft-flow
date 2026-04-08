@@ -1,5 +1,8 @@
 import { cache } from "react";
 
+import type { LucideIcon } from "lucide-react";
+import { CheckCircleIcon, FolderOpenIcon, HardHatIcon } from "lucide-react";
+
 import { createLogger } from "~/lib/logger";
 import { type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { type PlanId } from "~/features/billing/constants";
@@ -14,13 +17,24 @@ import {
 
 const logger = createLogger({ module: "contractor-dashboard-service" });
 
+export type DashboardKpiCard = {
+  id: string;
+  title: string;
+  value: string | number;
+  variant: "default" | "warning";
+  icon: LucideIcon;
+};
+
 export type DashboardData = {
-  contractor: ContractorProfile;
-  planId: PlanId | null;
-  planName: string;
-  activeProjectsCount: number;
-  completedThisMonth: number;
-  projectLimit: number | null;
+  header: {
+    contractor: ContractorProfile;
+  };
+  planLimit: {
+    planId: PlanId | null;
+    planName: string;
+    activeProjectsCount: number;
+    projectLimit: number | null;
+  };
   recentActivity: RecentActivityItem[];
 };
 
@@ -35,10 +49,9 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
     return [profileError, null];
   }
 
-  const [planId, activeProjectsResult, completedThisMonthResult, recentActivityResult] = await Promise.all([
+  const [planId, activeProjectsResult, recentActivityResult] = await Promise.all([
     detectClerkPlan(),
     getCachedActiveProjectsCount(userId),
-    getCachedCompletedProjectsThisMonth(userId),
     getCachedRecentActivity(userId)
   ]);
 
@@ -53,14 +66,6 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
     );
   }
 
-  const [completedThisMonthError, completedThisMonth] = completedThisMonthResult;
-  if (completedThisMonthError) {
-    logger.warn(
-      { userId, errorCode: completedThisMonthError.code, isRetryable: completedThisMonthError.isRetryable },
-      "Failed to get completed projects this month, using default"
-    );
-  }
-
   const [recentActivityError, recentActivity] = recentActivityResult;
   if (recentActivityError) {
     logger.warn(
@@ -72,15 +77,55 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
   return [
     null,
     {
-      contractor,
-      planId,
-      planName: plan?.name ?? "Brak planu",
-      activeProjectsCount: activeProjectsCount ?? 0,
-      completedThisMonth: completedThisMonth ?? 0,
-      projectLimit,
+      header: { contractor },
+      planLimit: {
+        planId,
+        planName: plan?.name ?? "Brak planu",
+        activeProjectsCount: activeProjectsCount ?? 0,
+        projectLimit
+      },
       recentActivity: recentActivity ?? []
     }
   ];
 }
 
 export const getDashboardData = cache(_getDashboardData);
+
+async function _getDashboardKpiCards(userId: string): Promise<SupabaseServiceResult<DashboardKpiCard[]>> {
+  const [planId, activeProjectsResult, completedThisMonthResult] = await Promise.all([
+    detectClerkPlan(),
+    getCachedActiveProjectsCount(userId),
+    getCachedCompletedProjectsThisMonth(userId)
+  ]);
+
+  const projectLimit = planId ? getProjectLimit(planId) : null;
+  const [, activeProjectsCount] = activeProjectsResult;
+  const [, completedThisMonth] = completedThisMonthResult;
+
+  const active = activeProjectsCount ?? 0;
+  const completed = completedThisMonth ?? 0;
+  const isNearLimit = projectLimit !== null && active / projectLimit >= 0.8;
+
+  return [
+    null,
+    [
+      { id: "active-projects", title: "Aktywne projekty", value: active, variant: "default", icon: FolderOpenIcon },
+      {
+        id: "completed-this-month",
+        title: "Ukończone w tym miesiącu",
+        value: completed,
+        variant: "default",
+        icon: CheckCircleIcon
+      },
+      {
+        id: "project-limit",
+        title: "Limit projektów",
+        value: projectLimit === null ? "\u221E" : `${active}/${projectLimit}`,
+        variant: isNearLimit ? "warning" : "default",
+        icon: HardHatIcon
+      }
+    ]
+  ];
+}
+
+export const getDashboardKpiCards = cache(_getDashboardKpiCards);

@@ -1,6 +1,8 @@
 import Link from "next/link";
 
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Progress } from "@szum-tech/design-system";
+import { AlertTriangleIcon } from "lucide-react";
+
+import { Button, Card, CardContent, Progress } from "@szum-tech/design-system";
 
 import { PlanId } from "~/features/billing/constants";
 
@@ -17,35 +19,44 @@ export function PlanLimitWidget({ planId, planName, activeProjectsCount, project
   const isNearLimit = !isUnlimited && usagePercent >= 80;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Twój limit</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Badge variant="secondary" className="uppercase">
-          {planName}
-        </Badge>
+    <aside className="space-y-4">
+      <h2 className="text-xl font-bold">Twój limit</h2>
 
-        <div>
-          <p className="text-heading-h1">
-            {activeProjectsCount}
-            {isUnlimited ? "" : ` z ${projectLimit}`}
-          </p>
-          <p className="text-muted-foreground text-body-sm">
-            {isUnlimited ? "Aktywne projekty (bez limitu)" : "Aktywnych projektów"}
-          </p>
-        </div>
+      <Card className={`rounded-xl shadow-sm ${isNearLimit ? "border-destructive/20" : ""}`}>
+        <CardContent className="space-y-6 p-8">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground text-xs font-bold tracking-widest uppercase">{planName}</span>
+            {isNearLimit && <AlertTriangleIcon className="text-destructive size-5" aria-hidden="true" />}
+          </div>
 
-        {!isUnlimited && (
-          <Progress value={usagePercent} className={isNearLimit ? "[&>div]:bg-destructive" : undefined} />
-        )}
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold">
+              {activeProjectsCount}
+              {isUnlimited ? "" : ` z ${projectLimit}`}
+            </h3>
+            <p className="text-muted-foreground text-sm">
+              {isUnlimited ? "aktywnych projektów (bez limitu)" : "aktywnych projektów w tym miesiącu"}
+            </p>
+          </div>
 
-        {planId !== PlanId.PREMIUM && (
-          <Button variant="outline" className="w-full" asChild>
-            <Link href="/app/settings">Zmień plan</Link>
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+          {!isUnlimited && (
+            <Progress value={usagePercent} className={isNearLimit ? "[&>div]:bg-destructive" : undefined} />
+          )}
+
+          {isNearLimit && (
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              Zbliżasz się do limitu swojego planu. Ulepsz konto, aby móc prowadzić nieograniczoną liczbę projektów
+              jednocześnie.
+            </p>
+          )}
+
+          {planId !== PlanId.PREMIUM && (
+            <Button variant="outline" className="border-primary text-primary w-full border-2" asChild>
+              <Link href="/app/settings">Zmień plan</Link>
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </aside>
   );
 }

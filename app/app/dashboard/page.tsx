@@ -3,12 +3,12 @@ import { type Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { auth } from "@clerk/nextjs/server";
-import { CheckCircleIcon, FolderOpenIcon, HardHatIcon } from "lucide-react";
+import { HardHatIcon } from "lucide-react";
 
 import { Button } from "@szum-tech/design-system";
 
 import { createLogger } from "~/lib/logger";
-import { getDashboardData } from "~/features/contractor/server/services/dashboard-service";
+import { getDashboardData, getDashboardKpiCards } from "~/features/contractor/server/services/dashboard.service";
 import { KpiCard } from "~/features/contractor/components/kpi-card";
 import { PlanLimitWidget } from "~/features/contractor/components/plan-limit-widget";
 import { RecentActivityList } from "~/features/contractor/components/recent-activity-list";
@@ -29,31 +29,45 @@ async function loadData() {
 
   logger.info({ userId }, "Loading dashboard page data");
 
-  const [error, data] = await getDashboardData(userId);
+  const [[dataError, data], [kpiError, kpiCards]] = await Promise.all([
+    getDashboardData(userId),
+    getDashboardKpiCards(userId)
+  ]);
 
-  if (error) {
-    logger.error({ userId, errorCode: error.code, isRetryable: error.isRetryable }, "Failed to load dashboard data");
-    throw error;
+  if (dataError) {
+    logger.error(
+      { userId, errorCode: dataError.code, isRetryable: dataError.isRetryable },
+      "Failed to load dashboard data"
+    );
+    throw dataError;
+  }
+
+  if (kpiError) {
+    logger.error(
+      { userId, errorCode: kpiError.code, isRetryable: kpiError.isRetryable },
+      "Failed to load dashboard KPI cards"
+    );
+    throw kpiError;
   }
 
   logger.info(
-    { userId, planId: data.planId, activeProjectsCount: data.activeProjectsCount },
+    { userId, planId: data.planLimit.planId, activeProjectsCount: data.planLimit.activeProjectsCount },
     "Successfully loaded dashboard page data"
   );
 
-  return data;
+  return { data, kpiCards };
 }
 
 export default async function DashboardPage() {
-  const { contractor, planId, planName, activeProjectsCount, completedThisMonth, projectLimit, recentActivity } =
-    await loadData();
+  const { data, kpiCards } = await loadData();
+  const { header, planLimit, recentActivity } = data;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Panel sterowania</h1>
-          <p className="text-muted-foreground text-sm">Witaj, {contractor.companyName}</p>
+          <p className="text-muted-foreground text-sm">Witaj, {header.contractor.companyName}</p>
         </div>
         <Button asChild>
           <Link href="/app/projects/new">
@@ -64,23 +78,18 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <KpiCard title="Aktywne projekty" value={activeProjectsCount} icon={FolderOpenIcon} />
-        <KpiCard title="Ukończone w tym miesiącu" value={completedThisMonth} icon={CheckCircleIcon} />
-        <KpiCard
-          title="Limit projektów"
-          value={projectLimit === null ? "\u221E" : `${activeProjectsCount}/${projectLimit}`}
-          icon={HardHatIcon}
-          variant={projectLimit !== null && activeProjectsCount / projectLimit >= 0.8 ? "warning" : "default"}
-        />
+        {kpiCards.map((card) => (
+          <KpiCard key={card.id} title={card.title} value={card.value} icon={card.icon} variant={card.variant} />
+        ))}
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
         <RecentActivityList items={recentActivity} />
         <PlanLimitWidget
-          planId={planId}
-          planName={planName}
-          activeProjectsCount={activeProjectsCount}
-          projectLimit={projectLimit}
+          planId={planLimit.planId}
+          planName={planLimit.planName}
+          activeProjectsCount={planLimit.activeProjectsCount}
+          projectLimit={planLimit.projectLimit}
         />
       </div>
     </div>

@@ -5,6 +5,12 @@ import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 
 import { Header, Separator, SidebarTrigger } from "@szum-tech/design-system";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage
+} from "@szum-tech/design-system/components/breadcrump";
 
 const SEGMENT_LABELS: Record<string, string> = {
   dashboard: "Panel sterowania",
@@ -24,13 +30,21 @@ export function AppHeader() {
   const label = SEGMENT_LABELS[currentSegment] ?? currentSegment;
 
   return (
-    <Header>
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="h-5" />
-      <nav className="flex-1">
-        <span className="text-sm font-medium">{label}</span>
-      </nav>
-      <UserButton />
+    <Header variant="full">
+      <div className="inline-flex w-full items-center gap-x-2">
+        <SidebarTrigger />
+        <Separator orientation="vertical" />
+        <nav className="flex-1">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbPage>Dashboard</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </nav>
+        <UserButton />
+      </div>
     </Header>
   );
 }

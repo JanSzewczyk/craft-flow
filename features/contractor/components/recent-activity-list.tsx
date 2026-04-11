@@ -1,4 +1,4 @@
-import Link from "next/link";
+import * as React from "react";
 
 import {
   Avatar,
@@ -17,10 +17,8 @@ import {
   ItemSeparator,
   ItemTitle
 } from "@szum-tech/design-system";
-
-import type { RecentActivityItem } from "~/features/contractor/server/db/dashboard";
-import * as React from "react";
-
+import Link from "next/link";
+import { type RecentActivityItem } from "~/features/contractor/server/db/dashboard";
 import { getInitials } from "~/utils/users";
 
 const STATUS_LABELS: Record<string, string> = {

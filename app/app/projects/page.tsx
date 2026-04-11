@@ -10,7 +10,7 @@ import { Button, Skeleton } from "@szum-tech/design-system";
 
 import { createLogger } from "~/lib/logger";
 import { getCachedProjectList } from "~/features/projects/server/services/projects-list.service";
-import { isFilterableStatus } from "~/features/projects/types/project-filter";
+import { isFilterableStatus, ProjectStatusFilter } from "~/features/projects/types/project-filter";
 
 import { ProjectsPagination } from "~/features/projects/components/projects-pagination";
 import { ProjectsSearch } from "~/features/projects/components/projects-search";
@@ -28,7 +28,8 @@ const VALID_PER_PAGE = new Set([5, 10, 20, 50]);
 
 function parseSearchParams(raw: Record<string, string | string[] | undefined>) {
   const statusRaw = typeof raw.status === "string" ? raw.status : undefined;
-  const status = statusRaw && isFilterableStatus(statusRaw) ? statusRaw : undefined;
+  const statusFilter = statusRaw && isFilterableStatus(statusRaw) ? statusRaw : undefined;
+  const status = statusFilter === ProjectStatusFilter.ALL ? undefined : statusFilter;
 
   const search = typeof raw.search === "string" ? raw.search.trim() : "";
 

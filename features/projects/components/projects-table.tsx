@@ -1,8 +1,19 @@
 import { FolderOpenIcon } from "lucide-react";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@szum-tech/design-system";
+import {
+  Avatar,
+  AvatarFallback,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@szum-tech/design-system";
 
 import type { ProjectListItem } from "~/features/projects/server/db";
+
+import { getInitials } from "~/utils/users";
 
 import { ProjectProgressBar } from "./project-progress-bar";
 import { ProjectStatusBadge } from "./project-status-badge";
@@ -51,7 +62,12 @@ export function ProjectsTable({ items }: ProjectsTableProps) {
         {items.map((item) => (
           <TableRow key={item.id}>
             <TableCell className="font-medium">{item.name}</TableCell>
-            <TableCell>{item.clientName}</TableCell>
+            <TableCell className="flex items-center gap-2">
+              <Avatar className="size-6">
+                <AvatarFallback>{getInitials(item.clientName)}</AvatarFallback>
+              </Avatar>
+              {item.clientName}
+            </TableCell>
             <TableCell>
               <ProjectStatusBadge status={item.status} />
             </TableCell>

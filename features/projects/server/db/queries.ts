@@ -63,7 +63,7 @@ export type ProjectListItem = {
 };
 
 export type ProjectListOptions = {
-  status?: ProjectStatus;
+  status?: ProjectStatusFilter;
   search?: string;
   page: number;
   perPage: number;

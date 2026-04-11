@@ -1,4 +1,6 @@
-import { LinkedinIcon, TwitterIcon } from "lucide-react";
+import { XLogoIcon } from "@szum-tech/design-system/icons";
+
+import { LinkedInIcon } from "~/features/marketing/components/social-icons";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@szum-tech/design-system";
 import { TEAM } from "~/features/marketing/constants";
@@ -40,14 +42,14 @@ function TeamMemberCard({ name, role, bio, image, socials }: TeamMemberCardProps
           href={socials.linkedin}
           aria-label={`${name} na LinkedIn`}
         >
-          <LinkedinIcon className="size-6" aria-hidden="true" />
+          <LinkedInIcon className="size-6" aria-hidden="true" />
         </a>
         <a
           className="text-muted-foreground hover:text-primary transition-colors"
           href={socials.twitter}
           aria-label={`${name} na Twitter`}
         >
-          <TwitterIcon className="size-6" aria-hidden="true" />
+          <XLogoIcon className="size-6" aria-hidden="true" />
         </a>
       </div>
     </div>

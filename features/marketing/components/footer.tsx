@@ -1,4 +1,6 @@
-import { FacebookIcon, LinkedinIcon, TwitterIcon } from "lucide-react";
+import { XLogoIcon } from "@szum-tech/design-system/icons";
+
+import { FacebookIcon, LinkedInIcon } from "~/features/marketing/components/social-icons";
 
 import { Button, Separator } from "@szum-tech/design-system";
 import Link from "next/link";
@@ -8,8 +10,8 @@ import { BrandLogo } from "./brand-logo";
 
 const ICONS = {
   facebook: FacebookIcon,
-  twitter: TwitterIcon,
-  linkedin: LinkedinIcon
+  twitter: XLogoIcon,
+  linkedin: LinkedInIcon
 } as const;
 
 function FooterColumn({ title, links }: { title: string; links: readonly { href: string; label: string }[] }) {
@@ -58,7 +60,7 @@ export function MarketingFooter() {
                     aria-label={social.label}
                     className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
-                    <Icon size={20} />
+                    <Icon className="size-5" />
                   </Link>
                 );
               })}

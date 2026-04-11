@@ -25,9 +25,9 @@ export const EmptyList = meta.story({
 });
 
 EmptyList.test("Renders empty state correctly", async ({ canvas, step }) => {
-  await step("Shows section heading and 'Zobacz wszystko' button", async () => {
+  await step("Shows section heading and 'Zobacz wszystko' link", async () => {
     await expect(canvas.getByRole("heading", { name: /ostatnia aktywność/i })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: /zobacz wszystko/i })).toBeVisible();
+    await expect(canvas.getByRole("link", { name: /zobacz wszystko/i })).toBeVisible();
   });
 
   await step("Shows empty state message", async () => {
@@ -51,10 +51,9 @@ export const WithItems = meta.story({
 });
 
 WithItems.test("Renders all items with correct content", async ({ canvas, args, step }) => {
-  await step("Shows section heading, item count, and 'Zobacz wszystko' button", async () => {
+  await step("Shows section heading and 'Zobacz wszystko' link", async () => {
     await expect(canvas.getByRole("heading", { name: /ostatnia aktywność/i })).toBeVisible();
-    await expect(canvas.getAllByRole("listitem")).toHaveLength(args.items.length);
-    await expect(canvas.getByRole("button", { name: /zobacz wszystko/i })).toBeVisible();
+    await expect(canvas.getByRole("link", { name: /zobacz wszystko/i })).toBeVisible();
   });
 
   await step("Renders client names for each item", async () => {

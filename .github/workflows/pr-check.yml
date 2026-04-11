@@ -97,7 +97,6 @@ jobs:
           reporter: github-pr-review
           filter_mode: added
           eslint_flags: "."
-          fail_on_error: false
 
   type-check:
     name: TypeScript 🛠️

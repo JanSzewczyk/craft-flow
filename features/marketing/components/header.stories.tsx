@@ -104,8 +104,8 @@ Mobile.test("Mobile menu opens with all links and closes on Escape", async ({ ca
     }
   });
 
-  await expect(dialogScope.getByRole("button", { name: "Rozpocznij okres próbny" })).toBeVisible();
-  await expect(dialogScope.getByRole("button", { name: "Zaloguj się" })).toBeVisible();
+  await expect(dialogScope.getByRole("link", { name: "Rozpocznij okres próbny" })).toBeVisible();
+  await expect(dialogScope.getByRole("link", { name: "Zaloguj się" })).toBeVisible();
 
   // Use Escape to close — clicking a nav link causes real browser navigation
   // which disconnects Vitest's WebSocket connection in headless Chromium

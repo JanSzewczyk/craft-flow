@@ -31,14 +31,14 @@ export const AllFeatures = meta.story({
 AllFeatures.test("Renders all expected content", async ({ canvas }) => {
   await waitFor(async () => {
     await expect(canvas.getByRole("heading", { name: /Twój warsztat jest gotowy!/i })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: /Otwórz Dashboard/ })).toBeVisible();
+    await expect(canvas.getByRole("link", { name: /Otwórz Dashboard/ })).toBeVisible();
     await expect(canvas.getByText(/Stworzyliśmy dla Ciebie Projekt Demo/)).toBeVisible();
     await expect(canvas.getByText("Premium")).toBeVisible();
     await expect(canvas.getByText("Stolarnia u Jana")).toBeVisible();
     await expect(canvas.getByText("Skonfigurowano")).toBeVisible();
     await expect(canvas.getByText("5 etapów gotowych")).toBeVisible();
     await expect(canvas.getByText("Szablon zapisany")).toBeVisible();
-    await expect(canvas.getByRole("button", { name: /Przejdź do konfiguracji warsztatu/i })).toBeVisible();
+    await expect(canvas.getByRole("link", { name: /Przejdź do konfiguracji warsztatu/i })).toBeVisible();
   });
 });
 

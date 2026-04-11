@@ -64,7 +64,7 @@ MarketingFooterStory.test("Renders all expected content", async ({ canvas, step 
   });
 
   await step('Renders "Zacznij już teraz" section with signup link', async () => {
-    const signupLink = canvas.getByRole("button", { name: "Wypróbuj bez opłat" });
+    const signupLink = canvas.getByRole("link", { name: "Wypróbuj bez opłat" });
     await expect(signupLink).toBeVisible();
     await expect(signupLink).toHaveAttribute("href", "/signup");
   });

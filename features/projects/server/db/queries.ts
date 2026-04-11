@@ -6,7 +6,7 @@ import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResu
 import { clients } from "~/features/crm/server/db/schema";
 
 import { projectSteps, projects, type Project, type ProjectStep, type ProjectStatus } from "./schema";
-import { isFilterableStatus, ProjectStatusFilter } from "~/features/projects/types/project-filter";
+import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 
 const logger = createLogger({ module: "projects-db" });
 
@@ -63,7 +63,7 @@ export type ProjectListItem = {
 };
 
 export type ProjectListOptions = {
-  status?: ProjectStatusFilter;
+  status?: ProjectStatus;
   search?: string;
   page: number;
   perPage: number;

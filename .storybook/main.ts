@@ -39,8 +39,8 @@ export default defineMain({
     const { mergeConfig } = await import("vite");
 
     return mergeConfig(config, {
-      plugins: [],
       resolve: {
+        tsconfigPaths: true,
         alias: [
           {
             find: "@clerk/nextjs/server",

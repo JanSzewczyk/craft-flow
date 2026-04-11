@@ -7,4 +7,13 @@ export {
   updateProjectStepCompletion,
   reorderProjectSteps
 } from "./mutations";
-export { getProjectsByContractor, getProjectById, getProjectSteps } from "./queries";
+export {
+  getProjectsByContractor,
+  getProjectById,
+  getProjectSteps,
+  getProjectListByContractor,
+  getProjectCountsByStatus,
+  type ProjectListItem,
+  type ProjectListOptions,
+  type ProjectListResult
+} from "./queries";

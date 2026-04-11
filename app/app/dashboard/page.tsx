@@ -66,8 +66,8 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Panel sterowania</h1>
-          <p className="text-muted-foreground text-sm">Witaj, {header.contractor.companyName}</p>
+          <h1 className="text-heading-h1">Panel sterowania</h1>
+          <p className="text-lead">Witaj, {header.contractor.companyName}</p>
         </div>
         <Button asChild>
           <Link href="/app/projects/new">

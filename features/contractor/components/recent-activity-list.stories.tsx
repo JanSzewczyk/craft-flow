@@ -11,7 +11,7 @@ const meta = preview.meta({
   component: RecentActivityList,
   decorators: [
     (Story) => (
-      <div className="w-[640px]">
+      <div className="w-160">
         <Story />
       </div>
     )

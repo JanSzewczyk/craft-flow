@@ -4,13 +4,15 @@ import { usePathname } from "next/navigation";
 
 import { UserButton } from "@clerk/nextjs";
 
-import { Header, Separator, SidebarTrigger } from "@szum-tech/design-system";
 import {
+  Header,
+  Separator,
+  SidebarTrigger,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage
-} from "@szum-tech/design-system/components/breadcrump";
+} from "@szum-tech/design-system";
 
 const SEGMENT_LABELS: Record<string, string> = {
   dashboard: "Panel sterowania",

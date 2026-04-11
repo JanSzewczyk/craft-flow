@@ -1,15 +1,9 @@
-import path from "node:path";
-
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 
 // Skip environment validation in tests
 process.env.SKIP_ENV_VALIDATION = "true";
-
-const alias = {
-  "~/": `${path.resolve(process.cwd())}/`
-};
 
 export default defineConfig({
   test: {
@@ -51,7 +45,9 @@ export default defineConfig({
     projects: [
       {
         plugins: [],
-        resolve: { alias },
+        resolve: {
+          tsconfigPaths: true
+        },
         test: {
           name: "unit",
           globals: true,
@@ -62,7 +58,9 @@ export default defineConfig({
       },
       {
         plugins: [storybookTest()],
-        resolve: { alias },
+        resolve: {
+          tsconfigPaths: true
+        },
         optimizeDeps: {
           include: [
             "sb-original/default-loader",

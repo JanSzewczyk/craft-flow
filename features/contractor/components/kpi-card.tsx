@@ -11,7 +11,7 @@ type KpiCardProps = {
 
 export function KpiCard({ title, value, icon: Icon, variant = "default" }: KpiCardProps) {
   return (
-    <Card className="gap-2 rounded-xl transition-transform hover:-translate-y-1">
+    <Card className="transition-transform hover:-translate-y-1">
       <CardHeader>
         <div
           className={`mb-2 flex size-12 shrink-0 items-center justify-center rounded-lg ${

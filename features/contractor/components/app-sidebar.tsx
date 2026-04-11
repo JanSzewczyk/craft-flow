@@ -24,13 +24,6 @@ export function AppSidebar() {
   const pathname = usePathname();
 
   const isActive = (segment: string) => {
-    console.log(
-      "Checking active segment:",
-      segment,
-      "against pathname:",
-      pathname,
-      pathname.startsWith(`/app/${segment}`)
-    );
     return pathname.startsWith(`/app/${segment}`);
   };
 
@@ -58,7 +51,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {MAIN_NAV_ITEMS.map((item) => (
                 <SidebarMenuItem key={item.segment}>
-                  <SidebarMenuButton asChild isActive={isActive(item.segment)}>
+                  <SidebarMenuButton asChild isActive={isActive(item.segment)} tooltip={item.label}>
                     <Link href={item.href}>
                       <item.icon className="size-4" aria-hidden="true" />
                       <span>{item.label}</span>

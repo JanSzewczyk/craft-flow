@@ -1,6 +1,25 @@
-import { Avatar, AvatarFallback, Badge, type BadgeVariant, Card } from "@szum-tech/design-system";
+import Link from "next/link";
+
+import {
+  Avatar,
+  AvatarFallback,
+  Badge,
+  type BadgeVariant,
+  Button,
+  Card,
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle
+} from "@szum-tech/design-system";
 
 import type { RecentActivityItem } from "~/features/contractor/server/db/dashboard";
+import * as React from "react";
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Szkic",
@@ -49,39 +68,49 @@ type RecentActivityListProps = {
 export function RecentActivityList({ items }: RecentActivityListProps) {
   return (
     <section className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Ostatnia aktywność</h2>
-        <button className="text-primary text-sm font-semibold hover:underline">Zobacz wszystko</button>
+      <div className="relative flex items-center justify-between">
+        <h2 className="text-heading-h3">Ostatnia aktywność</h2>
+        <Button variant="link" className="absolute top-0 right-0" asChild>
+          <Link href="/app/projects" className="text-primary text-sm font-semibold hover:underline">
+            Zobacz wszystko
+          </Link>
+        </Button>
       </div>
 
-      <Card className="rounded-xl p-2">
+      <Card>
         {items.length === 0 ? (
-          <p className="text-muted-foreground py-8 text-center text-sm">Brak aktywności do wyświetlenia</p>
+          <p className="text-mute py-8 text-center">Brak aktywności do wyświetlenia</p>
         ) : (
-          <ul className="divide-y">
-            {items.map((item) => (
-              <li
-                key={item.projectId}
-                className="group hover:bg-muted/50 flex items-center gap-6 p-6 transition-colors"
-              >
-                <Avatar className="size-12 shrink-0">
-                  <AvatarFallback>{getInitials(item.clientName)}</AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <p className="text-base font-bold">{item.clientName}</p>
-                  <p className="text-muted-foreground truncate text-sm">
-                    Projekt: <span className="text-foreground font-medium">{item.projectName}</span>
-                  </p>
-                </div>
-                <div className="shrink-0 text-right">
-                  <p className="text-muted-foreground font-mono text-xs">{formatRelativeTime(item.updatedAt)}</p>
-                  <Badge variant={STATUS_VARIANTS[item.projectStatus] ?? "outline"} className="mt-1">
-                    {STATUS_LABELS[item.projectStatus] ?? item.projectStatus}
-                  </Badge>
-                </div>
-              </li>
+          <ItemGroup>
+            {items.map((item, index) => (
+              <React.Fragment>
+                <Item key={item.projectId} asChild>
+                  <Link href={`/app/projects/${item.projectId}`}>
+                    <ItemMedia>
+                      <Avatar className="size-10">
+                        <AvatarFallback>{getInitials(item.clientName)}</AvatarFallback>
+                      </Avatar>
+                    </ItemMedia>
+                    <ItemContent>
+                      <ItemHeader>
+                        <ItemTitle>{item.clientName}</ItemTitle>
+                      </ItemHeader>
+                      <ItemDescription>
+                        Projekt: <span className="text-foreground font-medium">{item.projectName}</span>
+                      </ItemDescription>
+                    </ItemContent>
+                    <ItemActions className="flex-col items-end">
+                      <p className="font-code text-mute">{formatRelativeTime(item.updatedAt)}</p>
+                      <Badge variant={STATUS_VARIANTS[item.projectStatus] ?? "outline"}>
+                        {STATUS_LABELS[item.projectStatus] ?? item.projectStatus}
+                      </Badge>
+                    </ItemActions>
+                  </Link>
+                </Item>
+                {index < items.length - 1 && <ItemSeparator key={`sep-${item.projectId}`} />}
+              </React.Fragment>
             ))}
-          </ul>
+          </ItemGroup>
         )}
       </Card>
     </section>

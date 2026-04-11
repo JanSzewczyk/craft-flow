@@ -21,6 +21,8 @@ import {
 import type { RecentActivityItem } from "~/features/contractor/server/db/dashboard";
 import * as React from "react";
 
+import { getInitials } from "~/utils/users";
+
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Szkic",
   ACTIVE: "Aktywny",
@@ -36,16 +38,6 @@ const STATUS_VARIANTS: Record<string, BadgeVariant> = {
   ARCHIVED: "secondary",
   DELETED: "error"
 };
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 function formatRelativeTime(date: Date): string {
   const now = new Date();

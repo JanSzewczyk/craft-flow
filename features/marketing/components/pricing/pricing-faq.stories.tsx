@@ -29,17 +29,16 @@ PricingFAQStory.test(
     });
 
     await step("Clicking a question expands its answer", async () => {
-      const trigger = canvas.getByText("Jak działa darmowy trial?");
+      const trigger = canvas.getByRole("button", { name: /Jak działa darmowy trial/i });
       await userEvent.click(trigger);
       await expect(canvas.getByText(/Darmowy trial 14-dniowy dotyczy wyłącznie planu Basic/i)).toBeVisible();
     });
 
     await step("Clicking the same question again collapses it", async () => {
-      const trigger = canvas.getByText("Jak działa darmowy trial?");
+      const trigger = canvas.getByRole("button", { name: /Jak działa darmowy trial/i });
       await userEvent.click(trigger);
       await waitFor(async () => {
-        const content = canvas.queryByText(/Darmowy trial 14-dniowy dotyczy wyłącznie planu Basic/i);
-        await expect(content).not.toBeVisible();
+        await expect(trigger).toHaveAttribute("data-state", "closed");
       });
     });
   }

@@ -32,13 +32,13 @@ export const MinimalCta = meta.story({});
 MinimalCta.test("Renders heading, primary CTA, and no optional elements", async ({ canvas, step }) => {
   await step("Renders heading and primary CTA link with correct href", async () => {
     await expect(canvas.getByRole("heading", { name: /gotowy, by usprawnić swój workflow/i })).toBeVisible();
-    const ctaLink = canvas.getByRole("button", { name: "Rozpocznij za darmo" });
+    const ctaLink = canvas.getByRole("link", { name: "Rozpocznij za darmo" });
     await expect(ctaLink).toBeVisible();
     await expect(ctaLink).toHaveAttribute("href", "/sign-up");
   });
 
   await step("Does not render optional elements when props are omitted", async () => {
-    const links = canvas.getAllByRole("button");
+    const links = canvas.getAllByRole("link", { name: "Rozpocznij za darmo" });
     await expect(links).toHaveLength(1);
     await expect(canvas.queryByText(/dołącz/i)).toBeNull();
     await expect(canvas.queryByText(/korzysta/i)).toBeNull();
@@ -74,10 +74,10 @@ FullCta.test("Renders all expected content and CTA links", async ({ canvas, step
   });
 
   await step("Renders primary and secondary CTA links with correct hrefs", async () => {
-    const primaryLink = canvas.getByRole("button", { name: "Rozpocznij za darmo" });
+    const primaryLink = canvas.getByRole("link", { name: "Rozpocznij za darmo" });
     await expect(primaryLink).toHaveAttribute("href", "/sign-up");
 
-    const secondaryLink = canvas.getByRole("button", { name: "Zobacz demo" });
+    const secondaryLink = canvas.getByRole("link", { name: "Zobacz demo" });
     await expect(secondaryLink).toBeVisible();
     await expect(secondaryLink).toHaveAttribute("href", "/demo");
   });

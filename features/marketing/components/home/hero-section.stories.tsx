@@ -26,13 +26,13 @@ HeroSectionStory.test("Renders all expected content", async ({ canvas, step }) =
   });
 
   await step("Renders CTA buttons with correct hrefs", async () => {
-    const trialLink = canvas.getByRole("button", {
+    const trialLink = canvas.getByRole("link", {
       name: /Rozpocznij 14-dniowy okres próbny/i
     });
     await expect(trialLink).toBeVisible();
     await expect(trialLink).toHaveAttribute("href", "/pricing");
 
-    const featuresLink = canvas.getByRole("button", {
+    const featuresLink = canvas.getByRole("link", {
       name: /Zobacz jak to działa/i
     });
     await expect(featuresLink).toBeVisible();

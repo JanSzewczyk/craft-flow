@@ -15,7 +15,6 @@ export async function TabCount({ userId, status }: TabCountProps) {
     return null;
   }
 
-  console.log("Counts", counts);
   const count = counts[status];
   if (!count) return null;
   return <Badge variant="secondary">{count}</Badge>;

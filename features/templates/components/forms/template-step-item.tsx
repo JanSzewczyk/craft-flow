@@ -5,8 +5,8 @@ import * as React from "react";
 import { GripVerticalIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 import { Button, SortableItemHandle } from "@szum-tech/design-system";
-import { TemplateStepFormDialog } from "~/features/onboarding/components";
-import { type TemplateStepFormData } from "~/features/onboarding/schemas/template-schema";
+import { TemplateStepFormDialog } from "~/features/templates/components/forms/template-step-form-dialog";
+import { type TemplateStepFormData } from "~/features/templates/schemas";
 
 type TemplateStepItemFormProps = {
   templateStep: TemplateStepFormData;

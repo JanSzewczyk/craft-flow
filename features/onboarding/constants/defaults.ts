@@ -1,4 +1,4 @@
-import { type TemplateStepFormData } from "~/features/onboarding/schemas/template-schema";
+import { type TemplateStepFormData } from "~/features/templates/schemas/template-schema";
 
 export const DEFAULT_TEMPLATE_NAME = "Mój szablon";
 

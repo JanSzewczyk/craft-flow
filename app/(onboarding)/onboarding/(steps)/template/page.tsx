@@ -3,7 +3,7 @@ import { StepperContent } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
 import { TemplateForm } from "~/features/onboarding/components/forms/template-form";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import { type TemplateFormData } from "~/features/onboarding/schemas";
+import { type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import { submitTemplateAction } from "~/features/onboarding/server/actions/submit-template";
 import { getCachedOnboardingState } from "~/features/onboarding/server/db";
 import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";

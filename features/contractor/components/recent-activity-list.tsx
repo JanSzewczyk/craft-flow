@@ -19,6 +19,7 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { type RecentActivityItem } from "~/features/contractor/server/db/dashboard";
+import { formatRelativeTime } from "~/utils/date";
 import { getInitials } from "~/utils/users";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -36,20 +37,6 @@ const STATUS_VARIANTS: Record<string, BadgeVariant> = {
   ARCHIVED: "secondary",
   DELETED: "error"
 };
-
-function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / 60_000);
-  const diffHours = Math.floor(diffMs / 3_600_000);
-  const diffDays = Math.floor(diffMs / 86_400_000);
-
-  if (diffMinutes < 1) return "Przed chwilą";
-  if (diffMinutes < 60) return `${diffMinutes} min temu`;
-  if (diffHours < 24) return `${diffHours} godz. temu`;
-  if (diffDays < 7) return `${diffDays} dn. temu`;
-  return date.toLocaleDateString("pl-PL", { day: "numeric", month: "short" });
-}
 
 type RecentActivityListProps = {
   items: RecentActivityItem[];

@@ -2,7 +2,15 @@ import { HardHatIcon } from "lucide-react";
 import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, Button } from "@szum-tech/design-system";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button
+} from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { KpiCard } from "~/features/contractor/components/kpi-card";
@@ -62,10 +70,16 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
         <div>
-          <Breadcrumb>
+          <Breadcrumb className="mb-2">
             <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/app/dashboard">Craft Flow</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage>Panel sterowania</BreadcrumbPage>
               </BreadcrumbItem>

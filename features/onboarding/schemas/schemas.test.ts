@@ -2,7 +2,7 @@ import { brandingSchema } from "~/features/onboarding/schemas/branding-schema";
 import { companyDetailsSchema } from "~/features/onboarding/schemas/company-details-schema";
 import { emailSchema } from "~/features/onboarding/schemas/email-schema";
 import { onboardingFormDataSchema } from "~/features/onboarding/schemas/onboarding-form-data-schema";
-import { templateSchema, templateStepSchema } from "~/features/onboarding/schemas/template-schema";
+import { templateSchema, templateStepSchema } from "~/features/templates/schemas/template-schema";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

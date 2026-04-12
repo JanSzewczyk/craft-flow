@@ -7,8 +7,8 @@ import { type DefaultValues, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, toast } from "@szum-tech/design-system";
-import { TemplateFormFields } from "~/features/templates/components/forms/template-form-fields";
 import { DEFAULT_TEMPLATE_NAME, DEFAULT_TEMPLATE_STEPS } from "~/features/onboarding/constants/defaults";
+import { TemplateFormFields } from "~/features/templates/components/forms/template-form-fields";
 import { templateSchema, type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import { type RedirectAction } from "~/lib/action-types";
 

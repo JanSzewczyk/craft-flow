@@ -4,7 +4,16 @@ import { PlusIcon } from "lucide-react";
 import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
-import { Button, Skeleton } from "@szum-tech/design-system";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Skeleton
+} from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProjectsPagination } from "~/features/projects/components/projects-pagination";
@@ -66,8 +75,21 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/app/pro
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
         <div>
+          <Breadcrumb className="mb-2">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/app/dashboard">Craft Flow</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Projekty</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <h1 className="text-heading-h1">Projekty</h1>
           <p className="text-lead">Zarządzaj swoimi projektami</p>
         </div>

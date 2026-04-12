@@ -1,13 +1,13 @@
 import { type UseFormReturn } from "react-hook-form";
 
 import { Field, FieldError, FieldGroup, FieldLabel, Input, Textarea } from "@szum-tech/design-system";
-import { type TemplateStepFormData } from "~/features/onboarding/schemas/template-schema";
+import { TemplateStepFormData } from "~/features/templates/schemas";
 
-type TemplateFormFieldsProps = {
+type TemplateStepFormFieldsProps = {
   form: UseFormReturn<TemplateStepFormData>;
 };
 
-export function TemplateStepFormFields({ form }: TemplateFormFieldsProps) {
+export function TemplateStepFormFields({ form }: TemplateStepFormFieldsProps) {
   return (
     <FieldGroup>
       <Field data-invalid={!!form.formState.errors.title}>

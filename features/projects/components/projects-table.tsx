@@ -3,6 +3,11 @@ import { FolderOpenIcon } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
   Table,
   TableBody,
   TableCell,
@@ -11,24 +16,11 @@ import {
   TableRow
 } from "@szum-tech/design-system";
 import { type ProjectListItem } from "~/features/projects/server/db";
+import { formatRelativeTime } from "~/utils/date";
 import { getInitials } from "~/utils/users";
 
 import { ProjectProgressBar } from "./project-progress-bar";
 import { ProjectStatusBadge } from "./project-status-badge";
-
-function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / 60_000);
-  const diffHours = Math.floor(diffMs / 3_600_000);
-  const diffDays = Math.floor(diffMs / 86_400_000);
-
-  if (diffMinutes < 1) return "Przed chwilą";
-  if (diffMinutes < 60) return `${diffMinutes} min temu`;
-  if (diffHours < 24) return `${diffHours} godz. temu`;
-  if (diffDays < 7) return `${diffDays} dn. temu`;
-  return date.toLocaleDateString("pl-PL", { day: "numeric", month: "short" });
-}
 
 type ProjectsTableProps = {
   items: Array<ProjectListItem>;
@@ -37,11 +29,15 @@ type ProjectsTableProps = {
 export function ProjectsTable({ items }: ProjectsTableProps) {
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <FolderOpenIcon className="text-muted-foreground mb-4 size-12" aria-hidden="true" />
-        <h3 className="text-heading-h3">Brak projektów</h3>
-        <p className="text-mute mt-1">Nie znaleziono projektów spełniających kryteria.</p>
-      </div>
+      <Empty>
+        <EmptyMedia variant="icon">
+          <FolderOpenIcon aria-hidden="true" />
+        </EmptyMedia>
+        <EmptyHeader>
+          <EmptyTitle>Brak projektów</EmptyTitle>
+          <EmptyDescription>Nie znaleziono projektów spełniających kryteria.</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 

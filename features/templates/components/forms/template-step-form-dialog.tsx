@@ -13,14 +13,14 @@ import {
   DialogHeader,
   DialogTitle
 } from "@szum-tech/design-system";
-import { type TemplateStepFormData, templateStepSchema } from "~/features/onboarding/schemas/template-schema";
 import { TemplateStepFormFields } from "~/features/templates/components/forms/template-step-form-fields";
+import { templateStepSchema, type TemplateStepFormData } from "~/features/templates/schemas/template-schema";
 
 type TemplateStepFormDialogProps = {
   onOpenChange(open: boolean): void;
   onSubmit(step: TemplateStepFormData): void;
   mode?: "create" | "edit";
-  defaultValues?: TemplateStepFormData;
+  defaultValues?: TemplateStepFormData | null;
 };
 
 export function TemplateStepFormDialog({
@@ -31,7 +31,7 @@ export function TemplateStepFormDialog({
 }: TemplateStepFormDialogProps) {
   const form = useForm<TemplateStepFormData>({
     resolver: zodResolver(templateStepSchema),
-    defaultValues: defaultValues
+    defaultValues: defaultValues ?? {}
   });
 
   function handleSubmit(data: TemplateStepFormData) {

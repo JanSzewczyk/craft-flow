@@ -73,7 +73,7 @@ export function RecentActivityList({ items }: RecentActivityListProps) {
         ) : (
           <ItemGroup>
             {items.map((item, index) => (
-              <React.Fragment>
+              <React.Fragment key={item.projectId}>
                 <Item key={item.projectId} asChild>
                   <Link href={`/app/projects/${item.projectId}`}>
                     <ItemMedia>

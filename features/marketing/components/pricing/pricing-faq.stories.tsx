@@ -7,7 +7,6 @@ import preview from "~/.storybook/preview";
 const meta = preview.meta({
   title: "Marketing/Pricing/FAQ",
   component: PricingFAQ,
-  tags: ["autodocs"],
   parameters: {
     layout: "centered"
   }
@@ -31,7 +30,9 @@ PricingFAQStory.test(
     await step("Clicking a question expands its answer", async () => {
       const trigger = canvas.getByRole("button", { name: /Jak działa darmowy trial/i });
       await userEvent.click(trigger);
-      await expect(canvas.getByText(/Darmowy trial 14-dniowy dotyczy wyłącznie planu Basic/i)).toBeVisible();
+      await waitFor(async () => {
+        await expect(canvas.getByText(/Darmowy trial 14-dniowy dotyczy wyłącznie planu Basic/i)).toBeVisible();
+      });
     });
 
     await step("Clicking the same question again collapses it", async () => {

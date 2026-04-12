@@ -1,10 +1,9 @@
 import { expect, fn } from "storybook/test";
-
-import preview from "~/.storybook/preview";
+import { PLANS } from "~/features/billing/constants";
 
 import { PricingCard } from "./pricing-card";
 
-import { PLANS } from "~/features/billing/constants";
+import preview from "~/.storybook/preview";
 
 const mockSelectPlan = fn();
 

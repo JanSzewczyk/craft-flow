@@ -1,8 +1,8 @@
 import { expect } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { ProjectStatusBadge } from "./project-status-badge";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Projects/Project Status Badge",

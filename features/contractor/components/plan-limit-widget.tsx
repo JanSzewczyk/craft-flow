@@ -1,9 +1,7 @@
-import Link from "next/link";
-
 import { AlertTriangleIcon } from "lucide-react";
 
 import { Button, Card, CardContent, Progress } from "@szum-tech/design-system";
-
+import Link from "next/link";
 import { PlanId } from "~/features/billing/constants";
 
 type PlanLimitWidgetProps = {

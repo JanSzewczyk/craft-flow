@@ -1,8 +1,8 @@
 import { expect } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { FacebookIcon, LinkedInIcon } from "./social-icons";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Marketing/Social Icons",

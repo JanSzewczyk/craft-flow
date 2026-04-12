@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import { SidebarInset, SidebarProvider } from "@szum-tech/design-system";
-
 import { AppHeader } from "~/features/contractor/components/app-header";
 import { AppSidebar } from "~/features/contractor/components/app-sidebar";
 

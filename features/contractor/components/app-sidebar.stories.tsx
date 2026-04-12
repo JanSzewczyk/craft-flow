@@ -1,10 +1,9 @@
+import { SidebarProvider } from "@szum-tech/design-system";
 import { expect } from "storybook/test";
 
-import { SidebarProvider } from "@szum-tech/design-system";
+import { AppSidebar } from "./app-sidebar";
 
 import preview from "~/.storybook/preview";
-
-import { AppSidebar } from "./app-sidebar";
 
 const meta = preview.meta({
   title: "Features/Contractor/App Sidebar",

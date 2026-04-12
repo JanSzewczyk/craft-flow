@@ -1,8 +1,8 @@
 import { expect } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { ProjectsTable } from "./projects-table";
+
+import preview from "~/.storybook/preview";
 
 const mockItems = [
   {

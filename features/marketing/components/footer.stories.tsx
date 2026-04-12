@@ -1,8 +1,8 @@
 import { expect } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { MarketingFooter } from "./footer";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Marketing/Footer",

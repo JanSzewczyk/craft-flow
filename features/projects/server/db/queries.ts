@@ -1,12 +1,12 @@
 import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 
+import { clients } from "~/features/crm/server/db/schema";
+import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 import { createLogger } from "~/lib/logger";
 import { db } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
-import { clients } from "~/features/crm/server/db/schema";
 
 import { projectSteps, projects, type Project, type ProjectStep, type ProjectStatus } from "./schema";
-import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 
 const logger = createLogger({ module: "projects-db" });
 

@@ -2,11 +2,11 @@ import { cache } from "react";
 
 import { and, count, desc, eq, gte } from "drizzle-orm";
 
+import { clients } from "~/features/crm/server/db/schema";
+import { projects } from "~/features/projects/server/db/schema";
 import { createLogger } from "~/lib/logger";
 import { db } from "~/lib/supabase/db";
 import { categorizeSupabaseError, type SupabaseServiceResult } from "~/lib/supabase/errors";
-import { clients } from "~/features/crm/server/db/schema";
-import { projects } from "~/features/projects/server/db/schema";
 
 const logger = createLogger({ module: "contractor-dashboard-db" });
 const RESOURCE_NAME = "DashboardData";

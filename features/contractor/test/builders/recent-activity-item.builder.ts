@@ -1,7 +1,6 @@
 import { build, oneOf, sequence } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-
 import { type RecentActivityItem } from "~/features/contractor/server/db/dashboard";
 
 /**

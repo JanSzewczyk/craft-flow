@@ -10,9 +10,7 @@ import {
   TableHeader,
   TableRow
 } from "@szum-tech/design-system";
-
-import type { ProjectListItem } from "~/features/projects/server/db";
-
+import { type ProjectListItem } from "~/features/projects/server/db";
 import { getInitials } from "~/utils/users";
 
 import { ProjectProgressBar } from "./project-progress-bar";

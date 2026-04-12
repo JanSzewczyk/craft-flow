@@ -1,10 +1,10 @@
-import { expect } from "storybook/test";
-
 import { Settings2 } from "lucide-react";
 
-import preview from "~/.storybook/preview";
+import { expect } from "storybook/test";
 
 import { IllustrationCard } from "./illustration-card";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Marketing/Features/Illustration Card",

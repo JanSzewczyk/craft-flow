@@ -1,8 +1,6 @@
-import { XLogoIcon } from "@szum-tech/design-system/icons";
-
-import { LinkedInIcon } from "~/features/marketing/components/social-icons";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@szum-tech/design-system";
+import { XLogoIcon } from "@szum-tech/design-system/icons";
+import { LinkedInIcon } from "~/features/marketing/components/social-icons";
 import { TEAM } from "~/features/marketing/constants";
 
 type TeamMemberCardProps = {

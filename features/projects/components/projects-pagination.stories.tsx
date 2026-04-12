@@ -1,8 +1,8 @@
 import { expect } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { ProjectsPagination } from "./projects-pagination";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Projects/Projects Pagination",

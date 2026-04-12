@@ -1,8 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
 import {
   Sidebar,
   SidebarContent,
@@ -15,10 +12,11 @@ import {
   SidebarMenuItem,
   SidebarSeparator
 } from "@szum-tech/design-system";
-
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { CraftFlowLogo } from "~/components/ui/brand-logo";
 import { ThemeToggle } from "~/components/ui/theme-toggle";
 import { BOTTOM_NAV_ITEMS, MAIN_NAV_ITEMS } from "~/features/contractor/constants/navigation";
-import { CraftFlowLogo } from "~/components/ui/brand-logo";
 
 export function AppSidebar() {
   const pathname = usePathname();

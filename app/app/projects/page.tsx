@@ -1,22 +1,20 @@
 import { Suspense } from "react";
+
+import { PlusIcon } from "lucide-react";
 import { type Metadata } from "next";
-import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { auth } from "@clerk/nextjs/server";
-import { PlusIcon } from "lucide-react";
-
 import { Button, Skeleton } from "@szum-tech/design-system";
-
-import { createLogger } from "~/lib/logger";
-import { getCachedProjectList } from "~/features/projects/server/services/projects-list.service";
-import { isFilterableStatus, ProjectStatusFilter } from "~/features/projects/types/project-filter";
-
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ProjectsPagination } from "~/features/projects/components/projects-pagination";
 import { ProjectsSearch } from "~/features/projects/components/projects-search";
 import { ProjectsTable } from "~/features/projects/components/projects-table";
 import { ProjectsTabsNav } from "~/features/projects/components/projects-tabs-nav";
 import { TabCount } from "~/features/projects/components/tab-count";
+import { getCachedProjectList } from "~/features/projects/server/services/projects-list.service";
+import { isFilterableStatus, ProjectStatusFilter } from "~/features/projects/types/project-filter";
+import { createLogger } from "~/lib/logger";
 
 export const metadata: Metadata = {
   title: "Projekty"

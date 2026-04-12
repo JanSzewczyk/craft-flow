@@ -2,9 +2,9 @@ import { ArrowRight, Shield, Users } from "lucide-react";
 
 import { expect } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { FeatureSection } from "./feature-section";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Marketing/Features/Feature Section",

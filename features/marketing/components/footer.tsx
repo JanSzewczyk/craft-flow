@@ -1,9 +1,7 @@
-import { XLogoIcon } from "@szum-tech/design-system/icons";
-
-import { FacebookIcon, LinkedInIcon } from "~/features/marketing/components/social-icons";
-
 import { Button, Separator } from "@szum-tech/design-system";
+import { XLogoIcon } from "@szum-tech/design-system/icons";
 import Link from "next/link";
+import { FacebookIcon, LinkedInIcon } from "~/features/marketing/components/social-icons";
 import { FOOTER_LINKS, SOCIAL_LINKS } from "~/features/marketing/constants";
 
 import { BrandLogo } from "./brand-logo";

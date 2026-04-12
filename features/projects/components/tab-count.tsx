@@ -1,8 +1,7 @@
 import { Badge } from "@szum-tech/design-system";
-
 import { getCachedProjectStatusCounts } from "~/features/projects/server/services/projects-list.service";
+import { type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 import logger from "~/lib/logger";
-import { ProjectStatusFilter } from "~/features/projects/types/project-filter";
 
 type TabCountProps = {
   userId: string;

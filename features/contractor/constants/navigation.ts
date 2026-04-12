@@ -1,5 +1,12 @@
-import type { LucideIcon } from "lucide-react";
-import { CircleHelpIcon, FileTextIcon, HardHatIcon, LayoutDashboardIcon, SettingsIcon, UsersIcon } from "lucide-react";
+import {
+  type LucideIcon,
+  CircleHelpIcon,
+  FileTextIcon,
+  HardHatIcon,
+  LayoutDashboardIcon,
+  SettingsIcon,
+  UsersIcon
+} from "lucide-react";
 
 export type NavItem = {
   label: string;

@@ -1,10 +1,9 @@
 import { expect } from "storybook/test";
-
-import preview from "~/.storybook/preview";
-
 import { recentActivityItemBuilder } from "~/features/contractor/test/builders";
 
 import { RecentActivityList } from "./recent-activity-list";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Contractor/Recent Activity List",

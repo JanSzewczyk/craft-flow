@@ -1,10 +1,7 @@
 import { cache } from "react";
 
-import type { LucideIcon } from "lucide-react";
-import { CheckCircleIcon, FolderOpenIcon, HardHatIcon } from "lucide-react";
+import { type LucideIcon, CheckCircleIcon, FolderOpenIcon, HardHatIcon } from "lucide-react";
 
-import { createLogger } from "~/lib/logger";
-import { type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { type PlanId } from "~/features/billing/constants";
 import { detectClerkPlan, getPlanById, getProjectLimit } from "~/features/billing/server";
 import { getCachedContractorProfile, type ContractorProfile } from "~/features/contractor/server/db";
@@ -14,6 +11,8 @@ import {
   getCachedRecentActivity,
   type RecentActivityItem
 } from "~/features/contractor/server/db/dashboard";
+import { createLogger } from "~/lib/logger";
+import { type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 const logger = createLogger({ module: "contractor-dashboard-service" });
 

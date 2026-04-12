@@ -1,10 +1,9 @@
 import { expect } from "storybook/test";
-
-import preview from "~/.storybook/preview";
-
 import { PlanId } from "~/features/billing/constants";
 
 import { PlanLimitWidget } from "./plan-limit-widget";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Contractor/Plan Limit Widget",

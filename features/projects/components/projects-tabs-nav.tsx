@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Tabs, TabsList, TabsTrigger } from "@szum-tech/design-system";
-
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 
 export const PROJECT_STATUS_FILTER_TABS: Array<{ value: ProjectStatusFilter; label: string }> = [

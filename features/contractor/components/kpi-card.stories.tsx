@@ -1,10 +1,10 @@
-import { expect } from "storybook/test";
-
 import { FolderOpenIcon, HardHatIcon } from "lucide-react";
 
-import preview from "~/.storybook/preview";
+import { expect } from "storybook/test";
 
 import { KpiCard } from "./kpi-card";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Contractor/Kpi Card",

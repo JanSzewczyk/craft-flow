@@ -1,14 +1,14 @@
 import { cache } from "react";
 
-import { createLogger } from "~/lib/logger";
-import { type SupabaseServiceResult } from "~/lib/supabase/errors";
 import {
   getProjectListByContractor,
   getProjectCountsByStatus,
   type ProjectListOptions,
   type ProjectListResult
 } from "~/features/projects/server/db";
-import { ProjectCountsByStatus } from "~/features/projects/server/db/queries";
+import { type ProjectCountsByStatus } from "~/features/projects/server/db/queries";
+import { createLogger } from "~/lib/logger";
+import { type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 const logger = createLogger({ module: "projects-list-service" });
 

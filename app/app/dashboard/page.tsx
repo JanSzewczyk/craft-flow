@@ -1,17 +1,15 @@
-import Link from "next/link";
+import { HardHatIcon } from "lucide-react";
 import { type Metadata } from "next";
-import { redirect } from "next/navigation";
 
 import { auth } from "@clerk/nextjs/server";
-import { HardHatIcon } from "lucide-react";
-
-import { Button } from "@szum-tech/design-system";
-
-import { createLogger } from "~/lib/logger";
-import { getDashboardData, getDashboardKpiCards } from "~/features/contractor/server/services/dashboard.service";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, Button } from "@szum-tech/design-system";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { KpiCard } from "~/features/contractor/components/kpi-card";
 import { PlanLimitWidget } from "~/features/contractor/components/plan-limit-widget";
 import { RecentActivityList } from "~/features/contractor/components/recent-activity-list";
+import { getDashboardData, getDashboardKpiCards } from "~/features/contractor/server/services/dashboard.service";
+import { createLogger } from "~/lib/logger";
 
 export const metadata: Metadata = {
   title: "Panel sterowania"
@@ -66,6 +64,13 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbPage>Panel sterowania</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <h1 className="text-heading-h1">Panel sterowania</h1>
           <p className="text-lead">Witaj, {header.contractor.companyName}</p>
         </div>

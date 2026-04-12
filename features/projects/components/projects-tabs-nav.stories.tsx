@@ -1,10 +1,9 @@
+import { Badge } from "@szum-tech/design-system";
 import { expect } from "storybook/test";
 
-import { Badge } from "@szum-tech/design-system";
+import { ProjectsTabsNav } from "./projects-tabs-nav";
 
 import preview from "~/.storybook/preview";
-
-import { ProjectsTabsNav } from "./projects-tabs-nav";
 
 const meta = preview.meta({
   title: "Features/Projects/Projects Tabs Nav",

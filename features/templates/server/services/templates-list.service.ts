@@ -1,5 +1,7 @@
 import { cache } from "react";
 
+import { PlanId } from "~/features/billing/constants";
+import { detectClerkPlan, getTemplateLimit } from "~/features/billing/server";
 import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import {
   getTemplateCountByContractor,
@@ -12,11 +14,9 @@ import { type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 const logger = createLogger({ module: "templates-list-service" });
 
-const TEMPLATE_LIMIT = 10;
-
 export type TemplateLimits = {
   used: number;
-  max: number;
+  max: number | null;
 };
 
 async function _getTemplateList(
@@ -49,7 +49,10 @@ async function _getTemplateLimits(userId: string): Promise<SupabaseServiceResult
     return [countError, null];
   }
 
-  return [null, { used, max: TEMPLATE_LIMIT }];
+  const planId = (await detectClerkPlan()) ?? PlanId.BASIC;
+  const max = getTemplateLimit(planId);
+
+  return [null, { used, max }];
 }
 
 export const getTemplateList = cache(_getTemplateList);

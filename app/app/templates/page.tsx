@@ -2,17 +2,26 @@ import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
 import {
+  Badge,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
+  Progress
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { TemplatesSection } from "~/features/templates/components/templates-section";
+import { deleteTemplateAction } from "~/features/templates/server/actions/delete-template.action";
+import { duplicateTemplateAction } from "~/features/templates/server/actions/duplicate-template.action";
+import { CreateTemplateButton } from "~/features/templates/components/create-template-button";
+import { CreateTemplateCard } from "~/features/templates/components/create-template-card";
+import { TemplateCard } from "~/features/templates/components/template-card";
+import { TemplatesEmptyState } from "~/features/templates/components/templates-empty-state";
+import { TemplatesPagination } from "~/features/templates/components/templates-pagination";
+import { TemplatesSearch } from "~/features/templates/components/templates-search";
 import { getTemplateList, getTemplateLimits } from "~/features/templates/server/services/templates-list.service";
 import { createLogger } from "~/lib/logger";
 
@@ -58,12 +67,75 @@ async function loadData(searchParams: PageProps<"/app/templates">["searchParams"
 export default async function TemplatesPage({ searchParams }: PageProps<"/app/templates">) {
   const { search, listResult, limits } = await loadData(searchParams);
 
+  const { items } = listResult;
+  const isAtLimit = limits.max !== null && limits.used >= limits.max;
+
   return (
-    <TemplatesSection
-      items={listResult.items}
-      limits={limits}
-      pagination={listResult.pagination}
-      defaultSearch={search}
-    />
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+        <div>
+          <Breadcrumb className="mb-2">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/app/dashboard">Craft Flow</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Moje Szablony</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <h1 className="text-heading-h1">Moje Szablony</h1>
+          <p className="text-lead text-muted-foreground">
+            Zarządzaj powtarzalnymi procesami swoich projektów rzemieślniczych
+          </p>
+        </div>
+
+        <div className="flex shrink-0 sm:gap-3">
+          <div className="space-y-2">
+            <Badge variant="outline" className="hidden sm:flex">
+              <span className="text-muted-foreground font-bold uppercase">Wykorzystanie:</span>{" "}
+              <span className="text-primary">
+                {limits.used} z {limits.max} szablonów
+              </span>
+            </Badge>
+            <Progress value={limits.max !== null ? (limits.used / limits.max) * 100 : 0} />
+          </div>
+
+          <CreateTemplateButton limits={limits} />
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="flex items-center gap-4">
+        <TemplatesSearch defaultValue={search} />
+      </div>
+
+      {/* Content */}
+      {items.length === 0 ? (
+        <TemplatesEmptyState />
+      ) : (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((item) => (
+              <TemplateCard
+                key={item.id}
+                item={item}
+                isLastTemplate={items.length === 1}
+                onDeleteAction={deleteTemplateAction}
+                onDuplicateAction={duplicateTemplateAction}
+              />
+            ))}
+
+            {!isAtLimit ? <CreateTemplateCard /> : null}
+          </div>
+
+          <TemplatesPagination pagination={listResult.pagination} />
+        </div>
+      )}
+    </div>
   );
 }

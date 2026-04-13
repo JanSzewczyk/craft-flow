@@ -52,7 +52,9 @@ export function EditTemplateSheet({ templateId, defaultValues }: EditTemplateShe
 
   function handleOpenChange(open: boolean) {
     if (!open) {
-      router.back();
+      setTimeout(() => {
+        router.back();
+      }, 200);
     }
   }
 

@@ -1,14 +1,14 @@
 import { LockIcon, PlusIcon } from "lucide-react";
 
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@szum-tech/design-system";
+import Link from "next/link";
 import { type TemplateLimits } from "~/features/templates/server/services/templates-list.service";
 
 type CreateTemplateButtonProps = {
   limits: TemplateLimits;
-  onClick: () => void;
 };
 
-export function CreateTemplateButton({ limits, onClick }: CreateTemplateButtonProps) {
+export function CreateTemplateButton({ limits }: CreateTemplateButtonProps) {
   const isAtLimit = limits.used >= limits.max;
 
   if (isAtLimit) {
@@ -27,8 +27,8 @@ export function CreateTemplateButton({ limits, onClick }: CreateTemplateButtonPr
   }
 
   return (
-    <Button startIcon={<PlusIcon />} onClick={onClick}>
-      Utwórz nowy szablon
+    <Button asChild startIcon={<PlusIcon />}>
+      <Link href="/app/templates/create">Utwórz nowy szablon</Link>
     </Button>
   );
 }

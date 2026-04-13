@@ -16,8 +16,6 @@ import {
 import Link from "next/link";
 import { CreateTemplateButton } from "~/features/templates/components/create-template-button";
 import { CreateTemplateCard } from "~/features/templates/components/create-template-card";
-import { CreateTemplateSheet } from "~/features/templates/components/create-template-sheet";
-import { EditTemplateSheet } from "~/features/templates/components/edit-template-sheet";
 import { TemplateCard } from "~/features/templates/components/template-card";
 import { TemplatesEmptyState } from "~/features/templates/components/templates-empty-state";
 import { TemplatesPagination } from "~/features/templates/components/templates-pagination";
@@ -35,19 +33,9 @@ type TemplatesSectionProps = {
 };
 
 export function TemplatesSection({ items, limits, pagination, defaultSearch }: TemplatesSectionProps) {
-  const [createOpen, setCreateOpen] = React.useState(false);
-  const [editItem, setEditItem] = React.useState<TemplateListItem | null>(null);
   const [, startTransition] = React.useTransition();
 
   const isAtLimit = limits.used >= limits.max;
-
-  function handleCreate() {
-    setCreateOpen(true);
-  }
-
-  function handleEdit(item: TemplateListItem) {
-    setEditItem(item);
-  }
 
   function handleDuplicate(id: string) {
     startTransition(async () => {
@@ -106,7 +94,7 @@ export function TemplatesSection({ items, limits, pagination, defaultSearch }: T
             <Progress value={(limits.used / limits.max) * 100} />
           </div>
 
-          <CreateTemplateButton onClick={handleCreate} limits={limits} />
+          <CreateTemplateButton limits={limits} />
         </div>
       </div>
 
@@ -117,7 +105,7 @@ export function TemplatesSection({ items, limits, pagination, defaultSearch }: T
 
       {/* Content */}
       {items.length === 0 ? (
-        <TemplatesEmptyState onCreateClick={handleCreate} />
+        <TemplatesEmptyState />
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -125,28 +113,18 @@ export function TemplatesSection({ items, limits, pagination, defaultSearch }: T
               <TemplateCard
                 key={item.id}
                 item={item}
-                onEdit={handleEdit}
                 onDuplicate={handleDuplicate}
                 onDelete={handleDelete}
                 isLastTemplate={items.length === 1}
               />
             ))}
 
-            {!isAtLimit ? <CreateTemplateCard onClick={handleCreate} /> : null}
+            {!isAtLimit ? <CreateTemplateCard /> : null}
           </div>
 
           <TemplatesPagination pagination={pagination} />
         </div>
       )}
-
-      <CreateTemplateSheet open={createOpen} onOpenChange={setCreateOpen} />
-      <EditTemplateSheet
-        item={editItem}
-        open={editItem !== null}
-        onOpenChange={(open) => {
-          if (!open) setEditItem(null);
-        }}
-      />
     </div>
   );
 }

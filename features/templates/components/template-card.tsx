@@ -30,18 +30,18 @@ import {
   ItemMedia,
   ItemTitle
 } from "@szum-tech/design-system";
+import Link from "next/link";
 import { type TemplateListItem } from "~/features/templates/server/db/queries";
 import { formatRelativeTime } from "~/utils/date";
 
 type TemplateCardProps = {
   item: TemplateListItem;
-  onEdit: (item: TemplateListItem) => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
   isLastTemplate: boolean;
 };
 
-export function TemplateCard({ item, onEdit, onDuplicate, onDelete, isLastTemplate }: TemplateCardProps) {
+export function TemplateCard({ item, onDuplicate, onDelete, isLastTemplate }: TemplateCardProps) {
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   return (
@@ -98,8 +98,8 @@ export function TemplateCard({ item, onEdit, onDuplicate, onDelete, isLastTempla
         </CardContent>
 
         <CardFooter>
-          <Button variant="outline" size="sm" fullWidth startIcon={<PencilIcon />} onClick={() => onEdit(item)}>
-            Edytuj
+          <Button asChild variant="outline" size="sm" fullWidth startIcon={<PencilIcon />}>
+            <Link href={`/app/templates/${item.id}/edit`}>Edytuj</Link>
           </Button>
         </CardFooter>
       </Card>

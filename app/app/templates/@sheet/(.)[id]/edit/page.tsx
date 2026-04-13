@@ -1,0 +1,24 @@
+import { auth } from "@clerk/nextjs/server";
+import { notFound, redirect } from "next/navigation";
+import { EditTemplateSheet } from "~/features/templates/components/edit-template-sheet";
+import { getTemplateWithSteps } from "~/features/templates/server/db/queries";
+
+export default async function EditTemplateInterceptedPage({ params }: PageProps<"/app/templates/[id]/edit">) {
+  const { id } = await params;
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
+  const [error, data] = await getTemplateWithSteps(id);
+  if (error || !data) notFound();
+
+  return (
+    <EditTemplateSheet
+      templateId={id}
+      defaultValues={{
+        name: data.template.name,
+        description: data.template.description ?? null,
+        steps: data.steps.map((s) => ({ title: s.title, description: s.description ?? null }))
+      }}
+    />
+  );
+}

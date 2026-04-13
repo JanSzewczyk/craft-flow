@@ -1,4 +1,4 @@
-import { PlusIcon, FileTextIcon } from "lucide-react";
+import { FileTextIcon, PlusIcon } from "lucide-react";
 
 import {
   Button,
@@ -9,12 +9,9 @@ import {
   EmptyMedia,
   EmptyTitle
 } from "@szum-tech/design-system";
+import Link from "next/link";
 
-type TemplatesEmptyStateProps = {
-  onCreateClick: () => void;
-};
-
-export function TemplatesEmptyState({ onCreateClick }: TemplatesEmptyStateProps) {
+export function TemplatesEmptyState() {
   return (
     <Empty>
       <EmptyMedia variant="icon">
@@ -25,8 +22,8 @@ export function TemplatesEmptyState({ onCreateClick }: TemplatesEmptyStateProps)
         <EmptyDescription>Stwórz swój pierwszy szablon etapów, aby przyspieszyć tworzenie projektów.</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button startIcon={<PlusIcon />} onClick={onCreateClick}>
-          Utwórz pierwszy szablon
+        <Button asChild startIcon={<PlusIcon />}>
+          <Link href="/app/templates/create">Utwórz pierwszy szablon</Link>
         </Button>
       </EmptyContent>
     </Empty>

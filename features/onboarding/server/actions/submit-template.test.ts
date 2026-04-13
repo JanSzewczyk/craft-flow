@@ -19,7 +19,8 @@ vi.mock("~/lib/logger", () => {
 });
 
 import { submitTemplateAction } from "~/features/onboarding/server/actions/submit-template";
-import { onboardingStateBuilder, templateFormBuilder } from "~/features/onboarding/test/builders";
+import { onboardingStateBuilder } from "~/features/onboarding/test/builders";
+import { templateFormBuilder } from "~/features/templates/test/builders";
 
 const mockState = onboardingStateBuilder.one({ overrides: { currentStep: "/onboarding/template" } });
 const mockConfig = { nextStep: "/onboarding/email" };

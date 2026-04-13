@@ -3,11 +3,11 @@ import { build, oneOf, sequence } from "mimicry-js";
 import { faker } from "@faker-js/faker";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { type OnboardingState } from "~/features/onboarding/server/db/schema";
+import { templateFormBuilder } from "~/features/templates/test/builders";
 
 import { brandingFormBuilder } from "./branding-form.builder";
 import { companyDetailsFormBuilder } from "./company-details-form.builder";
 import { emailFormBuilder } from "./email-form.builder";
-import { templateFormBuilder } from "./template-form.builder";
 
 const ONBOARDING_STEPS = Object.values(OnboardingStep);
 

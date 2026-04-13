@@ -16,16 +16,13 @@ import {
   SheetTitle,
   toast
 } from "@szum-tech/design-system";
+import { useRouter } from "next/navigation";
 import { TemplateFormFields } from "~/features/templates/components/forms/template-form-fields";
 import { templateSchema, type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import { createTemplateAction } from "~/features/templates/server/actions/create-template.action";
 
-type CreateTemplateSheetProps = {
-  open: boolean;
-  onOpenChange(open: boolean): void;
-};
-
-export function CreateTemplateSheet({ open, onOpenChange }: CreateTemplateSheetProps) {
+export function CreateTemplateSheet() {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<TemplateFormData>({
@@ -43,7 +40,7 @@ export function CreateTemplateSheet({ open, onOpenChange }: CreateTemplateSheetP
       const result = await createTemplateAction(data);
       if (result.success) {
         toast.success("Sukces", { description: result.message ?? "Szablon został utworzony" });
-        onOpenChange(false);
+        router.back();
       } else {
         toast.error("Błąd", { description: result.error });
       }
@@ -54,13 +51,12 @@ export function CreateTemplateSheet({ open, onOpenChange }: CreateTemplateSheetP
 
   function handleOpenChange(open: boolean) {
     if (!open) {
-      form.reset();
+      router.back();
     }
-    onOpenChange(open);
   }
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet defaultOpen onOpenChange={handleOpenChange}>
       <SheetContent side="right" className="overflow-y-auto sm:max-w-150">
         <SheetHeader>
           <SheetTitle>Utwórz nowy szablon</SheetTitle>

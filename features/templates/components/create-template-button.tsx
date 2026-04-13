@@ -9,7 +9,7 @@ type CreateTemplateButtonProps = {
 };
 
 export function CreateTemplateButton({ limits }: CreateTemplateButtonProps) {
-  const isAtLimit = limits.used >= limits.max;
+  const isAtLimit = limits.max !== null && limits.used >= limits.max;
 
   if (isAtLimit) {
     return (

@@ -2,7 +2,6 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-
 import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import { deleteTemplate } from "~/features/templates/server/db/mutations";
 import { getTemplateWithSteps } from "~/features/templates/server/db/queries";

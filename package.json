@@ -42,7 +42,7 @@
     "@react-email/components": "^1.0.10",
     "@react-email/render": "^2.0.4",
     "@supabase/supabase-js": "^2.100.1",
-    "@szum-tech/design-system": "^3.18.1",
+    "@szum-tech/design-system": "^3.18.3",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tailwindcss/postcss": "^4.2.2",
     "babel-plugin-react-compiler": "^1.0.0",

@@ -51,7 +51,9 @@ export function CreateTemplateSheet() {
 
   function handleOpenChange(open: boolean) {
     if (!open) {
-      router.back();
+      setTimeout(() => {
+        router.back();
+      }, 200);
     }
   }
 

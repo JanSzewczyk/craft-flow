@@ -25,7 +25,7 @@ export async function createTemplateAction(data: TemplateFormData): ActionRespon
     return { success: false, error: "Nie udało się sprawdzić limitu szablonów" };
   }
 
-  if (limits.used >= limits.max) {
+  if (limits.max !== null && limits.used >= limits.max) {
     return {
       success: false,
       error: `Osiągnięto limit ${limits.max} szablonów. Zwiększ plan, aby dodać więcej.`

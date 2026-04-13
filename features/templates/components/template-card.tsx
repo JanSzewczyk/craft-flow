@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 
 import { CopyIcon, MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
@@ -17,7 +19,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   DropdownMenu,
@@ -28,21 +29,46 @@ import {
   Item,
   ItemGroup,
   ItemMedia,
-  ItemTitle
+  ItemTitle,
+  toast
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { type TemplateListItem } from "~/features/templates/server/db/queries";
+import { type ActionResponse } from "~/lib/action-types";
 import { formatRelativeTime } from "~/utils/date";
 
 type TemplateCardProps = {
   item: TemplateListItem;
-  onDuplicate: (id: string) => void;
-  onDelete: (id: string) => void;
   isLastTemplate: boolean;
+  onDeleteAction(id: string): ActionResponse;
+  onDuplicateAction(id: string): ActionResponse;
 };
 
-export function TemplateCard({ item, onDuplicate, onDelete, isLastTemplate }: TemplateCardProps) {
+export function TemplateCard({ item, isLastTemplate, onDeleteAction, onDuplicateAction }: TemplateCardProps) {
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [, startTransition] = React.useTransition();
+
+  function handleDuplicate() {
+    startTransition(async () => {
+      const result = await onDuplicateAction(item.id);
+      if (result.success) {
+        toast.success("Sukces", { description: result.message ?? "Szablon został zduplikowany" });
+      } else {
+        toast.error("Błąd", { description: result.error });
+      }
+    });
+  }
+
+  function handleDelete() {
+    startTransition(async () => {
+      const result = await onDeleteAction(item.id);
+      if (result.success) {
+        toast.success("Sukces", { description: result.message ?? "Szablon został usunięty" });
+      } else {
+        toast.error("Błąd", { description: result.error });
+      }
+    });
+  }
 
   return (
     <React.Fragment>
@@ -63,13 +89,19 @@ export function TemplateCard({ item, onDuplicate, onDelete, isLastTemplate }: Te
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDuplicate(item.id)}>
-                  <CopyIcon className="size-4" aria-hidden="true" />
+                <DropdownMenuItem asChild>
+                  <Link href={`/app/templates/${item.id}/edit`}>
+                    <PencilIcon />
+                    Edytuj
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDuplicate}>
+                  <CopyIcon aria-hidden="true" />
                   Duplikuj
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="error" onClick={() => setDeleteOpen(true)}>
-                  <Trash2Icon className="size-4" aria-hidden="true" />
+                  <Trash2Icon aria-hidden="true" />
                   Usuń
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -78,6 +110,7 @@ export function TemplateCard({ item, onDuplicate, onDelete, isLastTemplate }: Te
         </CardHeader>
 
         <CardContent>
+          {item.description ? <p className="text-body-sm pb-4">{item.description}</p> : null}
           {item.previewSteps.length > 0 ? (
             <ItemGroup>
               {item.previewSteps.map((step, index) => (
@@ -96,12 +129,6 @@ export function TemplateCard({ item, onDuplicate, onDelete, isLastTemplate }: Te
             </ItemGroup>
           ) : null}
         </CardContent>
-
-        <CardFooter>
-          <Button asChild variant="outline" size="sm" fullWidth startIcon={<PencilIcon />}>
-            <Link href={`/app/templates/${item.id}/edit`}>Edytuj</Link>
-          </Button>
-        </CardFooter>
       </Card>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
@@ -112,9 +139,12 @@ export function TemplateCard({ item, onDuplicate, onDelete, isLastTemplate }: Te
               Czy na pewno chcesz usunąć szablon <strong>&quot;{item.name}&quot;</strong>? Tej operacji nie można
               cofnąć.
               {isLastTemplate ? (
-                <span className="mt-2 block font-medium text-amber-600 dark:text-amber-400">
-                  To Twój ostatni szablon. Tworzenie nowych projektów będzie wymagało ręcznego wpisywania etapów.
-                </span>
+                <>
+                  <br />
+                  <span className="text-warning text-body-xs pt-4">
+                    To Twój ostatni szablon. Tworzenie nowych projektów będzie wymagało ręcznego wpisywania etapów.
+                  </span>
+                </>
               ) : null}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -122,7 +152,7 @@ export function TemplateCard({ item, onDuplicate, onDelete, isLastTemplate }: Te
             <AlertDialogCancel>Anuluj</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                onDelete(item.id);
+                handleDelete();
                 setDeleteOpen(false);
               }}
             >

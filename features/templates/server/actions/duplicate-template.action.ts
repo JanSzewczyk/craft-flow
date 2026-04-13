@@ -2,13 +2,13 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-
 import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import { duplicateTemplate } from "~/features/templates/server/db/mutations";
 import { getTemplateWithSteps } from "~/features/templates/server/db/queries";
 import { getTemplateLimits } from "~/features/templates/server/services/templates-list.service";
 import { type ActionResponse } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
+
 import { type Template } from "../db/schema";
 
 const logger = createLogger({ module: "template-actions" });
@@ -30,7 +30,7 @@ export async function duplicateTemplateAction(id: string): ActionResponse<Templa
     return { success: false, error: "Nie udało się sprawdzić limitu szablonów" };
   }
 
-  if (limits.used >= limits.max) {
+  if (limits.max !== null && limits.used >= limits.max) {
     return {
       success: false,
       error: `Osiągnięto limit ${limits.max} szablonów. Zwiększ plan, aby dodać więcej.`

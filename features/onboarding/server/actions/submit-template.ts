@@ -2,9 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import { type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import { type OnboardingState, updateStepData } from "~/features/onboarding/server/db";
 import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
+import { type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 

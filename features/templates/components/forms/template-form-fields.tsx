@@ -16,7 +16,6 @@ import {
   SortableItem,
   Textarea
 } from "@szum-tech/design-system";
-
 import { TemplateStepFormDialog } from "~/features/templates/components/forms/template-step-form-dialog";
 import { TemplateStepItemForm } from "~/features/templates/components/forms/template-step-item";
 import { type TemplateFormData, type TemplateStepFormData } from "~/features/templates/schemas/template-schema";

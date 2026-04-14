@@ -13,16 +13,15 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-
-import { deleteTemplateAction } from "~/features/templates/server/actions/delete-template.action";
-import { duplicateTemplateAction } from "~/features/templates/server/actions/duplicate-template.action";
 import { CreateTemplateButton } from "~/features/templates/components/create-template-button";
 import { CreateTemplateCard } from "~/features/templates/components/create-template-card";
 import { TemplateCard } from "~/features/templates/components/template-card";
 import { TemplatesEmptyState } from "~/features/templates/components/templates-empty-state";
 import { TemplatesPagination } from "~/features/templates/components/templates-pagination";
 import { TemplatesSearch } from "~/features/templates/components/templates-search";
-import { getTemplateList, getTemplateLimits } from "~/features/templates/server/services/templates-list.service";
+import { deleteTemplateAction } from "~/features/templates/server/actions/delete-template.action";
+import { duplicateTemplateAction } from "~/features/templates/server/actions/duplicate-template.action";
+import { getTemplateList, getTemplateLimits } from "~/features/templates/server/services/templates.service";
 import { createLogger } from "~/lib/logger";
 
 export const metadata: Metadata = {

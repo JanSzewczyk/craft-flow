@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Role } from "~/features/auth/constants/roles";
 import { setUserMetadata } from "~/features/auth/server/api/set-user-metadata";
@@ -105,5 +106,6 @@ export async function finalizeOnboardingAction(): RedirectAction {
   }
 
   logger.info({ userId }, "Onboarding finalized successfully");
+  revalidatePath("/app/templates");
   redirect("/onboarding/success");
 }

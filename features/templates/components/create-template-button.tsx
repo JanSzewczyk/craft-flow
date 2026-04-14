@@ -2,7 +2,7 @@ import { LockIcon, PlusIcon } from "lucide-react";
 
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@szum-tech/design-system";
 import Link from "next/link";
-import { type TemplateLimits } from "~/features/templates/server/services/templates-list.service";
+import { type TemplateLimits } from "~/features/templates/server/services/templates.service";
 
 type CreateTemplateButtonProps = {
   limits: TemplateLimits;

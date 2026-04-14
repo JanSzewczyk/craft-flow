@@ -54,6 +54,24 @@ export class SupabaseServiceError extends BaseServiceError {
     });
   }
 
+  static limitExceeded(max: number): SupabaseServiceError {
+    return new SupabaseServiceError({
+      code: "limit_exceeded",
+      message: `Resource limit of ${max} exceeded`,
+      isRetryable: false,
+      meta: { max }
+    });
+  }
+
+  static unauthorized(): SupabaseServiceError {
+    return new SupabaseServiceError({
+      code: "unauthorized",
+      message: "Access denied to this resource",
+      isPermissionDenied: true,
+      isRetryable: false
+    });
+  }
+
   static connection(message: string = "Database connection error"): SupabaseServiceError {
     return new SupabaseServiceError({
       code: "connection",

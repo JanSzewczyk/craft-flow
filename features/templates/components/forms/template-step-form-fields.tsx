@@ -1,7 +1,7 @@
 import { type UseFormReturn } from "react-hook-form";
 
 import { Field, FieldError, FieldGroup, FieldLabel, Input, Textarea } from "@szum-tech/design-system";
-import { TemplateStepFormData } from "~/features/templates/schemas";
+import { type TemplateStepFormData } from "~/features/templates/schemas";
 
 type TemplateStepFormFieldsProps = {
   form: UseFormReturn<TemplateStepFormData>;

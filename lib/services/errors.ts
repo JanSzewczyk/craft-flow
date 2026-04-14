@@ -9,6 +9,7 @@ export type ServiceErrorOptions = {
   isAlreadyExists?: boolean;
   isPermissionDenied?: boolean;
   cause?: unknown;
+  meta?: Record<string, unknown>;
 };
 
 export abstract class BaseServiceError extends Error {
@@ -19,6 +20,7 @@ export abstract class BaseServiceError extends Error {
   readonly isNotFound: boolean;
   readonly isAlreadyExists: boolean;
   readonly isPermissionDenied: boolean;
+  readonly meta: Record<string, unknown>;
 
   constructor(name: string, options: ServiceErrorOptions) {
     super(options.message);
@@ -28,6 +30,7 @@ export abstract class BaseServiceError extends Error {
     this.isNotFound = options.isNotFound ?? false;
     this.isAlreadyExists = options.isAlreadyExists ?? false;
     this.isPermissionDenied = options.isPermissionDenied ?? false;
+    this.meta = options.meta ?? {};
 
     if (options.cause) {
       this.cause = options.cause;

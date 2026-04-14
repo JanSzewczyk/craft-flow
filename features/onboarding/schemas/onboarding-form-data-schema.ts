@@ -1,9 +1,10 @@
 import { z } from "zod";
 
+import { templateSchema } from "~/features/templates/schemas/template-schema";
+
 import { brandingSchema } from "./branding-schema";
 import { companyDetailsSchema } from "./company-details-schema";
 import { emailSchema } from "./email-schema";
-import { templateSchema } from "~/features/templates/schemas/template-schema";
 
 export const onboardingFormDataSchema = z.object({
   companyDetails: companyDetailsSchema,

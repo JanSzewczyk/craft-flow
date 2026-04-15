@@ -1,11 +1,10 @@
 import { expect, fn } from "storybook/test";
 
+import { CreateTemplateSheet } from "./create-template-sheet";
 import preview from "~/.storybook/preview";
 
-import { CreateTemplateSheet } from "./create-template-sheet";
-
 const meta = preview.meta({
-  title: "Features/Templates/Create Template Sheet",
+  title: "Features/Templates/Forms/Create Template Sheet",
   component: CreateTemplateSheet,
   parameters: {
     layout: "fullscreen",

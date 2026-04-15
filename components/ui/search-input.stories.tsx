@@ -5,7 +5,7 @@ import { SearchInput } from "./search-input";
 import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
-  title: "UI/Search Input",
+  title: "Components/UI/Search Input",
   component: SearchInput,
   parameters: {
     layout: "centered",

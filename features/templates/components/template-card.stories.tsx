@@ -32,18 +32,19 @@ const meta = preview.meta({
 
 export const WithSteps = meta.story({});
 
-WithSteps.test("Renders all expected content", async ({ canvas, step }) => {
+WithSteps.test("Renders all expected content", async ({ canvas, step, args }) => {
   await step("Template name, badge and description are visible", async () => {
-    await expect(canvas.getByText("Produkcja Stołu Loft")).toBeVisible();
-    await expect(canvas.getByText("4 etapy")).toBeVisible();
-    await expect(canvas.getByText("Szablon do produkcji stołów loftowych")).toBeVisible();
+    await expect(canvas.getByText(args.item.name)).toBeVisible();
+    await expect(canvas.getByText(`${args.item.stepsCount} etapy`)).toBeVisible();
+    await expect(canvas.getByText(args.item.description!)).toBeVisible();
   });
 
   await step("Preview steps and overflow indicator are visible", async () => {
-    await expect(canvas.getByText("Projekt")).toBeVisible();
-    await expect(canvas.getByText("Zamówienie materiałów")).toBeVisible();
-    await expect(canvas.getByText("Produkcja")).toBeVisible();
-    await expect(canvas.getByText("+1 więcej kroków")).toBeVisible();
+    for (const previewStep of args.item.previewSteps) {
+      await expect(canvas.getByText(previewStep)).toBeVisible();
+    }
+    const overflow = args.item.stepsCount - args.item.previewSteps.length;
+    await expect(canvas.getByText(`+${overflow} więcej kroków`)).toBeVisible();
   });
 });
 
@@ -102,8 +103,8 @@ export const NoDescription = meta.story({
   }
 });
 
-NoDescription.test("Renders without description", async ({ canvas }) => {
-  await expect(canvas.getByText("Produkcja Stołu Loft")).toBeVisible();
+NoDescription.test("Renders without description", async ({ canvas, args }) => {
+  await expect(canvas.getByText(args.item.name)).toBeVisible();
   await expect(canvas.queryByText("Szablon do produkcji stołów loftowych")).toBeNull();
 });
 
@@ -113,8 +114,8 @@ export const SingleStep = meta.story({
   }
 });
 
-SingleStep.test("Renders '1 etap' label for single step", async ({ canvas }) => {
-  await expect(canvas.getByText("1 etap")).toBeVisible();
+SingleStep.test("Renders '1 etap' label for single step", async ({ canvas, args }) => {
+  await expect(canvas.getByText(`${args.item.stepsCount} etap`)).toBeVisible();
 });
 
 export const ManySteps = meta.story({
@@ -123,8 +124,8 @@ export const ManySteps = meta.story({
   }
 });
 
-ManySteps.test("Renders 'etapów' label for 5+ steps", async ({ canvas }) => {
-  await expect(canvas.getByText("6 etapów")).toBeVisible();
+ManySteps.test("Renders 'etapów' label for 5+ steps", async ({ canvas, args }) => {
+  await expect(canvas.getByText(`${args.item.stepsCount} etapów`)).toBeVisible();
 });
 
 export const LastTemplateWarning = meta.story({

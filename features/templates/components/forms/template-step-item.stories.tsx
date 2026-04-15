@@ -26,7 +26,7 @@ function SortableDecorator(Story: React.ComponentType) {
 }
 
 const meta = preview.meta({
-  title: "Features/Onboarding/Forms/Template Step Item",
+  title: "Features/Templates/Forms/Template Step Item",
   component: TemplateStepItemForm,
   parameters: {
     layout: "padded"

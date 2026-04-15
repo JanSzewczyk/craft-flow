@@ -21,31 +21,29 @@ import { TemplateFormFields } from "~/features/templates/components/forms/templa
 import { templateSchema, type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import { type ActionResponse } from "~/lib/action-types";
 
-import { type Template } from "../server/db/schema";
+import { type Template } from "../../server/db/schema";
 
-type CreateTemplateSheetProps = {
-  onCreateAction(data: TemplateFormData): ActionResponse<Template>;
+type EditTemplateSheetProps = {
+  templateId: string;
+  defaultValues: TemplateFormData;
+  onUpdateAction(id: string, data: TemplateFormData): ActionResponse<Template>;
 };
 
-export function CreateTemplateSheet({ onCreateAction }: CreateTemplateSheetProps) {
+export function EditTemplateSheet({ templateId, defaultValues, onUpdateAction }: EditTemplateSheetProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<TemplateFormData>({
     resolver: zodResolver(templateSchema),
-    defaultValues: {
-      name: "",
-      description: null,
-      steps: [{ title: "", description: null }]
-    }
+    defaultValues
   });
 
   async function handleSubmit(data: TemplateFormData) {
     setIsSubmitting(true);
     try {
-      const result = await onCreateAction(data);
+      const result = await onUpdateAction(templateId, data);
       if (result.success) {
-        toast.success("Sukces", { description: result.message ?? "Szablon został utworzony" });
+        toast.success("Sukces", { description: result.message ?? "Szablon został zapisany" });
         router.back();
       } else {
         toast.error("Błąd", { description: result.error });
@@ -67,12 +65,12 @@ export function CreateTemplateSheet({ onCreateAction }: CreateTemplateSheetProps
     <Sheet defaultOpen onOpenChange={handleOpenChange}>
       <SheetContent side="right" className="overflow-y-auto sm:max-w-150">
         <SheetHeader>
-          <SheetTitle>Utwórz nowy szablon</SheetTitle>
-          <SheetDescription>Zdefiniuj powtarzalne etapy, aby szybciej zarządzać nowymi zleceniami.</SheetDescription>
+          <SheetTitle>Edytuj szablon</SheetTitle>
+          <SheetDescription>{defaultValues.name}</SheetDescription>
         </SheetHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-1 flex-col">
           <div className="flex-1 px-4">
-            <TemplateFormFields form={form} showProTip />
+            <TemplateFormFields form={form} />
           </div>
 
           <SheetFooter className="flex-row justify-end">
@@ -81,7 +79,7 @@ export function CreateTemplateSheet({ onCreateAction }: CreateTemplateSheetProps
             </SheetClose>
 
             <Button type="submit" loading={isSubmitting}>
-              Stwórz szablon
+              Zapisz zmiany
             </Button>
           </SheetFooter>
         </form>

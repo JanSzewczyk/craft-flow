@@ -38,11 +38,11 @@ export function TemplateStepItemForm({ templateStep, canRemove, onUpdate, onRemo
         ) : null}
       </div>
       <div className="flex items-center gap-2">
-        <Button type="button" variant="ghost" size="icon" onClick={handleOpenEditDialog}>
+        <Button type="button" variant="ghost" size="icon" aria-label="Edytuj etap" onClick={handleOpenEditDialog}>
           <PencilIcon className="size-4" />
         </Button>
         {canRemove && (
-          <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
+          <Button type="button" variant="ghost" size="icon" aria-label="Usuń etap" onClick={onRemove}>
             <TrashIcon className="size-4" />
           </Button>
         )}

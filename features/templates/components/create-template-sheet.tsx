@@ -19,9 +19,15 @@ import {
 import { useRouter } from "next/navigation";
 import { TemplateFormFields } from "~/features/templates/components/forms/template-form-fields";
 import { templateSchema, type TemplateFormData } from "~/features/templates/schemas/template-schema";
-import { createTemplateAction } from "~/features/templates/server/actions/create-template.action";
+import { type ActionResponse } from "~/lib/action-types";
 
-export function CreateTemplateSheet() {
+import { type Template } from "../server/db/schema";
+
+type CreateTemplateSheetProps = {
+  onCreateAction(data: TemplateFormData): ActionResponse<Template>;
+};
+
+export function CreateTemplateSheet({ onCreateAction }: CreateTemplateSheetProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -37,7 +43,7 @@ export function CreateTemplateSheet() {
   async function handleSubmit(data: TemplateFormData) {
     setIsSubmitting(true);
     try {
-      const result = await createTemplateAction(data);
+      const result = await onCreateAction(data);
       if (result.success) {
         toast.success("Sukces", { description: result.message ?? "Szablon został utworzony" });
         router.back();

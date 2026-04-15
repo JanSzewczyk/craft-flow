@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import { EditTemplateSheet } from "~/features/templates/components/edit-template-sheet";
 import { getTemplateWithSteps } from "~/features/templates/server/db/queries";
+import { updateTemplateAction } from "~/features/templates/server/actions/update-template.action";
 
 export default async function EditTemplateInterceptedPage({ params }: PageProps<"/app/templates/[id]/edit">) {
   const { id } = await params;
@@ -19,6 +20,7 @@ export default async function EditTemplateInterceptedPage({ params }: PageProps<
         description: data.template.description ?? null,
         steps: data.steps.map((s) => ({ title: s.title, description: s.description ?? null }))
       }}
+      onUpdateAction={updateTemplateAction}
     />
   );
 }

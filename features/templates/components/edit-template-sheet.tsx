@@ -19,14 +19,17 @@ import {
 import { useRouter } from "next/navigation";
 import { TemplateFormFields } from "~/features/templates/components/forms/template-form-fields";
 import { templateSchema, type TemplateFormData } from "~/features/templates/schemas/template-schema";
-import { updateTemplateAction } from "~/features/templates/server/actions/update-template.action";
+import { type ActionResponse } from "~/lib/action-types";
+
+import { type Template } from "../server/db/schema";
 
 type EditTemplateSheetProps = {
   templateId: string;
   defaultValues: TemplateFormData;
+  onUpdateAction(id: string, data: TemplateFormData): ActionResponse<Template>;
 };
 
-export function EditTemplateSheet({ templateId, defaultValues }: EditTemplateSheetProps) {
+export function EditTemplateSheet({ templateId, defaultValues, onUpdateAction }: EditTemplateSheetProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -38,7 +41,7 @@ export function EditTemplateSheet({ templateId, defaultValues }: EditTemplateShe
   async function handleSubmit(data: TemplateFormData) {
     setIsSubmitting(true);
     try {
-      const result = await updateTemplateAction(templateId, data);
+      const result = await onUpdateAction(templateId, data);
       if (result.success) {
         toast.success("Sukces", { description: result.message ?? "Szablon został zapisany" });
         router.back();

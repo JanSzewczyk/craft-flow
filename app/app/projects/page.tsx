@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProjectsPagination } from "~/features/projects/components/projects-pagination";
-import { ProjectsSearch } from "~/features/projects/components/projects-search";
+import { SearchInput } from "~/components/ui/search-input";
 import { ProjectsTable } from "~/features/projects/components/projects-table";
 import { ProjectsTabsNav } from "~/features/projects/components/projects-tabs-nav";
 import { TabCount } from "~/features/projects/components/tab-count";
@@ -99,7 +99,7 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/app/pro
       </div>
 
       <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <ProjectsSearch defaultValue={search} />
+        <SearchInput defaultValue={search} placeholder="Szukaj projektu lub klienta..." />
         <ProjectsTabsNav
           activeTab={activeTab}
           countBadges={{

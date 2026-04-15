@@ -5,11 +5,13 @@ import * as React from "react";
 import { Input } from "@szum-tech/design-system";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-type ProjectsSearchProps = {
+type SearchInputProps = {
   defaultValue: string;
+  placeholder: string;
+  className?: string;
 };
 
-export function ProjectsSearch({ defaultValue }: ProjectsSearchProps) {
+export function SearchInput({ defaultValue, placeholder, className }: SearchInputProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -62,10 +64,10 @@ export function ProjectsSearch({ defaultValue }: ProjectsSearchProps) {
   return (
     <Input
       type="search"
-      placeholder="Szukaj projektu lub klienta..."
+      placeholder={placeholder}
       value={value}
       onChange={handleChange}
-      className="max-w-60 min-w-40"
+      className={className ?? "max-w-60 min-w-40"}
     />
   );
 }

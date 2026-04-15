@@ -1,12 +1,12 @@
 import { expect } from "storybook/test";
 
-import { ProjectsSearch } from "./projects-search";
+import { SearchInput } from "./search-input";
 
 import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
-  title: "Features/Projects/Projects Search",
-  component: ProjectsSearch,
+  title: "UI/Search Input",
+  component: SearchInput,
   parameters: {
     layout: "centered",
     nextjs: {
@@ -18,7 +18,7 @@ const meta = preview.meta({
 });
 
 export const Empty = meta.story({
-  args: { defaultValue: "" }
+  args: { defaultValue: "", placeholder: "Szukaj projektu lub klienta..." }
 });
 
 Empty.test("Renders search input correctly", async ({ canvas, step }) => {
@@ -32,7 +32,7 @@ Empty.test("Renders search input correctly", async ({ canvas, step }) => {
 });
 
 export const WithValue = meta.story({
-  args: { defaultValue: "Jan" }
+  args: { defaultValue: "Jan", placeholder: "Szukaj projektu lub klienta..." }
 });
 
 WithValue.test("Input displays pre-filled value", async ({ canvas }) => {

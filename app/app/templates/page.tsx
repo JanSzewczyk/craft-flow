@@ -18,7 +18,7 @@ import { CreateTemplateCard } from "~/features/templates/components/create-templ
 import { TemplateCard } from "~/features/templates/components/template-card";
 import { TemplatesEmptyState } from "~/features/templates/components/templates-empty-state";
 import { TemplatesPagination } from "~/features/templates/components/templates-pagination";
-import { TemplatesSearch } from "~/features/templates/components/templates-search";
+import { SearchInput } from "~/components/ui/search-input";
 import { deleteTemplateAction } from "~/features/templates/server/actions/delete-template.action";
 import { duplicateTemplateAction } from "~/features/templates/server/actions/duplicate-template.action";
 import { getTemplateList, getTemplateLimits } from "~/features/templates/server/services/templates.service";
@@ -110,7 +110,7 @@ export default async function TemplatesPage({ searchParams }: PageProps<"/app/te
 
       {/* Search */}
       <div className="flex items-center gap-4">
-        <TemplatesSearch defaultValue={search} />
+        <SearchInput defaultValue={search} placeholder="Szukaj szablonu..." />
       </div>
 
       {/* Content */}

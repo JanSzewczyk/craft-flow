@@ -1,4 +1,6 @@
 import { expect, fn, screen, waitFor, within } from "storybook/test";
+import { type Template } from "~/features/templates/server/db";
+import { type ActionResponse } from "~/lib/action-types";
 
 import { CreateTemplateSheet } from "./create-template-sheet";
 
@@ -12,7 +14,14 @@ const meta = preview.meta({
     nextjs: { appDirectory: true }
   },
   args: {
-    onCreateAction: fn(async () => ({ success: true as const, data: {} as never, message: "Szablon został utworzony" }))
+    onCreateAction: fn(
+      async () =>
+        ({
+          success: true,
+          data: {},
+          message: "Szablon został utworzony"
+        }) as unknown as ActionResponse<Template>
+    )
   }
 });
 

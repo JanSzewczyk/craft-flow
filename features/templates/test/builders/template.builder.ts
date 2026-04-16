@@ -1,7 +1,6 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-
 import { type Template } from "~/features/templates/server/db/schema";
 
 /**

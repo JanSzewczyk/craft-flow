@@ -22,12 +22,13 @@ vi.mock("~/lib/logger", () => {
   return { default: noop, createLogger: vi.fn(() => noop) };
 });
 
+import { templateFormBuilder } from "~/features/templates/test/builders";
+import { SupabaseServiceError } from "~/lib/supabase/errors";
+
 import { createTemplateAction } from "./create-template.action";
 import { deleteTemplateAction } from "./delete-template.action";
 import { duplicateTemplateAction } from "./duplicate-template.action";
 import { updateTemplateAction } from "./update-template.action";
-import { templateFormBuilder } from "~/features/templates/test/builders";
-import { SupabaseServiceError } from "~/lib/supabase/errors";
 
 const AUTHENTICATED = { isAuthenticated: true, userId: "user-1" };
 const UNAUTHENTICATED = { isAuthenticated: false, userId: null };

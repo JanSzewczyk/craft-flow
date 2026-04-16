@@ -17,9 +17,9 @@ vi.mock("~/features/billing/server", () => ({
   }
 }));
 
-import { describe, expect, test, beforeEach } from "vitest";
-import { canAddTemplate } from "./permissions";
 import { SupabaseServiceError } from "~/lib/supabase/errors";
+
+import { canAddTemplate } from "./permissions";
 
 beforeEach(() => {
   vi.resetAllMocks();

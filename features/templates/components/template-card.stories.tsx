@@ -1,10 +1,9 @@
 import { expect, fn, screen, waitFor } from "storybook/test";
-
-import preview from "~/.storybook/preview";
-
 import { templateListItemBuilder } from "~/features/templates/test/builders";
 
 import { TemplateCard } from "./template-card";
+
+import preview from "~/.storybook/preview";
 
 const baseItem = templateListItemBuilder.one({
   overrides: {

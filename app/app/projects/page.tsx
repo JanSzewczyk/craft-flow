@@ -16,8 +16,8 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ProjectsPagination } from "~/features/projects/components/projects-pagination";
 import { SearchInput } from "~/components/ui/search-input";
+import { ProjectsPagination } from "~/features/projects/components/projects-pagination";
 import { ProjectsTable } from "~/features/projects/components/projects-table";
 import { ProjectsTabsNav } from "~/features/projects/components/projects-tabs-nav";
 import { TabCount } from "~/features/projects/components/tab-count";

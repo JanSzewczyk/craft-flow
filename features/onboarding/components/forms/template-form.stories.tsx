@@ -20,8 +20,8 @@ export const DefaultSteps = meta.story({});
 
 DefaultSteps.test("Renders all expected content", async ({ canvas }) => {
   await expect(canvas.getByLabelText("Nazwa szablonu")).toBeVisible();
-  await expect(canvas.getByText("Kroki")).toBeVisible();
-  await expect(canvas.getByRole("button", { name: /dodaj etap/i })).toBeVisible();
+  await expect(canvas.getByText("Etapy procesu")).toBeVisible();
+  await expect(canvas.getByRole("button", { name: /dodaj kolejny etap/i })).toBeVisible();
   await expect(canvas.getByRole("button", { name: /dalej/i })).toBeVisible();
   await expect(canvas.getByRole("button", { name: /wróć/i })).toBeVisible();
 });
@@ -50,7 +50,7 @@ DefaultSteps.test("Clicking back button triggers onBackAction", async ({ canvas,
 export const AddStep = meta.story({});
 
 AddStep.test("Clicking Dodaj etap opens the add step dialog", async ({ canvas, userEvent }) => {
-  const addButton = canvas.getByRole("button", { name: /dodaj etap/i });
+  const addButton = canvas.getByRole("button", { name: /dodaj kolejny etap/i });
   await userEvent.click(addButton);
 
   await waitFor(async () => {

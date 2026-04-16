@@ -1,8 +1,8 @@
 import { expect } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { CreateTemplateButton } from "./create-template-button";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Templates/Create Template Button",

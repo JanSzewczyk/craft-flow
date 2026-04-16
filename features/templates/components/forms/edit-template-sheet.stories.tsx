@@ -4,6 +4,7 @@ import { templateFormBuilder } from "~/features/templates/test/builders/template
 import { EditTemplateSheet } from "./edit-template-sheet";
 
 import preview from "~/.storybook/preview";
+import { templateBuilder } from "~/features/templates/test/builders";
 
 const meta = preview.meta({
   title: "Features/Templates/Forms/Edit Template Sheet",
@@ -15,7 +16,11 @@ const meta = preview.meta({
   args: {
     templateId: "tpl-1",
     defaultValues: templateFormBuilder.one(),
-    onUpdateAction: fn(async () => ({ success: true as const, data: {}, message: "Szablon został zapisany" }))
+    onUpdateAction: fn(async () => ({
+      success: true as const,
+      data: templateBuilder.one(),
+      message: "Szablon został zapisany"
+    }))
   }
 });
 
@@ -83,7 +88,7 @@ SubmitSuccess.test("Calls onUpdateAction and shows success toast on valid submit
 
 export const SubmitError = meta.story({
   args: {
-    onUpdateAction: fn(async () => ({ success: false, error: "Nie udało się zapisać szablonu" }))
+    onUpdateAction: fn(async () => ({ success: false as const, error: "Nie udało się zapisać szablonu" }))
   }
 });
 

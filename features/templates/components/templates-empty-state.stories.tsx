@@ -1,8 +1,8 @@
 import { expect } from "storybook/test";
 
-import preview from "~/.storybook/preview";
-
 import { TemplatesEmptyState } from "./templates-empty-state";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Templates/Templates Empty State",

@@ -13,12 +13,12 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SearchInput } from "~/components/ui/search-input";
 import { CreateTemplateButton } from "~/features/templates/components/create-template-button";
 import { CreateTemplateCard } from "~/features/templates/components/create-template-card";
 import { TemplateCard } from "~/features/templates/components/template-card";
 import { TemplatesEmptyState } from "~/features/templates/components/templates-empty-state";
 import { TemplatesPagination } from "~/features/templates/components/templates-pagination";
-import { SearchInput } from "~/components/ui/search-input";
 import { deleteTemplateAction } from "~/features/templates/server/actions/delete-template.action";
 import { duplicateTemplateAction } from "~/features/templates/server/actions/duplicate-template.action";
 import { getTemplateList, getTemplateLimits } from "~/features/templates/server/services/templates.service";

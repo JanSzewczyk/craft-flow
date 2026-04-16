@@ -1,8 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import { EditTemplateSheet } from "~/features/templates/components/forms/edit-template-sheet";
-import { getTemplateWithSteps } from "~/features/templates/server/db/queries";
 import { updateTemplateAction } from "~/features/templates/server/actions/update-template.action";
+import { getTemplateWithSteps } from "~/features/templates/server/db/queries";
 
 export default async function EditTemplateInterceptedPage({ params }: PageProps<"/app/templates/[id]/edit">) {
   const { id } = await params;

@@ -36,7 +36,7 @@
     "type-check": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.0.7",
+    "@clerk/nextjs": "^7.2.1",
     "@hookform/resolvers": "^5.2.2",
     "@next/bundle-analyzer": "^16.2.1",
     "@react-email/components": "^1.0.10",

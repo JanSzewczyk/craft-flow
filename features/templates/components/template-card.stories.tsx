@@ -1,5 +1,6 @@
 import { expect, fn, screen, waitFor } from "storybook/test";
 import { templateListItemBuilder } from "~/features/templates/test/builders";
+import { type ActionResponse } from "~/lib/action-types";
 
 import { TemplateCard } from "./template-card";
 
@@ -24,8 +25,16 @@ const meta = preview.meta({
   args: {
     item: baseItem,
     isLastTemplate: false,
-    onDeleteAction: fn(async () => ({ success: true as const, data: { id: baseItem.id }, message: "Usunięto" })),
-    onDuplicateAction: fn(async () => ({ success: true as const, data: baseItem, message: "Zduplikowano" }))
+    onDeleteAction: fn(
+      async () =>
+        ({
+          success: true,
+          message: "Usunięto"
+        }) as unknown as ActionResponse
+    ),
+    onDuplicateAction: fn(
+      async () => ({ success: true, data: baseItem, message: "Zduplikowano" }) as unknown as ActionResponse
+    )
   }
 });
 

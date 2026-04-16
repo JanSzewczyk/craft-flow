@@ -1,10 +1,12 @@
 import { expect, fn, waitFor, screen, within } from "storybook/test";
+import { type Template } from "~/features/templates/server/db";
+import { templateBuilder } from "~/features/templates/test/builders";
 import { templateFormBuilder } from "~/features/templates/test/builders/template-form.builder";
+import { type ActionResponse } from "~/lib/action-types";
 
 import { EditTemplateSheet } from "./edit-template-sheet";
 
 import preview from "~/.storybook/preview";
-import { templateBuilder } from "~/features/templates/test/builders";
 
 const meta = preview.meta({
   title: "Features/Templates/Forms/Edit Template Sheet",
@@ -16,11 +18,14 @@ const meta = preview.meta({
   args: {
     templateId: "tpl-1",
     defaultValues: templateFormBuilder.one(),
-    onUpdateAction: fn(async () => ({
-      success: true as const,
-      data: templateBuilder.one(),
-      message: "Szablon został zapisany"
-    }))
+    onUpdateAction: fn(
+      async () =>
+        ({
+          success: true as const,
+          data: templateBuilder.one(),
+          message: "Szablon został zapisany"
+        }) as unknown as ActionResponse<Template>
+    )
   }
 });
 

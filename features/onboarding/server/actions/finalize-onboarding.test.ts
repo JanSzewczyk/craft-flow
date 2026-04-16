@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("server-only", () => ({}));
 vi.mock("@clerk/nextjs/server", () => ({ auth: mocks.auth }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("~/features/onboarding/server", () => ({ getOnboardingPlanConfig: mocks.getOnboardingPlanConfig }));
 vi.mock("~/features/onboarding/server/db", () => ({
   getCachedOnboardingState: mocks.getCachedOnboardingState,

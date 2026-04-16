@@ -174,8 +174,8 @@ describe("templateSchema", () => {
     expect(templateSchema.safeParse({ ...VALID_TEMPLATE, name: "" }).success).toBe(false);
   });
 
-  test("accepts empty steps array", () => {
-    expect(templateSchema.safeParse({ ...VALID_TEMPLATE, steps: [] }).success).toBe(true);
+  test("rejects empty steps array", () => {
+    expect(templateSchema.safeParse({ ...VALID_TEMPLATE, steps: [] }).success).toBe(false);
   });
 
   test("accepts null description", () => {

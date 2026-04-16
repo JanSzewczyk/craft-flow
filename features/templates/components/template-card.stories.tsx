@@ -72,7 +72,7 @@ WithSteps.test("Closes dropdown when clicking outside", async ({ canvas, userEve
   await waitFor(async () => {
     await expect(screen.getByText("Duplikuj")).toBeVisible();
   });
-  await userEvent.click(document.body);
+  await userEvent.keyboard("{Escape}");
 
   await waitFor(async () => {
     await expect(screen.queryByText("Duplikuj")).toBeNull();
@@ -85,7 +85,7 @@ WithSteps.test("Edytuj item is a link with correct href", async ({ canvas, args,
   await waitFor(async () => {
     await expect(screen.getByText("Edytuj")).toBeVisible();
   });
-  const link = screen.getByRole("link", { name: /edytuj/i });
+  const link = screen.getByRole("menuitem", { name: /edytuj/i });
   await expect(link).toHaveAttribute("href", `/app/templates/${args.item.id}/edit`);
 });
 

@@ -91,7 +91,7 @@ npm run analyze               # Bundle analyzer
 - **React**: 19.2.0 with React Compiler enabled
 - **TypeScript**: 6.0.2 (strict mode with `noUncheckedIndexedAccess`)
 - **Tailwind CSS**: 4.2.2 (CSS-first config)
-- **@szum-tech/design-system**: 3.17.0
+- **@szum-tech/design-system**: 3.18.3
 - **Vitest**: 4.1.2 (unit & integration tests)
 - **Playwright**: 1.58.x (E2E tests)
 - **Storybook**: 10.4.0-alpha.6 (component development)
@@ -182,13 +182,12 @@ features/{domain}/
 │   ├── actions/        # Server Actions
 │   ├── db/             # Drizzle queries, mutations, schema
 │   └── services/       # Business logic (step gating, plan checks, etc.)
-├── index.ts            # Clean feature exports
 └── README.md           # Feature documentation
 ```
 
 **Import Pattern:**
-- Import from feature root: `import { ContactForm } from "~/features/contact"`
-- Not from nested paths: `✗ import { ContactForm } from "~/features/contact/components/contact-form"`
+- Import directly from the relevant file: `import { ContactForm } from "~/features/contact/components/contact-form"`
+- Do NOT create barrel `index.ts` files at the feature root — import directly from the specific module path
 
 See `docs/ARCHITECTURE.md` for detailed design patterns and guidelines.
 
@@ -250,7 +249,6 @@ Vitest 4.1 is configured with two project modes:
 
 Coverage reports include: text, HTML, JSON-summary, and JSON formats.
 Storybook tests use play functions for interaction testing with accessibility checks via @storybook/addon-a11y.
-Use `test-only` tag for stories that should be excluded from docs but run in tests.
 
 ### Design System
 

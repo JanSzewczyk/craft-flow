@@ -56,6 +56,4 @@ Default.test("Sign out button has error variant styling", async ({ canvas }) => 
   await expect(signOutButton).not.toBeDisabled();
 });
 
-export const AccessibilityCheck = meta.story({
-  tags: ["test-only"]
-});
+export const AccessibilityCheck = meta.story({});

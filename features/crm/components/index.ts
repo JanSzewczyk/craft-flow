@@ -1,6 +1,5 @@
 export { ClientDetailsContent } from "./client-details-content";
 export { ClientDetailsSheet } from "./client-details-sheet";
-export { ClientRowActions } from "./client-row-actions";
 export { ClientsDataTable } from "./clients-data-table";
 export { ClientsEmptyState } from "./clients-empty-state";
 export { ClientsPagination } from "./clients-pagination";

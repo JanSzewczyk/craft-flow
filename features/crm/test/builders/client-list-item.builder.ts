@@ -25,6 +25,7 @@ export const clientListItemBuilder = build<ClientListItem>({
     email: () => faker.internet.email(),
     phone: () => faker.phone.number(),
     clerkUserId: () => null,
+    hasProjects: () => false,
     createdAt: () => faker.date.past()
   },
   traits: {
@@ -33,6 +34,9 @@ export const clientListItemBuilder = build<ClientListItem>({
     },
     noPhone: {
       overrides: { phone: null }
+    },
+    withProjects: {
+      overrides: { hasProjects: true }
     }
   }
 });

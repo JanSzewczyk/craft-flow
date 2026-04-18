@@ -3,6 +3,8 @@ import { and, count, desc, eq, ilike, or } from "drizzle-orm";
 import { createLogger } from "~/lib/logger";
 import { db } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
+import { projects } from "~/lib/supabase/schema";
+import { type PaginationMeta } from "~/types/pagination";
 
 import { clients, type Client } from "./schema";
 
@@ -45,6 +47,7 @@ export type ClientListItem = {
   email: string;
   phone: string | null;
   clerkUserId: string | null;
+  hasProjects: boolean;
   createdAt: Date;
 };
 
@@ -52,15 +55,6 @@ export type ClientListOptions = {
   search?: string;
   page: number;
   perPage: number;
-};
-
-export type PaginationMeta = {
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
-  perPage: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
 };
 
 export type ClientListResult = {
@@ -84,6 +78,15 @@ export async function getClientListByContractor(
 
     const whereClause = and(...conditions)!;
 
+    const projectCountSubquery = db
+      .select({
+        clientId: projects.clientId,
+        projectCount: count().as("project_count")
+      })
+      .from(projects)
+      .groupBy(projects.clientId)
+      .as("project_counts");
+
     const [rows, countResult] = await Promise.all([
       db
         .select({
@@ -93,9 +96,11 @@ export async function getClientListByContractor(
           email: clients.email,
           phone: clients.phone,
           clerkUserId: clients.clerkUserId,
+          projectCount: sql<number>`coalesce(${projectCountSubquery.projectCount}, 0)`,
           createdAt: clients.createdAt
         })
         .from(clients)
+        .leftJoin(projectCountSubquery, eq(clients.id, projectCountSubquery.clientId))
         .where(whereClause)
         .orderBy(desc(clients.createdAt))
         .limit(perPage)
@@ -106,10 +111,21 @@ export async function getClientListByContractor(
     const totalCount = countResult[0]?.value ?? 0;
     const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
 
+    const items: ClientListItem[] = rows.map((row) => ({
+      id: row.id,
+      contractorId: row.contractorId,
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      clerkUserId: row.clerkUserId,
+      hasProjects: row.projectCount > 0,
+      createdAt: row.createdAt
+    }));
+
     return [
       null,
       {
-        items: rows,
+        items,
         pagination: {
           totalCount,
           totalPages,

@@ -1,6 +1,5 @@
-import { type Metadata } from "next";
-
 import { PlusIcon } from "lucide-react";
+import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
 import {
@@ -15,7 +14,7 @@ import {
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SearchInput } from "~/components/ui/search-input";
-import { ClientsDataTable } from "~/features/crm/components/clients-data-table";
+import { ClientsDataTable } from "~/features/crm/components/clients-data-table/clients-data-table";
 import { ClientsEmptyState } from "~/features/crm/components/clients-empty-state";
 import { ClientsPagination } from "~/features/crm/components/clients-pagination";
 import { deleteClientAction } from "~/features/crm/server/actions/delete-client.action";

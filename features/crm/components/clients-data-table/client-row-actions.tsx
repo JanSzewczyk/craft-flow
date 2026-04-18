@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { EyeIcon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import { EyeIcon, MoreHorizontalIcon, Trash2Icon, TriangleAlertIcon } from "lucide-react";
 
 import {
   AlertDialog,
@@ -12,6 +12,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   Button,
   DropdownMenu,
@@ -32,7 +33,16 @@ type ClientRowActionsProps = {
 
 export function ClientRowActions({ client, onDeleteAction }: ClientRowActionsProps) {
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [warningOpen, setWarningOpen] = React.useState(false);
   const [, startTransition] = React.useTransition();
+
+  function handleDeleteClick() {
+    if (client.hasProjects) {
+      setWarningOpen(true);
+    } else {
+      setDeleteOpen(true);
+    }
+  }
 
   function handleDelete() {
     startTransition(async () => {
@@ -61,23 +71,21 @@ export function ClientRowActions({ client, onDeleteAction }: ClientRowActionsPro
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="error" onClick={() => setDeleteOpen(true)}>
+          <DropdownMenuItem variant="error" onClick={handleDeleteClick}>
             <Trash2Icon aria-hidden="true" />
             Usuń
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* Confirmation dialog — client without projects */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Usuń klienta</AlertDialogTitle>
             <AlertDialogDescription>
-              Czy na pewno chcesz usunąć klienta <strong>&quot;{client.name}&quot;</strong>?
-              <br />
-              <br />
-              Ten klient ma przypisane aktywne lub archiwalne projekty. Aby go usunąć, musisz najpierw skasować
-              wszystkie powiązane z nim zlecenia.
+              Czy na pewno chcesz usunąć klienta <strong>&quot;{client.name}&quot;</strong>? Tej operacji nie można
+              cofnąć.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -90,6 +98,25 @@ export function ClientRowActions({ client, onDeleteAction }: ClientRowActionsPro
             >
               Usuń
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Warning dialog — client has projects */}
+      <AlertDialog open={warningOpen} onOpenChange={setWarningOpen}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-error/10 text-error dark:bg-error/20 dark:text-error">
+              <TriangleAlertIcon />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Nie można usunąć klienta</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ten klient ma przypisane aktywne lub archiwalne projekty. Aby go usunąć, musisz najpierw skasować
+              wszystkie powiązane z nim zlecenia.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setWarningOpen(false)}>Rozumiem</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

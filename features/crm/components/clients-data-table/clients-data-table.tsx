@@ -3,7 +3,7 @@ import { MailIcon, PhoneIcon } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
-  Status,
+  Badge,
   Table,
   TableBody,
   TableCell,
@@ -25,7 +25,7 @@ function getInitials(name: string): string {
 }
 
 type ClientsDataTableProps = {
-  items: ClientListItem[];
+  items: Array<ClientListItem>;
   onDeleteAction(id: string): ActionResponse<{ id: string }>;
 };
 
@@ -77,9 +77,9 @@ export function ClientsDataTable({ items, onDeleteAction }: ClientsDataTableProp
             </TableCell>
             <TableCell>
               {item.clerkUserId ? (
-                <Status variant="primary">Zarejestrowany</Status>
+                <Badge variant="primary">Zarejestrowany</Badge>
               ) : (
-                <Status variant="default">Gość</Status>
+                <Badge variant="secondary">Gość</Badge>
               )}
             </TableCell>
             <TableCell className="text-muted-foreground text-sm">{formatRelativeTime(item.createdAt)}</TableCell>

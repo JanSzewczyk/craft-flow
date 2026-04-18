@@ -1,0 +1,98 @@
+"use client";
+
+import * as React from "react";
+
+import { EyeIcon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  toast
+} from "@szum-tech/design-system";
+import Link from "next/link";
+import { type ClientListItem } from "~/features/crm/server/db/queries";
+import { type ActionResponse } from "~/lib/action-types";
+
+type ClientRowActionsProps = {
+  client: ClientListItem;
+  onDeleteAction(id: string): ActionResponse<{ id: string }>;
+};
+
+export function ClientRowActions({ client, onDeleteAction }: ClientRowActionsProps) {
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [, startTransition] = React.useTransition();
+
+  function handleDelete() {
+    startTransition(async () => {
+      const result = await onDeleteAction(client.id);
+      if (result.success) {
+        toast.success("Sukces", { description: result.message ?? "Klient został usunięty" });
+      } else {
+        toast.error("Błąd", { description: result.error });
+      }
+    });
+  }
+
+  return (
+    <React.Fragment>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-7" aria-label="Więcej opcji">
+            <MoreHorizontalIcon className="size-4" aria-hidden="true" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link href={`/app/clients/${client.id}`}>
+              <EyeIcon aria-hidden="true" />
+              Zobacz szczegóły
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="error" onClick={() => setDeleteOpen(true)}>
+            <Trash2Icon aria-hidden="true" />
+            Usuń
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Usuń klienta</AlertDialogTitle>
+            <AlertDialogDescription>
+              Czy na pewno chcesz usunąć klienta <strong>&quot;{client.name}&quot;</strong>?
+              <br />
+              <br />
+              Ten klient ma przypisane aktywne lub archiwalne projekty. Aby go usunąć, musisz najpierw skasować
+              wszystkie powiązane z nim zlecenia.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anuluj</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleDelete();
+                setDeleteOpen(false);
+              }}
+            >
+              Usuń
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </React.Fragment>
+  );
+}

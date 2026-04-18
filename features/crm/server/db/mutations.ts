@@ -70,6 +70,15 @@ export async function deleteClient(id: string): Promise<SupabaseServiceResult<Cl
     logger.info({ id }, "Deleted client");
     return [null, row];
   } catch (error) {
+    if (error && typeof error === "object" && "code" in error && (error as { code: string }).code === "23503") {
+      const fkError = new SupabaseServiceError({
+        code: "fk_constraint",
+        message: "Client has associated projects",
+        isRetryable: false
+      });
+      logger.warn({ id, errorCode: fkError.code }, "Cannot delete client with associated projects");
+      return [fkError, null];
+    }
     const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
     logger.error({ id, errorCode: serviceError.code }, "Failed to delete client");
     return [serviceError, null];

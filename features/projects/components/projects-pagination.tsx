@@ -6,7 +6,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { Button, Select, SelectContent, SelectItem } from "@szum-tech/design-system";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { type PaginationMeta } from "~/features/projects/server/db/queries";
+import { type PaginationMeta } from "~/types/pagination";
 
 const PER_PAGE_OPTIONS = [5, 10, 20, 50] as const;
 

@@ -5,6 +5,7 @@ import { isFilterableStatus, type ProjectStatusFilter } from "~/features/project
 import { createLogger } from "~/lib/logger";
 import { db } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
+import { type PaginationMeta } from "~/types/pagination";
 
 import { projectSteps, projects, type Project, type ProjectStep, type ProjectStatus } from "./schema";
 
@@ -67,15 +68,6 @@ export type ProjectListOptions = {
   search?: string;
   page: number;
   perPage: number;
-};
-
-export type PaginationMeta = {
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
-  perPage: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
 };
 
 export type ProjectListResult = {

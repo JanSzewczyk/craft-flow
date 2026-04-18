@@ -6,7 +6,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { Button } from "@szum-tech/design-system";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { type PaginationMeta } from "~/features/crm/server/db/queries";
+import { type PaginationMeta } from "~/types/pagination";
 
 type ClientsPaginationProps = {
   pagination: PaginationMeta;

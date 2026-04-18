@@ -6,4 +6,4 @@ export {
   getClientListByContractor,
   getClientCountByContractor
 } from "./queries";
-export type { ClientListItem, ClientListOptions, ClientListResult, PaginationMeta } from "./queries";
+export type { ClientListItem, ClientListOptions, ClientListResult } from "./queries";

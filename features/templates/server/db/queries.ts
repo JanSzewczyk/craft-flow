@@ -3,6 +3,7 @@ import { and, count, desc, eq, ilike, sql } from "drizzle-orm";
 import { createLogger } from "~/lib/logger";
 import { db } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
+import { type PaginationMeta } from "~/types/pagination";
 
 import { templateSteps, templates, type Template, type TemplateStep } from "./schema";
 
@@ -55,15 +56,6 @@ export type TemplateListOptions = {
   search?: string;
   page: number;
   perPage: number;
-};
-
-export type PaginationMeta = {
-  totalCount: number;
-  totalPages: number;
-  currentPage: number;
-  perPage: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
 };
 
 export type TemplateListResult = {

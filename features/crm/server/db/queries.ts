@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
 import { db } from "~/lib/supabase/db";
@@ -111,7 +111,7 @@ export async function getClientListByContractor(
     const totalCount = countResult[0]?.value ?? 0;
     const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
 
-    const items: ClientListItem[] = rows.map((row) => ({
+    const items: Array<ClientListItem> = rows.map((row) => ({
       id: row.id,
       contractorId: row.contractorId,
       name: row.name,

@@ -41,11 +41,11 @@ export function ClientsPagination({ pagination }: ClientsPaginationProps) {
         Strona {page} z {totalPages}
       </span>
       <Button variant="outline" size="icon" disabled={!hasPrevPage} onClick={() => handlePageChange(page - 1)}>
-        <ChevronLeftIcon className="size-4" aria-hidden="true" />
+        <ChevronLeftIcon aria-hidden="true" />
         <span className="sr-only">Poprzednia strona</span>
       </Button>
       <Button variant="outline" size="icon" disabled={!hasNextPage} onClick={() => handlePageChange(page + 1)}>
-        <ChevronRightIcon className="size-4" aria-hidden="true" />
+        <ChevronRightIcon aria-hidden="true" />
         <span className="sr-only">Następna strona</span>
       </Button>
     </div>

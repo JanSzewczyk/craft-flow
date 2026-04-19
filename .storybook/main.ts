@@ -53,6 +53,18 @@ export default defineMain({
           {
             find: "next/image",
             replacement: path.resolve(__dirname, "../__mocks__/next/image.tsx")
+          },
+          {
+            find: "~/lib/logger",
+            replacement: path.resolve(__dirname, "../__mocks__/lib/logger.ts")
+          },
+          {
+            find: "~/features/crm/server/services/clients.service",
+            replacement: path.resolve(__dirname, "../__mocks__/features/crm/server/services/clients.service.ts")
+          },
+          {
+            find: "~/features/crm/server/actions/delete-client.action",
+            replacement: path.resolve(__dirname, "../__mocks__/features/crm/server/actions/delete-client.action.ts")
           }
         ]
       }

@@ -1,124 +1,41 @@
-import { PlusIcon } from "lucide-react";
-
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-  Button
-} from "@szum-tech/design-system";
-import Link from "next/link";
-import { expect, fn } from "storybook/test";
-import { PaginationNav } from "~/components/ui/pagination-nav";
-import { SearchInput } from "~/components/ui/search-input";
-import { ClientsDataTable } from "~/features/crm/components/clients-data-table/clients-data-table";
-import { ClientsEmptyState } from "~/features/crm/components/clients-empty-state";
-import { type ClientListItem } from "~/features/crm/server/db/queries";
+import { expect, type Mock } from "storybook/test";
+import { getClientList } from "~/features/crm/server/services/clients.service";
 import { clientListItemBuilder } from "~/features/crm/test/builders";
-import { type ActionResponse } from "~/lib/action-types";
-import { type PaginationMeta } from "~/types/pagination";
+
+import ClientsLayout from "./layout";
+import ClientsPage from "./page";
 
 import preview from "~/.storybook/preview";
 
-const deleteAction = fn(
-  async () =>
-    ({ success: true, data: { id: "1" }, message: "Klient został usunięty" }) as unknown as ActionResponse<{
-      id: string;
-    }>
-);
-
-function ClientsPageLayout({
-  items,
-  pagination,
-  search = ""
-}: {
-  items: ClientListItem[];
-  pagination: PaginationMeta;
-  search?: string;
-}) {
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-        <div>
-          <Breadcrumb className="mb-2">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/app/dashboard">Craft Flow</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Baza Klientów</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <h1 className="text-heading-h1">Baza Klientów</h1>
-          <p className="text-lead text-muted-foreground">
-            Zarządzaj swoją bazą kontaktów, monitoruj statusy i zyskaj szybki dostęp do informacji o swoich klientach.
-          </p>
-        </div>
-
-        <div className="flex shrink-0 items-start">
-          <Button asChild startIcon={<PlusIcon />}>
-            <Link href="/app/clients/new">Dodaj klienta</Link>
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <SearchInput defaultValue={search} placeholder="Szukaj po nazwisku, e-mailu..." />
-      </div>
-
-      {items.length === 0 ? (
-        <ClientsEmptyState />
-      ) : (
-        <div className="space-y-6">
-          <ClientsDataTable items={items} onDeleteAction={deleteAction} />
-          <PaginationNav pagination={pagination} />
-        </div>
-      )}
-    </div>
-  );
-}
-
 const meta = preview.meta({
-  title: "Pages/Clients",
-  component: ClientsPageLayout,
+  title: "Pages/Craftman/Clients",
+  component: ClientsPage,
+  args: {
+    params: Promise.resolve({}),
+    searchParams: Promise.resolve({})
+  },
   parameters: {
     layout: "padded",
+    react: { rsc: true },
     nextjs: {
       appDirectory: true,
       navigation: {
         pathname: "/app/clients"
       }
     }
-  }
+  },
+  decorators: [
+    (Story) => (
+      <ClientsLayout sheet={null}>
+        <Story />
+      </ClientsLayout>
+    )
+  ]
 });
 
-export const WithClients = meta.story({
-  args: {
-    items: [
-      clientListItemBuilder.one({ traits: "registered", overrides: { name: "Anna Kowalska" } }),
-      clientListItemBuilder.one({ traits: "noPhone", overrides: { name: "Jan Nowak" } }),
-      clientListItemBuilder.one({ traits: "withProjects", overrides: { name: "Maria Wiśniewska" } }),
-      clientListItemBuilder.one({ overrides: { name: "Piotr Zieliński" } }),
-      clientListItemBuilder.one({ traits: "registered", overrides: { name: "Katarzyna Wójcik" } })
-    ],
-    pagination: {
-      totalCount: 25,
-      totalPages: 3,
-      currentPage: 1,
-      perPage: 10,
-      hasNextPage: true,
-      hasPrevPage: false
-    }
-  }
-});
+export const WithClients = meta.story();
 
-WithClients.test("Renders all expected content", async ({ canvas, step, args }) => {
+WithClients.test("Renders all expected content", async ({ canvas, step }) => {
   await step("Breadcrumbs are visible", async () => {
     await expect(canvas.getByRole("link", { name: "Craft Flow" })).toBeVisible();
     await expect(canvas.getByRole("link", { name: "Baza Klientów" })).toBeVisible();
@@ -141,7 +58,8 @@ WithClients.test("Renders all expected content", async ({ canvas, step, args }) 
 
   await step("Table renders all client rows", async () => {
     const rows = canvas.getAllByRole("row");
-    await expect(rows).toHaveLength(args.items.length + 1);
+    // 1 header row + 5 data rows
+    await expect(rows).toHaveLength(6);
   });
 
   await step("Pagination is visible", async () => {
@@ -150,16 +68,21 @@ WithClients.test("Renders all expected content", async ({ canvas, step, args }) 
 });
 
 export const EmptyState = meta.story({
-  args: {
-    items: [],
-    pagination: {
-      totalCount: 0,
-      totalPages: 0,
-      currentPage: 1,
-      perPage: 10,
-      hasNextPage: false,
-      hasPrevPage: false
-    }
+  beforeEach: () => {
+    (getClientList as unknown as Mock).mockResolvedValue([
+      null,
+      {
+        items: [],
+        pagination: {
+          totalCount: 0,
+          totalPages: 0,
+          currentPage: 1,
+          perPage: 10,
+          hasNextPage: false,
+          hasPrevPage: false
+        }
+      }
+    ]);
   }
 });
 
@@ -181,23 +104,29 @@ EmptyState.test("Renders empty state instead of table", async ({ canvas, step })
 });
 
 export const SinglePage = meta.story({
-  args: {
-    items: clientListItemBuilder.many(3),
-    pagination: {
-      totalCount: 3,
-      totalPages: 1,
-      currentPage: 1,
-      perPage: 10,
-      hasNextPage: false,
-      hasPrevPage: false
-    }
+  beforeEach: () => {
+    (getClientList as unknown as Mock).mockResolvedValue([
+      null,
+      {
+        items: clientListItemBuilder.many(3),
+        pagination: {
+          totalCount: 3,
+          totalPages: 1,
+          currentPage: 1,
+          perPage: 10,
+          hasNextPage: false,
+          hasPrevPage: false
+        }
+      }
+    ]);
   }
 });
 
-SinglePage.test("Renders table without pagination for single page", async ({ canvas, step, args }) => {
+SinglePage.test("Renders table without pagination for single page", async ({ canvas, step }) => {
   await step("Table renders all rows", async () => {
     const rows = canvas.getAllByRole("row");
-    await expect(rows).toHaveLength(args.items.length + 1);
+    // 1 header row + 3 data rows
+    await expect(rows).toHaveLength(4);
   });
 
   await step("Pagination buttons are not rendered", async () => {

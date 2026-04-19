@@ -1,12 +1,12 @@
 import { expect } from "storybook/test";
 
-import { ClientsPagination } from "./clients-pagination";
+import { PaginationNav } from "./pagination-nav";
 
 import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
-  title: "Features/CRM/Clients Pagination",
-  component: ClientsPagination,
+  title: "UI/Pagination Nav",
+  component: PaginationNav,
   parameters: {
     layout: "padded",
     nextjs: { appDirectory: true }

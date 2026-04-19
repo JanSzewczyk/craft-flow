@@ -13,29 +13,23 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PaginationNav } from "~/components/ui/pagination-nav";
 import { SearchInput } from "~/components/ui/search-input";
 import { CreateTemplateButton } from "~/features/templates/components/create-template-button";
 import { CreateTemplateCard } from "~/features/templates/components/create-template-card";
 import { TemplateCard } from "~/features/templates/components/template-card";
 import { TemplatesEmptyState } from "~/features/templates/components/templates-empty-state";
-import { TemplatesPagination } from "~/features/templates/components/templates-pagination";
 import { deleteTemplateAction } from "~/features/templates/server/actions/delete-template.action";
 import { duplicateTemplateAction } from "~/features/templates/server/actions/duplicate-template.action";
 import { getTemplateList, getTemplateLimits } from "~/features/templates/server/services/templates.service";
 import { createLogger } from "~/lib/logger";
+import { parseSearchParams } from "~/utils/search-params";
 
 export const metadata: Metadata = {
   title: "Moje Szablony"
 };
 
 const logger = createLogger({ module: "templates-page" });
-
-function parseSearchParams(raw: Record<string, string | string[] | undefined>) {
-  const search = typeof raw.search === "string" ? raw.search.trim() : "";
-  const pageRaw = typeof raw.page === "string" ? Number.parseInt(raw.page, 10) : 1;
-  const page = Number.isFinite(pageRaw) && pageRaw >= 1 ? pageRaw : 1;
-  return { search, page };
-}
 
 async function loadData(searchParams: PageProps<"/app/templates">["searchParams"]) {
   const { isAuthenticated, userId } = await auth();
@@ -132,7 +126,7 @@ export default async function TemplatesPage({ searchParams }: PageProps<"/app/te
             {!isAtLimit ? <CreateTemplateCard /> : null}
           </div>
 
-          <TemplatesPagination pagination={listResult.pagination} />
+          <PaginationNav pagination={listResult.pagination} />
         </div>
       )}
     </div>

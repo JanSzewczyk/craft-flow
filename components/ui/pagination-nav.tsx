@@ -8,11 +8,11 @@ import { Button } from "@szum-tech/design-system";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type PaginationMeta } from "~/types/pagination";
 
-type TemplatesPaginationProps = {
+type PaginationNavProps = {
   pagination: PaginationMeta;
 };
 
-export function TemplatesPagination({ pagination }: TemplatesPaginationProps) {
+export function PaginationNav({ pagination }: PaginationNavProps) {
   const { currentPage: page, totalPages, hasNextPage, hasPrevPage } = pagination;
 
   const router = useRouter();

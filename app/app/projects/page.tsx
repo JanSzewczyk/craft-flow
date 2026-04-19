@@ -24,6 +24,7 @@ import { TabCount } from "~/features/projects/components/tab-count";
 import { getCachedProjectList } from "~/features/projects/server/services/projects-list.service";
 import { isFilterableStatus, ProjectStatusFilter } from "~/features/projects/types/project-filter";
 import { createLogger } from "~/lib/logger";
+import { parseSearchParams } from "~/utils/search-params";
 
 export const metadata: Metadata = {
   title: "Projekty"
@@ -33,15 +34,12 @@ const logger = createLogger({ module: "projects-page" });
 
 const VALID_PER_PAGE = new Set([5, 10, 20, 50]);
 
-function parseSearchParams(raw: Record<string, string | string[] | undefined>) {
+function parseProjectSearchParams(raw: Record<string, string | string[] | undefined>) {
+  const { search, page } = parseSearchParams(raw);
+
   const statusRaw = typeof raw.status === "string" ? raw.status : undefined;
   const statusFilter = statusRaw && isFilterableStatus(statusRaw) ? statusRaw : undefined;
   const status = statusFilter === ProjectStatusFilter.ALL ? undefined : statusFilter;
-
-  const search = typeof raw.search === "string" ? raw.search.trim() : "";
-
-  const pageRaw = typeof raw.page === "string" ? Number.parseInt(raw.page, 10) : 1;
-  const page = Number.isFinite(pageRaw) && pageRaw >= 1 ? pageRaw : 1;
 
   const perPageRaw = typeof raw.perPage === "string" ? Number.parseInt(raw.perPage, 10) : 10;
   const perPage = VALID_PER_PAGE.has(perPageRaw) ? perPageRaw : 10;
@@ -57,7 +55,7 @@ async function loadData(searchParams: PageProps<"/app/projects">["searchParams"]
   }
 
   const params = await searchParams;
-  const { status, search, page, perPage } = parseSearchParams(params);
+  const { status, search, page, perPage } = parseProjectSearchParams(params);
 
   const [error, result] = await getCachedProjectList(userId, { status, search, page, perPage });
   if (error) {

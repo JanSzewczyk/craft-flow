@@ -13,26 +13,20 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PaginationNav } from "~/components/ui/pagination-nav";
 import { SearchInput } from "~/components/ui/search-input";
 import { ClientsDataTable } from "~/features/crm/components/clients-data-table/clients-data-table";
 import { ClientsEmptyState } from "~/features/crm/components/clients-empty-state";
-import { ClientsPagination } from "~/features/crm/components/clients-pagination";
 import { deleteClientAction } from "~/features/crm/server/actions/delete-client.action";
 import { getClientList } from "~/features/crm/server/services/clients.service";
 import { createLogger } from "~/lib/logger";
+import { parseSearchParams } from "~/utils/search-params";
 
 export const metadata: Metadata = {
   title: "Baza Klientów"
 };
 
 const logger = createLogger({ module: "clients-page" });
-
-function parseSearchParams(raw: Record<string, string | string[] | undefined>) {
-  const search = typeof raw.search === "string" ? raw.search.trim() : "";
-  const pageRaw = typeof raw.page === "string" ? Number.parseInt(raw.page, 10) : 1;
-  const page = Number.isFinite(pageRaw) && pageRaw >= 1 ? pageRaw : 1;
-  return { search, page };
-}
 
 async function loadData(searchParams: PageProps<"/app/clients">["searchParams"]) {
   const { isAuthenticated, userId } = await auth();
@@ -101,7 +95,7 @@ export default async function ClientsPage({ searchParams }: PageProps<"/app/clie
       ) : (
         <div className="space-y-6">
           <ClientsDataTable items={items} onDeleteAction={deleteClientAction} />
-          <ClientsPagination pagination={listResult.pagination} />
+          <PaginationNav pagination={listResult.pagination} />
         </div>
       )}
     </div>

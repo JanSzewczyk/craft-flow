@@ -18,7 +18,6 @@ export function SSOCallbackHandler({ onCompleteSignUpAction }: SSOCallbackHandle
   return (
     <HandleSSOCallback
       navigateToApp={async () => {
-        console.log("elleo");
         if (signUp?.createdUserId) {
           const result = await onCompleteSignUpAction(signUp.createdUserId);
           if (!result.success) {

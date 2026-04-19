@@ -6,7 +6,6 @@ const mocks = vi.hoisted(() => ({
   deleteClient: vi.fn()
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@clerk/nextjs/server", () => ({ auth: mocks.auth }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("~/features/crm/server/services/clients.service", () => ({
@@ -14,11 +13,6 @@ vi.mock("~/features/crm/server/services/clients.service", () => ({
   updateClient: mocks.updateClient,
   deleteClient: mocks.deleteClient
 }));
-vi.mock("~/lib/logger", () => {
-  const noop = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() };
-  noop.child.mockReturnValue(noop);
-  return { default: noop, createLogger: vi.fn(() => noop) };
-});
 
 import { clientBuilder, clientFormBuilder } from "~/features/crm/test/builders";
 import { SupabaseServiceError } from "~/lib/supabase/errors";

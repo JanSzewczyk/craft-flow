@@ -1,6 +1,6 @@
 import { fn } from "storybook/test";
 
-export const auth = fn(() => ({ userId: "test-user-id" })).mockName("auth");
+export const auth = fn(() => ({ isAuthenticated: true, userId: "test-user-id" })).mockName("auth");
 
 export const clerkClient = fn(() => ({
   users: {

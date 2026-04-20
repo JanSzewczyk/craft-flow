@@ -1,5 +1,4 @@
 import { fn } from "storybook/test";
-
 import { type ClientListResult } from "~/features/crm/server/db/queries";
 import { clientListItemBuilder } from "~/features/crm/test/builders";
 import { type SupabaseServiceResult } from "~/lib/supabase/errors";

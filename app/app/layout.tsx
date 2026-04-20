@@ -1,8 +1,7 @@
 import * as React from "react";
 
 import { SidebarInset, SidebarProvider } from "@szum-tech/design-system";
-import { AppHeader } from "~/features/contractor/components/app-header";
-import { AppSidebar } from "~/features/contractor/components/app-sidebar";
+import { AppHeader, AppSidebar } from "~/features/contractor/components";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

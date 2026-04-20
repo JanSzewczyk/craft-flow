@@ -1,7 +1,7 @@
 import { boolean, jsonb, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
-import { type BrandingFormData } from "~/features/onboarding/schemas/branding-schema";
-import { type CompanyDetailsFormData } from "~/features/onboarding/schemas/company-details-schema";
-import { type EmailFormData } from "~/features/onboarding/schemas/email-schema";
+import { type BrandingFormData } from "~/features/contractor/schemas/branding-schema";
+import { type CompanyDetailsFormData } from "~/features/contractor/schemas/company-details-schema";
+import { type EmailFormData } from "~/features/contractor/schemas/email-schema";
 import { type TemplateFormData } from "~/features/templates/schemas/template-schema";
 
 export const onboardingState = pgTable("onboarding_state", {

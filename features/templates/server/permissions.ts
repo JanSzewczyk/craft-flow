@@ -1,7 +1,6 @@
 import "server-only";
 
-import { PlanId } from "~/features/billing/constants";
-import { detectClerkPlan, getTemplateLimit } from "~/features/billing/server";
+import { getPlanFeatures } from "~/features/billing/server";
 import { getTemplateCountByContractor } from "~/features/templates/server/db/queries";
 import { SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
@@ -13,8 +12,9 @@ export async function canAddTemplate(contractorId: string): Promise<SupabaseServ
   const [countError, used] = await getTemplateCountByContractor(contractorId);
   if (countError) return [countError, null];
 
-  const planId = (await detectClerkPlan()) ?? PlanId.BASIC;
-  const max = getTemplateLimit(planId);
+  const {
+    limitations: { templates: max }
+  } = await getPlanFeatures();
 
   if (max !== null && used >= max) {
     return [SupabaseServiceError.limitExceeded(max), null];

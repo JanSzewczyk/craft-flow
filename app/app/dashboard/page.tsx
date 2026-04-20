@@ -13,9 +13,7 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { KpiCard } from "~/features/contractor/components/kpi-card";
-import { PlanLimitWidget } from "~/features/contractor/components/plan-limit-widget";
-import { RecentActivityList } from "~/features/contractor/components/recent-activity-list";
+import { KpiCard, PlanLimitWidget, RecentActivityList } from "~/features/contractor/components";
 import { getDashboardData, getDashboardKpiCards } from "~/features/contractor/server/services/dashboard.service";
 import { createLogger } from "~/lib/logger";
 

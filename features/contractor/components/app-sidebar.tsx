@@ -1,6 +1,11 @@
 "use client";
 
+import { ChevronRightIcon } from "lucide-react";
+
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -10,13 +15,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarSeparator
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CraftFlowLogo } from "~/components/ui/brand-logo";
 import { ThemeToggle } from "~/components/ui/theme-toggle";
-import { BOTTOM_NAV_ITEMS, MAIN_NAV_ITEMS } from "~/features/contractor/constants/navigation";
+import { BOTTOM_NAV_ITEMS, COMPANY_NAV_GROUP, MAIN_NAV_ITEMS } from "~/features/contractor/constants/navigation";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -24,6 +32,8 @@ export function AppSidebar() {
   const isActive = (segment: string) => {
     return pathname.startsWith(`/app/${segment}`);
   };
+
+  const isCompanyGroupActive = COMPANY_NAV_GROUP.items.some((item) => isActive(item.segment));
 
   return (
     <Sidebar collapsible="icon">
@@ -58,6 +68,31 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+            <Collapsible defaultOpen={isCompanyGroupActive} className="group/collapsible">
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton tooltip={COMPANY_NAV_GROUP.label}>
+                    <COMPANY_NAV_GROUP.icon aria-hidden="true" />
+                    <span>{COMPANY_NAV_GROUP.label}</span>
+                    <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {COMPANY_NAV_GROUP.items.map((item) => (
+                      <SidebarMenuSubItem key={item.segment}>
+                        <SidebarMenuSubButton asChild isActive={isActive(item.segment)}>
+                          <Link href={item.href}>
+                            <item.icon aria-hidden="true" />
+                            <span>{item.label}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

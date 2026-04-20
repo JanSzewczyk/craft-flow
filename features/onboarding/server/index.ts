@@ -8,4 +8,4 @@ export { submitCompanyDetailsAction } from "./actions/submit-company-details";
 export { submitEmailAction } from "./actions/submit-email";
 export { finalizeOnboardingAction } from "./actions/finalize-onboarding";
 export { submitTemplateAction } from "./actions/submit-template";
-export { uploadLogo } from "./actions/upload-logo";
+export { uploadLogoAction as uploadLogo } from "~/features/contractor/server/actions/branding/upload-logo.action";

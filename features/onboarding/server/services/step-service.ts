@@ -1,7 +1,7 @@
 import "server-only";
 
 import { type Plan } from "~/features/billing/constants";
-import { canUseWhitelabelEmails, detectClerkPlan, getPlanById, planHasBranding } from "~/features/billing/server";
+import { detectClerkPlan, getPlanById, getPlanFeatures, type PlanFeatureFlags } from "~/features/billing/server";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 
 type FirstOnboardingStep = typeof OnboardingStep.COMPANY_DETAILS;
@@ -16,14 +16,9 @@ export type StepConfig = {
   label: string;
 };
 
-export type PlanFeatures = {
-  branding: boolean;
-  whitelabelEmails: boolean;
-};
-
 type BaseOnboardingPlanConfig = {
   plan: Plan;
-  features: PlanFeatures;
+  features: PlanFeatureFlags;
   currentStep: OnboardingStep;
   /** The step the user requested — may differ from `currentStep` if it was redirected. */
   requestedStep: OnboardingStep;
@@ -61,7 +56,7 @@ export type OnboardingPlanBaseConfig = Omit<
  * All possible onboarding steps in order.
  * Steps with a `condition` are included only when the condition returns true.
  */
-const STEP_PIPELINE: readonly (StepConfig & { condition?: (features: PlanFeatures) => boolean })[] = [
+const STEP_PIPELINE: readonly (StepConfig & { condition?: (features: PlanFeatureFlags) => boolean })[] = [
   { step: OnboardingStep.COMPANY_DETAILS, label: "Firma" },
   { step: OnboardingStep.BRANDING, label: "Branding", condition: (f) => f.branding },
   { step: OnboardingStep.TEMPLATE, label: "Szablony" },
@@ -72,7 +67,7 @@ const STEP_PIPELINE: readonly (StepConfig & { condition?: (features: PlanFeature
 /** Index of a step in the full (unfiltered) pipeline — used for fallback resolution. */
 const PIPELINE_ORDER = new Map(STEP_PIPELINE.map((entry, i) => [entry.step, i]));
 
-function resolveActiveSteps(features: PlanFeatures): StepConfig[] {
+function resolveActiveSteps(features: PlanFeatureFlags): StepConfig[] {
   return STEP_PIPELINE.filter((entry) => !entry.condition || entry.condition(features)).map(({ step, label }) => ({
     step,
     label
@@ -125,10 +120,7 @@ export async function getOnboardingPlanConfig(
   const plan = getPlanById(planId);
   if (!plan) return null;
 
-  const features: PlanFeatures = {
-    branding: planHasBranding(planId),
-    whitelabelEmails: canUseWhitelabelEmails(planId)
-  };
+  const { features } = await getPlanFeatures();
 
   const steps = resolveActiveSteps(features);
   const stepIndex = new Map(steps.map((s, i) => [s.step, i]));

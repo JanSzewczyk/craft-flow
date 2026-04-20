@@ -1,12 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { StepperContent } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
+import { uploadLogoAction as uploadLogo } from "~/features/contractor/server/actions/branding/upload-logo.action";
 import { BrandingView } from "~/features/onboarding/components/branding-view";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { type BrandingFormData } from "~/features/onboarding/schemas";
 import { deleteLogo } from "~/features/onboarding/server/actions/delete-logo";
 import { submitBrandingAction } from "~/features/onboarding/server/actions/submit-branding";
-import { uploadLogo } from "~/features/onboarding/server/actions/upload-logo";
 import { getCachedOnboardingState } from "~/features/onboarding/server/db";
 import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { createLogger } from "~/lib/logger";

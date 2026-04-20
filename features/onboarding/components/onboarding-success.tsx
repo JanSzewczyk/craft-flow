@@ -17,11 +17,11 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { type Plan } from "~/features/billing/constants";
-import { type PlanFeatures } from "~/features/onboarding/server/services/step-service";
+import { type PlanFeatureFlags } from "~/features/billing/server";
 
 type OnboardingSuccessProps = {
   plan: Plan;
-  features: PlanFeatures;
+  features: PlanFeatureFlags;
   companyName: string;
   hasBranding: boolean;
   hasEmail: boolean;

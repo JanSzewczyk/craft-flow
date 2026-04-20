@@ -3,7 +3,7 @@ import { cache } from "react";
 import { type LucideIcon, CheckCircleIcon, FolderOpenIcon, HardHatIcon } from "lucide-react";
 
 import { type PlanId } from "~/features/billing/constants";
-import { detectClerkPlan, getPlanById, getProjectLimit } from "~/features/billing/server";
+import { detectClerkPlan, getPlanById, getPlanFeatures } from "~/features/billing/server";
 import { getCachedContractorProfile, type ContractorProfile } from "~/features/contractor/server/db";
 import {
   getCachedActiveProjectsCount,
@@ -55,7 +55,9 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
   ]);
 
   const plan = planId ? getPlanById(planId) : undefined;
-  const projectLimit = planId ? getProjectLimit(planId) : null;
+  const {
+    limitations: { projectsPerMonth: projectLimit }
+  } = await getPlanFeatures();
 
   const [activeProjectsError, activeProjectsCount] = activeProjectsResult;
   if (activeProjectsError) {
@@ -91,13 +93,14 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
 export const getDashboardData = cache(_getDashboardData);
 
 async function _getDashboardKpiCards(userId: string): Promise<SupabaseServiceResult<DashboardKpiCard[]>> {
-  const [planId, activeProjectsResult, completedThisMonthResult] = await Promise.all([
-    detectClerkPlan(),
+  const [activeProjectsResult, completedThisMonthResult] = await Promise.all([
     getCachedActiveProjectsCount(userId),
     getCachedCompletedProjectsThisMonth(userId)
   ]);
 
-  const projectLimit = planId ? getProjectLimit(planId) : null;
+  const {
+    limitations: { projectsPerMonth: projectLimit }
+  } = await getPlanFeatures();
   const [, activeProjectsCount] = activeProjectsResult;
   const [, completedThisMonth] = completedThisMonthResult;
 

@@ -1,15 +1,13 @@
 const mocks = vi.hoisted(() => ({
   detectClerkPlan: vi.fn(),
   getPlanById: vi.fn(),
-  planHasBranding: vi.fn(),
-  canUseWhitelabelEmails: vi.fn()
+  getPlanFeatures: vi.fn()
 }));
 
 vi.mock("~/features/billing/server", () => ({
   detectClerkPlan: mocks.detectClerkPlan,
   getPlanById: mocks.getPlanById,
-  planHasBranding: mocks.planHasBranding,
-  canUseWhitelabelEmails: mocks.canUseWhitelabelEmails
+  getPlanFeatures: mocks.getPlanFeatures
 }));
 
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
@@ -23,25 +21,35 @@ const PREMIUM_PLAN = { id: "premium", name: "Premium" };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function buildCapabilities(branding: boolean, whitelabelEmails: boolean) {
+  return {
+    features: { branding, whitelabelEmails },
+    limitations: {
+      projectsPerMonth: null,
+      templates: null,
+      photosPerProject: null,
+      photoResolution: "standard" as const,
+      supportResponseHours: null
+    }
+  };
+}
+
 function setupBasicPlan() {
   mocks.detectClerkPlan.mockResolvedValue("basic");
   mocks.getPlanById.mockReturnValue(BASIC_PLAN);
-  mocks.planHasBranding.mockReturnValue(false);
-  mocks.canUseWhitelabelEmails.mockReturnValue(false);
+  mocks.getPlanFeatures.mockResolvedValue(buildCapabilities(false, false));
 }
 
 function setupPremiumPlan() {
   mocks.detectClerkPlan.mockResolvedValue("premium");
   mocks.getPlanById.mockReturnValue(PREMIUM_PLAN);
-  mocks.planHasBranding.mockReturnValue(true);
-  mocks.canUseWhitelabelEmails.mockReturnValue(true);
+  mocks.getPlanFeatures.mockResolvedValue(buildCapabilities(true, true));
 }
 
 function setupStandardPlan() {
   mocks.detectClerkPlan.mockResolvedValue("standard");
   mocks.getPlanById.mockReturnValue(STANDARD_PLAN);
-  mocks.planHasBranding.mockReturnValue(true);
-  mocks.canUseWhitelabelEmails.mockReturnValue(false);
+  mocks.getPlanFeatures.mockResolvedValue(buildCapabilities(true, false));
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────

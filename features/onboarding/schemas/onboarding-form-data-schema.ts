@@ -1,10 +1,9 @@
 import { z } from "zod";
 
+import { brandingSchema } from "~/features/contractor/schemas/branding-schema";
+import { companyDetailsSchema } from "~/features/contractor/schemas/company-details-schema";
+import { emailSchema } from "~/features/contractor/schemas/email-schema";
 import { templateSchema } from "~/features/templates/schemas/template-schema";
-
-import { brandingSchema } from "./branding-schema";
-import { companyDetailsSchema } from "./company-details-schema";
-import { emailSchema } from "./email-schema";
 
 export const onboardingFormDataSchema = z.object({
   companyDetails: companyDetailsSchema,

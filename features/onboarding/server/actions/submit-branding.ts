@@ -1,8 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { type BrandingFormData } from "~/features/contractor/schemas/branding-schema";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
-import { type BrandingFormData } from "~/features/onboarding/schemas/branding-schema";
 import { type OnboardingState, updateStepData } from "~/features/onboarding/server/db";
 import { getOnboardingPlanConfig } from "~/features/onboarding/server/services/step-service";
 import { type RedirectAction } from "~/lib/action-types";

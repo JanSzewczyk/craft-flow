@@ -2,8 +2,7 @@ import { cache } from "react";
 
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
-import { PlanId } from "~/features/billing/constants";
-import { detectClerkPlan, getTemplateLimit } from "~/features/billing/server";
+import { getPlanFeatures } from "~/features/billing/server";
 import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import { type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import {
@@ -68,8 +67,9 @@ export const getTemplateLimits = cache(async function (userId: string): Promise<
     return [countError, null];
   }
 
-  const planId = (await detectClerkPlan()) ?? PlanId.BASIC;
-  const max = getTemplateLimit(planId);
+  const {
+    limitations: { templates: max }
+  } = await getPlanFeatures();
 
   return [null, { used, max }];
 });

@@ -1,28 +1,15 @@
 "use client";
 
 import { ArrowRightIcon, InfoIcon } from "lucide-react";
-import { Controller, type DefaultValues, useForm } from "react-hook-form";
+import { type DefaultValues, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Alert,
-  AlertTitle,
-  Button,
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  toast
-} from "@szum-tech/design-system";
-import { INDUSTRIES } from "~/features/onboarding/constants/industries";
+import { Alert, AlertTitle, Button, toast } from "@szum-tech/design-system";
+import { CompanyProfileFormFields } from "~/features/contractor/components";
 import {
   companyDetailsSchema,
   type CompanyDetailsFormData
-} from "~/features/onboarding/schemas/company-details-schema";
+} from "~/features/contractor/schemas/company-details-schema";
 import { type RedirectAction } from "~/lib/action-types";
 
 type CompanyDetailsFormProps = {
@@ -46,64 +33,14 @@ export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyD
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-6">
-      <FieldGroup className="container-xl">
-        <Field data-invalid={!!form.formState.errors.companyName}>
-          <FieldLabel htmlFor="companyName">Nazwa firmy</FieldLabel>
-          <Input
-            id="companyName"
-            placeholder="np. Stolarnia u Jana"
-            autoComplete="organization"
-            aria-invalid={!!form.formState.errors.companyName}
-            {...form.register("companyName")}
-          />
-          <FieldError errors={[form.formState.errors.companyName]} />
-        </Field>
-
-        <Controller
-          control={form.control}
-          name="industry"
-          render={({ field: { onChange, ...fieldProps }, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="industry">Branża</FieldLabel>
-              <Select
-                placeholder="Wybierz branżę"
-                invalid={fieldState.invalid}
-                onValueChange={onChange}
-                {...fieldProps}
-              >
-                <SelectContent>
-                  {INDUSTRIES.map((industry) => (
-                    <SelectItem key={industry.value} value={industry.value}>
-                      {industry.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
-
-        <Field data-invalid={!!form.formState.errors.phone}>
-          <FieldLabel htmlFor="phone">
-            Telefon <span className="text-muted-foreground">(opcjonalny)</span>
-          </FieldLabel>
-          <Input
-            id="phone"
-            type="tel"
-            placeholder="np. +48 123 456 789"
-            autoComplete="tel"
-            aria-invalid={!!form.formState.errors.phone}
-            {...form.register("phone", { setValueAs: (val) => val || null })}
-          />
-          <FieldError errors={[form.formState.errors.phone]} />
-        </Field>
+      <div className="container-xl">
+        <CompanyProfileFormFields form={form} />
 
         <Alert>
           <InfoIcon />
           <AlertTitle>Ustawienia możesz później zmienić w panelu</AlertTitle>
         </Alert>
-      </FieldGroup>
+      </div>
 
       <div className="flex justify-end gap-4 pt-6">
         <Button type="submit" loading={form.formState.isSubmitting} startIcon={<ArrowRightIcon />}>

@@ -6,9 +6,9 @@ import { InfoIcon } from "lucide-react";
 import { type DefaultValues } from "react-hook-form";
 
 import { Alert, AlertTitle } from "@szum-tech/design-system";
+import { type BrandingFormData } from "~/features/contractor/schemas/branding-schema";
 import { BrandingPreview } from "~/features/onboarding/components/branding-preview";
 import { BrandingForm } from "~/features/onboarding/components/forms/branding-form";
-import { type BrandingFormData } from "~/features/onboarding/schemas/branding-schema";
 import { type ActionResponse, type RedirectAction } from "~/lib/action-types";
 
 type BrandingViewProps = {

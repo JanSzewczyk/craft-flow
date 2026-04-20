@@ -31,16 +31,16 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { type Plan, PlanId } from "~/features/billing/constants";
+import { type PlanFeatureFlags } from "~/features/billing/server";
 import { INDUSTRIES } from "~/features/onboarding/constants";
 import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { type OnboardingState } from "~/features/onboarding/server/db";
-import { type PlanFeatures } from "~/features/onboarding/server/services/step-service";
 import { type RedirectAction } from "~/lib/action-types";
 
 type OnboardingSummaryProps = {
   plan: Plan;
   onboardingState: OnboardingState;
-  planFeatures: PlanFeatures;
+  planFeatures: PlanFeatureFlags;
   onFinalizeAction(): RedirectAction;
   onBackAction(): void;
 };

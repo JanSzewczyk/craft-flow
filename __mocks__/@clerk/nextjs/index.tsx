@@ -13,3 +13,7 @@ export const SignInButton = fn(({ children }: { children: React.ReactNode }) => 
 export const ClerkProvider = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
+
+export const UserButton = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
+};

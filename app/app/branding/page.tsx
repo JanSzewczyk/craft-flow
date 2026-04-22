@@ -14,9 +14,9 @@ import { redirect } from "next/navigation";
 import { getPlanFeatures } from "~/features/billing/server";
 import { BrandingEditor, UpgradePromptCard } from "~/features/contractor/components";
 import { updateBrandingAction } from "~/features/contractor/server/actions/branding/update-branding.action";
+import { uploadLogoAction } from "~/features/contractor/server/actions/branding/upload-logo.action";
 import { getBrandingData } from "~/features/contractor/server/services/branding.service";
 import { createLogger } from "~/lib/logger";
-import { uploadLogoAction } from "~/features/contractor/server/actions/branding/upload-logo.action";
 
 export const metadata: Metadata = {
   title: "Branding"

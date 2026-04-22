@@ -27,7 +27,7 @@ import { ThemeToggle } from "~/components/ui/theme-toggle";
 import { BOTTOM_NAV_ITEMS, COMPANY_NAV_GROUP, MAIN_NAV_ITEMS } from "~/features/contractor/constants/navigation";
 
 type AppSidebarProps = {
-  plan: string;
+  plan?: string;
 };
 
 export function AppSidebar({ plan }: AppSidebarProps) {

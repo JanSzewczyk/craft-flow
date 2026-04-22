@@ -26,7 +26,11 @@ import { CraftFlowLogo } from "~/components/ui/brand-logo";
 import { ThemeToggle } from "~/components/ui/theme-toggle";
 import { BOTTOM_NAV_ITEMS, COMPANY_NAV_GROUP, MAIN_NAV_ITEMS } from "~/features/contractor/constants/navigation";
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  plan: string;
+};
+
+export function AppSidebar({ plan }: AppSidebarProps) {
   const pathname = usePathname();
 
   const isActive = (segment: string) => {
@@ -45,7 +49,7 @@ export function AppSidebar() {
                 <CraftFlowLogo />
                 <div className="flex flex-col leading-none">
                   <span className="text-heading-h4">CraftFlow</span>
-                  <span className="text-body-xs text-muted-foreground">SaaS dla rzemieślników</span>
+                  <span className="text-body-xs text-muted-foreground">{plan}</span>
                 </div>
               </Link>
             </SidebarMenuButton>

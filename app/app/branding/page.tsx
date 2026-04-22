@@ -16,6 +16,7 @@ import { BrandingEditor, UpgradePromptCard } from "~/features/contractor/compone
 import { updateBrandingAction } from "~/features/contractor/server/actions/branding/update-branding.action";
 import { getBrandingData } from "~/features/contractor/server/services/branding.service";
 import { createLogger } from "~/lib/logger";
+import { uploadLogoAction } from "~/features/contractor/server/actions/branding/upload-logo.action";
 
 export const metadata: Metadata = {
   title: "Branding"

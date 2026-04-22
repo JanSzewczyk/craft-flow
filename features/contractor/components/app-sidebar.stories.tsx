@@ -17,6 +17,9 @@ const meta = preview.meta({
   ],
   parameters: {
     layout: "fullscreen"
+  },
+  args: {
+    plan: "pro"
   }
 });
 
@@ -33,6 +36,10 @@ export const DashboardActive = meta.story({
 DashboardActive.test("Renders all navigation content", async ({ canvas, step }) => {
   await step("Shows logo and brand name", async () => {
     await expect(canvas.getByText("CraftFlow")).toBeVisible();
+  });
+
+  await step("Shows plan name", async () => {
+    await expect(canvas.getByText("pro")).toBeVisible();
   });
 
   await step("Shows main navigation items with correct hrefs", async () => {

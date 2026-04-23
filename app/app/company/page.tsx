@@ -7,14 +7,15 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
+  Button
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CompanyProfileForm } from "~/features/contractor/components";
-import { updateCompanyProfileAction } from "~/features/contractor/server/actions/company/update-company-profile.action";
 import { getCompanyProfileData } from "~/features/contractor/server/services/company-profile.service";
 import { createLogger } from "~/lib/logger";
+import { PencilIcon } from "lucide-react";
+import { CompanyProfileCards } from "~/features/contractor/components";
 
 export const metadata: Metadata = {
   title: "Dane firmy"
@@ -44,32 +45,30 @@ export default async function CompanyPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <Breadcrumb className="mb-2">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/app/dashboard">Craft Flow</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Dane firmy</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <h1 className="text-heading-h1">Dane firmy</h1>
-        <p className="text-lead">Zarządzaj podstawowymi informacjami o swojej firmie</p>
-      </div>
+      <Breadcrumb className="mb-2">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/app/dashboard">Craft Flow</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Dane firmy</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      <CompanyProfileForm
-        defaultValues={{
-          companyName: data.companyName,
-          industry: data.industry,
-          phone: data.phone
-        }}
-        onSaveAction={updateCompanyProfileAction}
-      />
+      <div className="flex flex-col items-start justify-between gap-4 md:flex-row">
+        <div>
+          <h1 className="text-heading-h1">Profil Firmy</h1>
+          <p className="text-lead">Podstawowe informacje o Twojej firmie</p>
+        </div>
+        <Button asChild variant="outline" startIcon={<PencilIcon />}>
+          <Link href="/app/company/edit">Edytuj</Link>
+        </Button>
+      </div>
+      <CompanyProfileCards data={data} />
     </div>
   );
 }

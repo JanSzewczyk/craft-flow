@@ -2,15 +2,14 @@ import { cache } from "react";
 
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
-import { type CompanyDetailsFormData } from "~/features/contractor/schemas/company-details-schema";
+import { type CompanyDetailsFormData } from "~/features/contractor/schemas";
 import {
-  ContractorProfile,
+  type ContractorProfile,
   getCachedContractorProfile,
   updateContractorProfileWithAddress
 } from "~/features/contractor/server/db";
 import { createLogger } from "~/lib/logger";
 import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
-import { Address } from "~/features/shared/server";
 
 const logger = createLogger({ module: "company-profile-service" });
 
@@ -20,10 +19,8 @@ const logger = createLogger({ module: "company-profile-service" });
 
 export type CompanyProfile = Pick<
   ContractorProfile,
-  "companyName" | "industry" | "phone" | "nip" | "regon" | "email"
-> & {
-  address: Address | null;
-};
+  "companyName" | "industry" | "phone" | "nip" | "regon" | "email" | "address"
+>;
 
 export const getCompanyProfile = cache(async function (
   userId: string
@@ -89,8 +86,8 @@ export async function updateCompanyProfile(
     companyName: data.companyName,
     industry: data.industry,
     phone: data.phone,
-    nip: data.nip ?? null,
-    regon: data.regon ?? null,
+    nip: data.nip,
+    regon: data.regon,
     email: data.email,
     address: resolvedAddress,
     existingAddressId: profile.addressId ?? null
@@ -110,8 +107,7 @@ export async function updateCompanyProfile(
       phone: updated.phone,
       nip: updated.nip ?? null,
       regon: updated.regon ?? null,
-      email: updated.email ?? null,
-      addressId: updated.addressId ?? null,
+      email: updated.email,
       address: updated.address
     }
   ];

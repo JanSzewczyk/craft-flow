@@ -1,55 +1,25 @@
 import { cache } from "react";
 
-import { eq } from "drizzle-orm";
+import { type BuildQueryResult, eq } from "drizzle-orm";
 
-import { addresses, type Address } from "~/features/shared/server/db/schema";
 import { createLogger } from "~/lib/logger";
 import { db } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
+import { type TSchema } from "~/lib/supabase/types";
 
-import { contractorProfile, type ContractorProfile } from "./schema";
+import { contractorProfile } from "./schema";
 
 const logger = createLogger({ module: "contractor-db" });
 const RESOURCE_NAME = "ContractorProfile";
 
-export type ContractorProfileWithAddress = ContractorProfile & {
-  address: Address | null;
-};
+export type ContractorProfile = BuildQueryResult<TSchema, TSchema["contractorProfile"], { with: { address: true } }>;
 
-export async function getContractorProfile(
-  contractorId: string
-): Promise<SupabaseServiceResult<ContractorProfileWithAddress>> {
+export async function getContractorProfile(contractorId: string): Promise<SupabaseServiceResult<ContractorProfile>> {
   try {
-    const rows = await db
-      .select({
-        id: contractorProfile.id,
-        companyName: contractorProfile.companyName,
-        industry: contractorProfile.industry,
-        phone: contractorProfile.phone,
-        nip: contractorProfile.nip,
-        regon: contractorProfile.regon,
-        email: contractorProfile.email,
-        brandColor: contractorProfile.brandColor,
-        logoUrl: contractorProfile.logoUrl,
-        addressId: contractorProfile.addressId,
-        createdAt: contractorProfile.createdAt,
-        updatedAt: contractorProfile.updatedAt,
-        address: {
-          id: addresses.id,
-          street: addresses.street,
-          postalCode: addresses.postalCode,
-          city: addresses.city,
-          country: addresses.country,
-          additionalInfo: addresses.additionalInfo,
-          createdAt: addresses.createdAt,
-          updatedAt: addresses.updatedAt
-        }
-      })
-      .from(contractorProfile)
-      .leftJoin(addresses, eq(contractorProfile.addressId, addresses.id))
-      .where(eq(contractorProfile.id, contractorId));
-
-    const row = rows[0];
+    const row = await db.query.contractorProfile.findFirst({
+      where: eq(contractorProfile.id, contractorId),
+      with: { address: true }
+    });
 
     if (!row) {
       const error = SupabaseServiceError.notFound(RESOURCE_NAME);
@@ -57,10 +27,7 @@ export async function getContractorProfile(
       return [error, null];
     }
 
-    // Drizzle returns all-null address shape when LEFT JOIN has no match
-    const address: Address | null = row.address == null || row.address.id === null ? null : (row.address as Address);
-
-    return [null, { ...row, address }];
+    return [null, row];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to get contractor profile");

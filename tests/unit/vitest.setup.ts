@@ -7,3 +7,8 @@ vi.mock("~/lib/logger", () => {
   noop.child.mockReturnValue(noop);
   return { default: noop, createLogger: vi.fn(() => noop) };
 });
+
+vi.mock("react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react")>();
+  return { ...actual, cache: (fn: unknown) => fn };
+});

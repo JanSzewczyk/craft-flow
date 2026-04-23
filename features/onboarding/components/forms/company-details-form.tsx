@@ -3,6 +3,7 @@
 import { ArrowRightIcon, InfoIcon } from "lucide-react";
 import { type DefaultValues, useForm } from "react-hook-form";
 
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, AlertTitle, Button, toast } from "@szum-tech/design-system";
 import { CompanyProfileFormFields } from "~/features/contractor/components";
@@ -12,13 +13,15 @@ import {
 } from "~/features/contractor/schemas/company-details-schema";
 import { type RedirectAction } from "~/lib/action-types";
 
+type CompanyDetailsFormInput = z.input<typeof companyDetailsSchema>;
+
 type CompanyDetailsFormProps = {
-  defaultValues?: DefaultValues<CompanyDetailsFormData> | null;
+  defaultValues?: DefaultValues<CompanyDetailsFormInput> | null;
   onContinueAction(formData: CompanyDetailsFormData): RedirectAction;
 };
 
 export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyDetailsFormProps) {
-  const form = useForm<CompanyDetailsFormData>({
+  const form = useForm<CompanyDetailsFormInput, unknown, CompanyDetailsFormData>({
     resolver: zodResolver(companyDetailsSchema),
     defaultValues: defaultValues ?? {}
   });

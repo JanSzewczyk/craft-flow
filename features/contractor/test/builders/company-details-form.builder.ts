@@ -18,6 +18,9 @@ export const companyDetailsFormBuilder = build<CompanyDetailsFormData>({
   fields: {
     companyName: () => faker.company.name(),
     industry: () => faker.helpers.arrayElement(["woodworking", "construction", "plumbing", "electrical", "painting"]),
-    phone: () => faker.phone.number({ style: "international" })
+    phone: () => faker.phone.number({ style: "international" }),
+    email: () => faker.internet.email(),
+    nip: null,
+    address: null
   }
 });

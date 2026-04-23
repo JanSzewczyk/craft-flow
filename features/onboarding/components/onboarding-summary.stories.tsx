@@ -22,7 +22,10 @@ const fullOnboardingState = {
   companyDetails: {
     companyName: "Stolarnia u Jana",
     industry: "stolarstwo",
-    phone: "+48 123 456 789"
+    phone: "+48 123 456 789",
+    email: "jan@stolarnia.pl",
+    nip: null,
+    address: null
   },
   branding: {
     brandColor: "#2563EB",
@@ -48,7 +51,10 @@ const basicOnboardingState = {
   companyDetails: {
     companyName: "Mała Firma",
     industry: "construction",
-    phone: null
+    phone: null,
+    email: "kontakt@malafirma.pl",
+    nip: null,
+    address: null
   },
   branding: null,
   templateConfig: {

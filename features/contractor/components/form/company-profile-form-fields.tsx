@@ -12,11 +12,17 @@ import {
   SelectContent,
   SelectItem
 } from "@szum-tech/design-system";
-import { type CompanyDetailsFormData } from "~/features/contractor/schemas/company-details-schema";
+import { z } from "zod";
+import {
+  companyDetailsSchema,
+  type CompanyDetailsFormData
+} from "~/features/contractor/schemas/company-details-schema";
 import { INDUSTRIES } from "~/features/onboarding/constants/industries";
 
+type CompanyDetailsFormInput = z.input<typeof companyDetailsSchema>;
+
 type CompanyProfileFormFieldsProps = {
-  form: UseFormReturn<CompanyDetailsFormData>;
+  form: UseFormReturn<CompanyDetailsFormInput, unknown, CompanyDetailsFormData>;
 };
 
 export function CompanyProfileFormFields({ form }: CompanyProfileFormFieldsProps) {
@@ -55,18 +61,42 @@ export function CompanyProfileFormFields({ form }: CompanyProfileFormFieldsProps
       />
 
       <Field data-invalid={!!form.formState.errors.phone}>
-        <FieldLabel htmlFor="phone">
-          Telefon <span className="text-muted-foreground">(opcjonalny)</span>
-        </FieldLabel>
+        <FieldLabel htmlFor="phone">Telefon</FieldLabel>
         <Input
           id="phone"
           type="tel"
           placeholder="np. +48 123 456 789"
           autoComplete="tel"
           aria-invalid={!!form.formState.errors.phone}
-          {...form.register("phone", { setValueAs: (val) => val || null })}
+          {...form.register("phone")}
         />
         <FieldError errors={[form.formState.errors.phone]} />
+      </Field>
+
+      <Field data-invalid={!!form.formState.errors.nip}>
+        <FieldLabel htmlFor="nip">
+          NIP <span className="text-mute">(opcjonalny)</span>
+        </FieldLabel>
+        <Input
+          id="nip"
+          placeholder="np. 1234567890"
+          aria-invalid={!!form.formState.errors.nip}
+          {...form.register("nip", { setValueAs: (val) => val || null })}
+        />
+        <FieldError errors={[form.formState.errors.nip]} />
+      </Field>
+
+      <Field data-invalid={!!form.formState.errors.email}>
+        <FieldLabel htmlFor="email">Publiczny e-mail</FieldLabel>
+        <Input
+          id="email"
+          type="email"
+          placeholder="np. kontakt@firma.pl"
+          autoComplete="email"
+          aria-invalid={!!form.formState.errors.email}
+          {...form.register("email")}
+        />
+        <FieldError errors={[form.formState.errors.email]} />
       </Field>
     </FieldGroup>
   );

@@ -23,5 +23,6 @@ export async function updateCompanyProfileAction(data: CompanyDetailsFormData): 
   if (error) return mapCompanyServiceError(error);
 
   revalidatePath("/app/company");
+  revalidatePath("/app/company/edit");
   return { success: true, data: profile, message: "Dane firmy zostały zaktualizowane" };
 }

@@ -13,3 +13,4 @@ export { EmailTemplateFormFields } from "./form/email-template-form-fields";
 export { CompanyProfileFormFields } from "./form/company-profile-form-fields";
 export { EmailTemplateForm } from "./form/email-template-form";
 export { CompanyProfileForm } from "./form/company-profile-form";
+export { CompanyProfileCards } from "./company-profile-cards";

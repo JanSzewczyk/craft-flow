@@ -36,7 +36,7 @@ export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyD
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-6">
-      <div className="container-xl">
+      <div className="container-xl space-y-4">
         <CompanyProfileFormFields form={form} />
 
         <Alert>

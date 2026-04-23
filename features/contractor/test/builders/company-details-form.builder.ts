@@ -21,6 +21,7 @@ export const companyDetailsFormBuilder = build<CompanyDetailsFormData>({
     phone: () => faker.phone.number({ style: "international" }),
     email: () => faker.internet.email(),
     nip: null,
+    regon: null,
     address: null
   }
 });

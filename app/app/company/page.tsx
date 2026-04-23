@@ -12,7 +12,7 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCompanyProfileData } from "~/features/contractor/server/services/company-profile.service";
+import { getCompanyProfile } from "~/features/contractor/server/services/company-profile.service";
 import { createLogger } from "~/lib/logger";
 import { PencilIcon } from "lucide-react";
 import { CompanyProfileCards } from "~/features/contractor/components";
@@ -30,7 +30,7 @@ async function loadData() {
     redirect("/sign-in");
   }
 
-  const [error, data] = await getCompanyProfileData(userId);
+  const [error, data] = await getCompanyProfile(userId);
   if (error) {
     logger.error({ userId, errorCode: error.code }, "Failed to load company profile");
     throw error;

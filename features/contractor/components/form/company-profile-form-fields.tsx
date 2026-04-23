@@ -61,14 +61,16 @@ export function CompanyProfileFormFields({ form }: CompanyProfileFormFieldsProps
       />
 
       <Field data-invalid={!!form.formState.errors.phone}>
-        <FieldLabel htmlFor="phone">Telefon</FieldLabel>
+        <FieldLabel htmlFor="phone">
+          Telefon <span className="text-mute">(opcjonalny)</span>
+        </FieldLabel>
         <Input
           id="phone"
           type="tel"
           placeholder="np. +48 123 456 789"
           autoComplete="tel"
           aria-invalid={!!form.formState.errors.phone}
-          {...form.register("phone")}
+          {...form.register("phone", { setValueAs: (val) => val || null })}
         />
         <FieldError errors={[form.formState.errors.phone]} />
       </Field>
@@ -84,6 +86,19 @@ export function CompanyProfileFormFields({ form }: CompanyProfileFormFieldsProps
           {...form.register("nip", { setValueAs: (val) => val || null })}
         />
         <FieldError errors={[form.formState.errors.nip]} />
+      </Field>
+
+      <Field data-invalid={!!form.formState.errors.regon}>
+        <FieldLabel htmlFor="regon">
+          REGON <span className="text-mute">(opcjonalny)</span>
+        </FieldLabel>
+        <Input
+          id="regon"
+          placeholder="np. 123456789"
+          aria-invalid={!!form.formState.errors.regon}
+          {...form.register("regon", { setValueAs: (val) => val || null })}
+        />
+        <FieldError errors={[form.formState.errors.regon]} />
       </Field>
 
       <Field data-invalid={!!form.formState.errors.email}>

@@ -3,9 +3,14 @@ import { cache } from "react";
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
 import { type CompanyDetailsFormData } from "~/features/contractor/schemas/company-details-schema";
-import { getCachedContractorProfile, updateContractorProfileWithAddress } from "~/features/contractor/server/db";
+import {
+  ContractorProfile,
+  getCachedContractorProfile,
+  updateContractorProfileWithAddress
+} from "~/features/contractor/server/db";
 import { createLogger } from "~/lib/logger";
 import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
+import { Address } from "~/features/shared/server";
 
 const logger = createLogger({ module: "company-profile-service" });
 
@@ -13,26 +18,16 @@ const logger = createLogger({ module: "company-profile-service" });
 // Read (cached)
 // ---------------------------------------------------------------------------
 
-export type CompanyProfileData = {
-  companyName: string;
-  industry: string;
-  phone: string | null;
-  nip: string | null;
-  email: string | null;
-  addressId: string | null;
-  address: {
-    id: string;
-    street: string | null;
-    postalCode: string | null;
-    city: string | null;
-    country: string | null;
-    additionalInfo: string | null;
-  } | null;
+export type CompanyProfile = Pick<
+  ContractorProfile,
+  "companyName" | "industry" | "phone" | "nip" | "regon" | "email"
+> & {
+  address: Address | null;
 };
 
-export const getCompanyProfileData = cache(async function (
+export const getCompanyProfile = cache(async function (
   userId: string
-): Promise<ServiceResult<BaseServiceError, CompanyProfileData>> {
+): Promise<ServiceResult<BaseServiceError, CompanyProfile>> {
   logger.info({ userId }, "Loading company profile data");
 
   const [profileErr, profile] = await getCachedContractorProfile(userId);
@@ -47,9 +42,9 @@ export const getCompanyProfileData = cache(async function (
       companyName: profile.companyName,
       industry: profile.industry,
       phone: profile.phone,
-      nip: profile.nip ?? null,
-      email: profile.email ?? null,
-      addressId: profile.addressId ?? null,
+      nip: profile.nip,
+      regon: profile.regon,
+      email: profile.email,
       address: profile.address
     }
   ];
@@ -59,10 +54,10 @@ export const getCompanyProfileData = cache(async function (
 // Mutation
 // ---------------------------------------------------------------------------
 
-export async function updateCompanyProfileData(
+export async function updateCompanyProfile(
   userId: string,
   data: CompanyDetailsFormData
-): Promise<ServiceResult<BaseServiceError, CompanyProfileData>> {
+): Promise<ServiceResult<BaseServiceError, CompanyProfile>> {
   logger.info({ userId }, "Updating company profile");
 
   const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
@@ -95,6 +90,7 @@ export async function updateCompanyProfileData(
     industry: data.industry,
     phone: data.phone,
     nip: data.nip ?? null,
+    regon: data.regon ?? null,
     email: data.email,
     address: resolvedAddress,
     existingAddressId: profile.addressId ?? null
@@ -113,6 +109,7 @@ export async function updateCompanyProfileData(
       industry: updated.industry,
       phone: updated.phone,
       nip: updated.nip ?? null,
+      regon: updated.regon ?? null,
       email: updated.email ?? null,
       addressId: updated.addressId ?? null,
       address: updated.address

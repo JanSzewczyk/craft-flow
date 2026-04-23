@@ -1,7 +1,7 @@
 import { BuildingIcon, MapPinIcon } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@szum-tech/design-system";
-import { type CompanyProfileData } from "~/features/contractor/server/services/company-profile.service";
+import { type CompanyProfile } from "~/features/contractor/server/services/company-profile.service";
 
 type ProfileFieldProps = {
   label: string;
@@ -19,7 +19,7 @@ function ProfileField({ label, value, className }: ProfileFieldProps) {
 }
 
 type CompanyProfileCardsProps = {
-  data: CompanyProfileData;
+  data: CompanyProfile;
 };
 
 export function CompanyProfileCards({ data }: CompanyProfileCardsProps) {
@@ -37,6 +37,7 @@ export function CompanyProfileCards({ data }: CompanyProfileCardsProps) {
             <ProfileField label="Nazwa firmy" value={data.companyName} />
             <ProfileField label="Branża" value={data.industry} />
             <ProfileField label="NIP" value={data.nip} />
+            <ProfileField label="REGON" value={data.regon} />
             <ProfileField label="Publiczny e-mail" value={data.email} />
             <ProfileField label="Telefon" value={data.phone} />
           </div>

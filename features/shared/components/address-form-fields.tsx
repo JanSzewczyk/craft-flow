@@ -1,11 +1,11 @@
 "use client";
 
-import { z } from "zod";
 import { type UseFormReturn } from "react-hook-form";
+import { type z } from "zod";
 
 import { Field, FieldError, FieldGroup, FieldLabel, Input, Textarea } from "@szum-tech/design-system";
 import {
-  companyDetailsSchema,
+  type companyDetailsSchema,
   type CompanyDetailsFormData
 } from "~/features/contractor/schemas/company-details-schema";
 

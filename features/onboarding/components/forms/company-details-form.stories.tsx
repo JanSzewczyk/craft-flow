@@ -50,7 +50,7 @@ export const FilledValid = meta.story({
     defaultValues: {
       companyName: "Stolarnia u Jana",
       industry: "stolarstwo",
-      phone: null
+      phone: "+48 123 456 789"
     }
   }
 });

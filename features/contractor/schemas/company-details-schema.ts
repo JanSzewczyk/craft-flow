@@ -17,6 +17,7 @@ export const companyDetailsSchema = z
   })
   .superRefine((data, ctx) => {
     if (!data.address) return;
+
     const { street, postalCode, city } = data.address;
     const anyFilled = !!(street || postalCode || city);
     if (!anyFilled) return;

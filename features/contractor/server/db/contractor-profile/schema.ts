@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { addresses } from "~/features/shared/server/db/schema";
 
@@ -19,3 +20,10 @@ export const contractorProfile = pgTable("contractor_profile", {
 });
 
 export type ContractorProfile = typeof contractorProfile.$inferSelect;
+
+export const contractorProfileRelations = relations(contractorProfile, ({ one }) => ({
+  address: one(addresses, {
+    fields: [contractorProfile.addressId],
+    references: [addresses.id]
+  })
+}));

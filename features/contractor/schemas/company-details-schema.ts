@@ -1,21 +1,19 @@
 import { z } from "zod";
 
-const addressSchema = z.object({
-  street: z.string(),
-  postalCode: z.string(),
-  city: z.string(),
-  country: z.string().default("Polska"),
-  additionalInfo: z.string().nullable()
-});
+import { addressSchema } from "~/features/shared/schemas";
 
 export const companyDetailsSchema = z
   .object({
     companyName: z.string().min(2, "Nazwa firmy musi mieć co najmniej 2 znaki"),
     industry: z.string().min(1, "Wybierz branżę"),
-    phone: z.string().regex(/^\+?[\d\s\-()/]{7,20}$/, "Nieprawidłowy numer telefonu"),
+    phone: z
+      .string()
+      .regex(/^\+?[\d\s\-()/]{7,20}$/, "Nieprawidłowy numer telefonu")
+      .nullable(),
     nip: z.string().nullable(),
+    regon: z.string().nullable(),
     email: z.email("Nieprawidłowy adres email"),
-    address: addressSchema.optional().nullable()
+    address: addressSchema.nullable()
   })
   .superRefine((data, ctx) => {
     if (!data.address) return;

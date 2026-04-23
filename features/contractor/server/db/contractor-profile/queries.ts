@@ -27,6 +27,7 @@ export async function getContractorProfile(
         industry: contractorProfile.industry,
         phone: contractorProfile.phone,
         nip: contractorProfile.nip,
+        regon: contractorProfile.regon,
         email: contractorProfile.email,
         brandColor: contractorProfile.brandColor,
         logoUrl: contractorProfile.logoUrl,

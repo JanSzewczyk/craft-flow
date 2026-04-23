@@ -11,8 +11,8 @@ import { getContractorProfile, type ContractorProfileWithAddress } from "./queri
 const logger = createLogger({ module: "contractor-db" });
 const RESOURCE_NAME = "ContractorProfile";
 
-type UpsertData = Pick<ContractorProfile, "companyName" | "industry"> &
-  Partial<Pick<ContractorProfile, "phone" | "brandColor" | "logoUrl">>;
+type UpsertData = Pick<ContractorProfile, "companyName" | "industry" | "email"> &
+  Partial<Pick<ContractorProfile, "phone" | "nip" | "regon" | "brandColor" | "logoUrl">>;
 
 export async function upsertContractorProfile(
   contractorId: string,
@@ -83,6 +83,7 @@ export type UpdateWithAddressInput = {
   industry: string;
   phone: string | null;
   nip: string | null | undefined;
+  regon: string | null | undefined;
   email: string;
   address: AddressInput | null;
   existingAddressId: string | null;
@@ -103,6 +104,7 @@ export async function updateContractorProfileWithAddress(
             industry: input.industry,
             phone: input.phone,
             nip: input.nip ?? null,
+            regon: input.regon ?? null,
             email: input.email,
             addressId: null,
             updatedAt: new Date()
@@ -131,6 +133,7 @@ export async function updateContractorProfileWithAddress(
             industry: input.industry,
             phone: input.phone,
             nip: input.nip ?? null,
+            regon: input.regon ?? null,
             email: input.email,
             addressId: newAddr.id,
             updatedAt: new Date()
@@ -150,6 +153,7 @@ export async function updateContractorProfileWithAddress(
             industry: input.industry,
             phone: input.phone,
             nip: input.nip ?? null,
+            regon: input.regon ?? null,
             email: input.email,
             updatedAt: new Date()
           })

@@ -13,7 +13,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CompanyProfileForm } from "~/features/contractor/components";
 import { updateCompanyProfileAction } from "~/features/contractor/server/actions/company/update-company-profile.action";
-import { getCompanyProfileData } from "~/features/contractor/server/services/company-profile.service";
+import { getCompanyProfile } from "~/features/contractor/server/services/company-profile.service";
 import { createLogger } from "~/lib/logger";
 
 export const metadata: Metadata = {
@@ -29,7 +29,7 @@ async function loadData() {
     redirect("/sign-in");
   }
 
-  const [error, data] = await getCompanyProfileData(userId);
+  const [error, data] = await getCompanyProfile(userId);
   if (error) {
     logger.error({ userId, errorCode: error.code }, "Failed to load company profile for edit");
     throw error;
@@ -71,8 +71,9 @@ export default async function CompanyEditPage() {
         defaultValues={{
           companyName: data.companyName,
           industry: data.industry,
-          phone: data.phone,
-          nip: data.nip,
+          phone: data.phone ?? undefined,
+          nip: data.nip ?? undefined,
+          regon: data.regon ?? undefined,
           email: data.email ?? "",
           address: data.address
             ? {

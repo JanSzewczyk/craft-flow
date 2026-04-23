@@ -7,6 +7,7 @@ export const contractorProfile = pgTable("contractor_profile", {
   industry: varchar("industry", { length: 100 }).notNull(),
   phone: varchar("phone", { length: 50 }),
   nip: varchar("nip", { length: 50 }),
+  regon: varchar("regon", { length: 14 }),
   email: varchar("email", { length: 255 }).notNull(),
   addressId: uuid("address_id")
     .references(() => addresses.id, { onDelete: "set null" })

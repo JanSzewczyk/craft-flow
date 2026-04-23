@@ -25,6 +25,7 @@ const fullOnboardingState = {
     phone: "+48 123 456 789",
     email: "jan@stolarnia.pl",
     nip: null,
+    regon: null,
     address: null
   },
   branding: {
@@ -51,9 +52,10 @@ const basicOnboardingState = {
   companyDetails: {
     companyName: "Mała Firma",
     industry: "construction",
-    phone: null,
+    phone: "+48 987 654 321",
     email: "kontakt@malafirma.pl",
     nip: null,
+    regon: null,
     address: null
   },
   branding: null,

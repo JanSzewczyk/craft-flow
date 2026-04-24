@@ -321,7 +321,7 @@ describe("templates.service", () => {
 
     test("updates template and returns it on success", async () => {
       setupAuthAndProfile();
-      const ownedTemplate = templateBuilder.one({ overrides: { id: templateId } });
+      const ownedTemplate = templateBuilder.one({ overrides: { contractorId: profileId, id: templateId } });
       const updatedTemplate = templateBuilder.one({
         overrides: { contractorId: profileId, id: templateId, name: formData.name }
       });

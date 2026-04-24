@@ -3,7 +3,15 @@ import { templateSchema, templateStepSchema } from "~/features/templates/schemas
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const VALID_COMPANY = { companyName: "Stolarnia u Jana", industry: "woodworking", phone: null };
+const VALID_COMPANY = {
+  companyName: "Stolarnia u Jana",
+  industry: "woodworking",
+  phone: null,
+  nip: null,
+  regon: null,
+  email: "jan@stolarnia.pl",
+  address: null
+};
 const VALID_BRANDING = { logoUrl: "https://example.com/logo.png", brandColor: "#2563EB" };
 const VALID_EMAIL = { emailSubject: "Temat", emailBody: "Treść wiadomości email" };
 const VALID_TEMPLATE = {

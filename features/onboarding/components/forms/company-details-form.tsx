@@ -3,7 +3,6 @@
 import { ArrowRightIcon, InfoIcon } from "lucide-react";
 import { type DefaultValues, useForm } from "react-hook-form";
 
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, AlertTitle, Button, toast } from "@szum-tech/design-system";
 import { CompanyProfileFormFields } from "~/features/contractor/components";
@@ -13,17 +12,15 @@ import {
 } from "~/features/contractor/schemas/company-details-schema";
 import { type RedirectAction } from "~/lib/action-types";
 
-type CompanyDetailsFormInput = z.input<typeof companyDetailsSchema>;
-
 type CompanyDetailsFormProps = {
-  defaultValues?: DefaultValues<CompanyDetailsFormInput> | null;
+  defaultValues?: DefaultValues<CompanyDetailsFormData> | null;
   onContinueAction(formData: CompanyDetailsFormData): RedirectAction;
 };
 
 export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyDetailsFormProps) {
-  const form = useForm<CompanyDetailsFormInput, unknown, CompanyDetailsFormData>({
+  const form = useForm<CompanyDetailsFormData>({
     resolver: zodResolver(companyDetailsSchema),
-    defaultValues: defaultValues ?? {}
+    defaultValues: defaultValues ?? { address: null }
   });
 
   async function handleSubmit(data: CompanyDetailsFormData) {
@@ -36,7 +33,7 @@ export function CompanyDetailsForm({ defaultValues, onContinueAction }: CompanyD
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-6">
-      <div className="container-xl space-y-4">
+      <div className="container-xl w-full space-y-6">
         <CompanyProfileFormFields form={form} />
 
         <Alert>

@@ -78,7 +78,7 @@ export async function updateCompanyProfile(
           street: raw.street,
           postalCode: raw.postalCode,
           city: raw.city,
-          country: raw.country,
+          country: raw.country ?? "Polska",
           additionalInfo: raw.additionalInfo
         };
 

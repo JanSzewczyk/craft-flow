@@ -13,6 +13,14 @@ import { type CompanyDetailsFormData } from "~/features/contractor/schemas/compa
  * const data = companyDetailsFormBuilder.one({
  *   overrides: { companyName: "Acme Corp" }
  * });
+ *
+ * @example
+ * // With a full address
+ * const data = companyDetailsFormBuilder.one({ traits: "withAddress" });
+ *
+ * @example
+ * // With NIP and REGON filled
+ * const data = companyDetailsFormBuilder.one({ traits: ["withNip", "withRegon"] });
  */
 export const companyDetailsFormBuilder = build<CompanyDetailsFormData>({
   fields: {
@@ -23,5 +31,24 @@ export const companyDetailsFormBuilder = build<CompanyDetailsFormData>({
     nip: null,
     regon: null,
     address: null
+  },
+  traits: {
+    withAddress: {
+      overrides: {
+        address: {
+          street: "ul. Przykładowa 1",
+          postalCode: "00-001",
+          city: "Warszawa",
+          country: "Polska",
+          additionalInfo: null
+        }
+      }
+    },
+    withNip: {
+      overrides: { nip: () => faker.string.numeric(10) }
+    },
+    withRegon: {
+      overrides: { regon: () => faker.string.numeric(9) }
+    }
   }
 });

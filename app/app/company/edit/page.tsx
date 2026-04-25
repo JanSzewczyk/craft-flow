@@ -11,7 +11,7 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CompanyProfileForm } from "~/features/contractor/components";
+import { CompanyProfileForm } from "~/features/contractor/components/form/company-profile-form";
 import { updateCompanyProfileAction } from "~/features/contractor/server/actions/company/update-company-profile.action";
 import { getCompanyProfile } from "~/features/contractor/server/services/company-profile.service";
 import { createLogger } from "~/lib/logger";
@@ -71,19 +71,19 @@ export default async function CompanyEditPage() {
         defaultValues={{
           companyName: data.companyName,
           industry: data.industry,
-          phone: data.phone ?? undefined,
-          nip: data.nip ?? undefined,
-          regon: data.regon ?? undefined,
-          email: data.email ?? "",
+          phone: data.phone,
+          nip: data.nip,
+          regon: data.regon,
+          email: data.email,
           address: data.address
             ? {
-                street: data.address.street ?? "",
-                postalCode: data.address.postalCode ?? "",
-                city: data.address.city ?? "",
-                country: data.address.country ?? "Polska",
+                street: data.address.street,
+                postalCode: data.address.postalCode,
+                city: data.address.city,
+                country: data.address.country,
                 additionalInfo: data.address.additionalInfo
               }
-            : undefined
+            : null
         }}
         onSaveAction={updateCompanyProfileAction}
       />

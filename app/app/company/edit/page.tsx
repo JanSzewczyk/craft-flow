@@ -11,7 +11,7 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CompanyProfileForm } from "~/features/contractor/components/form/company-profile-form";
+import { CompanyProfileForm } from "~/features/contractor/components";
 import { updateCompanyProfileAction } from "~/features/contractor/server/actions/company/update-company-profile.action";
 import { getCompanyProfile } from "~/features/contractor/server/services/company-profile.service";
 import { createLogger } from "~/lib/logger";

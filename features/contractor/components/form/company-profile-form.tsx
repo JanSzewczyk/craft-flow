@@ -1,39 +1,36 @@
 "use client";
 
+import * as React from "react";
+
 import { type DefaultValues, useForm } from "react-hook-form";
-import { type z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, toast } from "@szum-tech/design-system";
 import { useRouter } from "next/navigation";
-import { CompanyProfileFormFields } from "~/features/contractor/components/form/company-profile-form-fields";
 import {
   companyDetailsSchema,
   type CompanyDetailsFormData
 } from "~/features/contractor/schemas/company-details-schema";
-import { type ActionResponse } from "~/lib/action-types";
+import { type RedirectAction } from "~/lib/action-types";
 
-type CompanyDetailsFormInput = z.input<typeof companyDetailsSchema>;
+import { CompanyProfileFormFields } from "./company-profile-form-fields";
 
 type CompanyProfileFormProps = {
-  defaultValues: DefaultValues<CompanyDetailsFormInput>;
-  onSaveAction(data: CompanyDetailsFormData): ActionResponse;
+  defaultValues?: DefaultValues<CompanyDetailsFormData> | null;
+  onSaveAction(data: CompanyDetailsFormData): RedirectAction;
 };
 
 export function CompanyProfileForm({ defaultValues, onSaveAction }: CompanyProfileFormProps) {
   const router = useRouter();
-  const form = useForm<CompanyDetailsFormInput, unknown, CompanyDetailsFormData>({
+  const form = useForm<CompanyDetailsFormData>({
     resolver: zodResolver(companyDetailsSchema),
-    defaultValues
+    defaultValues: defaultValues ?? {}
   });
 
   async function handleSubmit(data: CompanyDetailsFormData) {
     const result = await onSaveAction(data);
 
-    if (result.success) {
-      toast.success(result.message ?? "Zapisano");
-      router.push("/app/company");
-    } else {
+    if (!result.success) {
       toast.error("Błąd", { description: result.error });
     }
   }

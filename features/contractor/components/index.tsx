@@ -9,8 +9,5 @@ export { UpgradePromptCard } from "./upgrade-prompt-card";
 
 export { BrandingFormFields, type LogoState } from "./form/branding-form-fields";
 export { BrandingForm } from "./form/branding-form";
-export { EmailTemplateFormFields } from "./form/email-template-form-fields";
-export { CompanyProfileFormFields } from "./form/company-profile-form-fields";
 export { EmailTemplateForm } from "./form/email-template-form";
-export { CompanyProfileForm } from "./form/company-profile-form";
 export { CompanyProfileCards } from "./company-profile-cards";

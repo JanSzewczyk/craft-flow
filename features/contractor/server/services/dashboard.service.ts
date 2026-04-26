@@ -38,7 +38,7 @@ export type DashboardData = {
 };
 
 async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<DashboardData>> {
-  const [profileError, contractor] = await getCachedContractorProfile(userId);
+  const [profileError, contractor] = await getCachedContractorProfile({ contractorId: userId });
 
   if (profileError) {
     logger.error(
@@ -50,8 +50,8 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
 
   const [planId, activeProjectsResult, recentActivityResult] = await Promise.all([
     detectClerkPlan(),
-    getCachedActiveProjectsCount(userId),
-    getCachedRecentActivity(userId)
+    getCachedActiveProjectsCount({ contractorId: userId }),
+    getCachedRecentActivity({ contractorId: userId })
   ]);
 
   const plan = planId ? getPlanById(planId) : undefined;
@@ -94,8 +94,8 @@ export const getDashboardData = cache(_getDashboardData);
 
 async function _getDashboardKpiCards(userId: string): Promise<SupabaseServiceResult<DashboardKpiCard[]>> {
   const [activeProjectsResult, completedThisMonthResult] = await Promise.all([
-    getCachedActiveProjectsCount(userId),
-    getCachedCompletedProjectsThisMonth(userId)
+    getCachedActiveProjectsCount({ contractorId: userId }),
+    getCachedCompletedProjectsThisMonth({ contractorId: userId })
   ]);
 
   const {

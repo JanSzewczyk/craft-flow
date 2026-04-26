@@ -5,7 +5,7 @@ import { and, count, desc, eq, gte } from "drizzle-orm";
 import { clients } from "~/features/crm/server/db/schema";
 import { projects } from "~/features/projects/server/db/schema";
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 const logger = createLogger({ module: "contractor-dashboard-db" });
@@ -21,9 +21,15 @@ export type RecentActivityItem = {
   updatedAt: Date;
 };
 
-export async function getActiveProjectsCount(contractorId: string): Promise<SupabaseServiceResult<number>> {
+export async function getActiveProjectsCount({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<number>> {
   try {
-    const rows = await db
+    const rows = await dbClient
       .select({ value: count() })
       .from(projects)
       .where(and(eq(projects.contractorId, contractorId), eq(projects.status, "ACTIVE")));
@@ -37,12 +43,18 @@ export async function getActiveProjectsCount(contractorId: string): Promise<Supa
   }
 }
 
-export async function getCompletedProjectsThisMonth(contractorId: string): Promise<SupabaseServiceResult<number>> {
+export async function getCompletedProjectsThisMonth({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<number>> {
   try {
     const now = new Date();
     const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 
-    const rows = await db
+    const rows = await dbClient
       .select({ value: count() })
       .from(projects)
       .where(
@@ -62,12 +74,17 @@ export async function getCompletedProjectsThisMonth(contractorId: string): Promi
   }
 }
 
-export async function getRecentActivity(
-  contractorId: string,
-  limit = 5
-): Promise<SupabaseServiceResult<Array<RecentActivityItem>>> {
+export async function getRecentActivity({
+  contractorId,
+  limit = 5,
+  dbClient = db
+}: {
+  contractorId: string;
+  limit?: number;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Array<RecentActivityItem>>> {
   try {
-    const rows = await db
+    const rows = await dbClient
       .select({
         projectId: projects.id,
         projectName: projects.name,

@@ -27,7 +27,7 @@ export const getCompanyProfile = cache(async function (
 ): Promise<ServiceResult<BaseServiceError, CompanyProfile>> {
   logger.info({ userId }, "Loading company profile data");
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, errorCode: profileErr.code }, "Failed to load contractor profile");
     return [profileErr, null];
@@ -63,7 +63,7 @@ export async function updateCompanyProfile(
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, operation: "updateCompanyProfile", errorCode: profileErr.code }, "Profile not found");
     return [profileErr, null];
@@ -82,15 +82,18 @@ export async function updateCompanyProfile(
           additionalInfo: raw.additionalInfo
         };
 
-  const [updateErr, updated] = await updateContractorProfileWithAddress(userId, {
-    companyName: data.companyName,
-    industry: data.industry,
-    phone: data.phone,
-    nip: data.nip,
-    regon: data.regon,
-    email: data.email,
-    address: resolvedAddress,
-    existingAddressId: profile.addressId ?? null
+  const [updateErr, updated] = await updateContractorProfileWithAddress({
+    contractorId: userId,
+    input: {
+      companyName: data.companyName,
+      industry: data.industry,
+      phone: data.phone,
+      nip: data.nip,
+      regon: data.regon,
+      email: data.email,
+      address: resolvedAddress,
+      existingAddressId: profile.addressId ?? null
+    }
   });
 
   if (updateErr) {

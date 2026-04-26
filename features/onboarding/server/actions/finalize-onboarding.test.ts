@@ -222,11 +222,13 @@ describe("finalizeOnboardingAction", () => {
     await finalizeOnboardingAction();
 
     expect(mocks.upsertContractorProfile).toHaveBeenCalledWith(
-      "user-123",
       expect.objectContaining({
-        companyName: validState.companyDetails!.companyName,
-        brandColor: validState.branding!.brandColor,
-        logoUrl: validState.branding!.logoUrl
+        contractorId: "user-123",
+        data: expect.objectContaining({
+          companyName: validState.companyDetails!.companyName,
+          brandColor: validState.branding!.brandColor,
+          logoUrl: validState.branding!.logoUrl
+        })
       })
     );
   });
@@ -236,7 +238,7 @@ describe("finalizeOnboardingAction", () => {
 
     await finalizeOnboardingAction();
 
-    const callArgs = mocks.upsertContractorProfile.mock.calls[0]?.[1];
+    const callArgs = mocks.upsertContractorProfile.mock.calls[0]?.[0]?.data;
     expect(callArgs).not.toHaveProperty("brandColor");
     expect(callArgs).not.toHaveProperty("logoUrl");
     expect(callArgs).toHaveProperty("companyName", validState.companyDetails!.companyName);

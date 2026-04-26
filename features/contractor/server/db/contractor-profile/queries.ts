@@ -3,7 +3,7 @@ import { cache } from "react";
 import { type BuildQueryResult, eq } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { type TSchema } from "~/lib/supabase/types";
 
@@ -14,9 +14,15 @@ const RESOURCE_NAME = "ContractorProfile";
 
 export type ContractorProfile = BuildQueryResult<TSchema, TSchema["contractorProfile"], { with: { address: true } }>;
 
-export async function getContractorProfile(contractorId: string): Promise<SupabaseServiceResult<ContractorProfile>> {
+export async function getContractorProfile({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ContractorProfile>> {
   try {
-    const row = await db.query.contractorProfile.findFirst({
+    const row = await dbClient.query.contractorProfile.findFirst({
       where: eq(contractorProfile.id, contractorId),
       with: { address: true }
     });

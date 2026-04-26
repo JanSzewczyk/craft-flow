@@ -1,5 +1,5 @@
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { emailTemplates, type EmailTemplate, type EmailTemplateType } from "./schema";
@@ -13,12 +13,17 @@ type UpsertEmailTemplateData = {
   body: string;
 };
 
-export async function upsertEmailTemplate(
-  contractorId: string,
-  data: UpsertEmailTemplateData
-): Promise<SupabaseServiceResult<EmailTemplate>> {
+export async function upsertEmailTemplate({
+  contractorId,
+  data,
+  dbClient = db
+}: {
+  contractorId: string;
+  data: UpsertEmailTemplateData;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<EmailTemplate>> {
   try {
-    const rows = await db
+    const rows = await dbClient
       .insert(emailTemplates)
       .values({ contractorId, ...data, updatedAt: new Date() })
       .onConflictDoUpdate({

@@ -27,7 +27,7 @@ export const getBrandingData = cache(async function (
 ): Promise<ServiceResult<BaseServiceError, BrandingData>> {
   logger.info({ userId }, "Loading branding data");
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, errorCode: profileErr.code }, "Failed to load contractor profile");
     return [profileErr, null];
@@ -46,13 +46,16 @@ export const getEmailTemplateData = cache(async function (
 ): Promise<ServiceResult<BaseServiceError, EmailTemplateData | null>> {
   logger.info({ userId }, "Loading email template data");
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, errorCode: profileErr.code }, "Failed to load contractor profile");
     return [profileErr, null];
   }
 
-  const [templateErr, template] = await getEmailTemplateByType(profile.id, EmailTemplateType.WELCOME);
+  const [templateErr, template] = await getEmailTemplateByType({
+    contractorId: profile.id,
+    type: EmailTemplateType.WELCOME
+  });
   if (templateErr) {
     if (templateErr.code === "not_found") {
       return [null, null];
@@ -80,7 +83,7 @@ export async function updateBranding(
     return [roleErr, null];
   }
 
-  const [profileErr] = await getCachedContractorProfile(userId);
+  const [profileErr] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, operation: "updateBranding", errorCode: profileErr.code }, "Profile not found");
     return [profileErr, null];
@@ -92,9 +95,9 @@ export async function updateBranding(
     return [permErr, null];
   }
 
-  const [updateErr, updated] = await updateContractorProfile(userId, {
-    brandColor: data.brandColor,
-    logoUrl: data.logoUrl
+  const [updateErr, updated] = await updateContractorProfile({
+    contractorId: userId,
+    data: { brandColor: data.brandColor, logoUrl: data.logoUrl }
   });
   if (updateErr) {
     logger.error({ userId, operation: "updateBranding", errorCode: updateErr.code }, "DB update failed");
@@ -117,7 +120,7 @@ export async function saveEmailTemplate(
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, operation: "saveEmailTemplate", errorCode: profileErr.code }, "Profile not found");
     return [profileErr, null];
@@ -129,10 +132,9 @@ export async function saveEmailTemplate(
     return [permErr, null];
   }
 
-  const [dbErr, template] = await upsertEmailTemplate(profile.id, {
-    type: EmailTemplateType.WELCOME,
-    subject: data.emailSubject,
-    body: data.emailBody
+  const [dbErr, template] = await upsertEmailTemplate({
+    contractorId: profile.id,
+    data: { type: EmailTemplateType.WELCOME, subject: data.emailSubject, body: data.emailBody }
   });
   if (dbErr) {
     logger.error({ userId, operation: "saveEmailTemplate", errorCode: dbErr.code }, "DB upsert failed");

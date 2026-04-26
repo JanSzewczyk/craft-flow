@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { addresses } from "~/features/shared/server/db/schema";
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { getContractorProfile, type ContractorProfile as ContractorProfileWithAddress } from "./queries";
@@ -14,12 +14,17 @@ const RESOURCE_NAME = "ContractorProfile";
 type UpsertData = Pick<ContractorProfile, "companyName" | "industry" | "email"> &
   Partial<Pick<ContractorProfile, "phone" | "nip" | "regon" | "brandColor" | "logoUrl">>;
 
-export async function upsertContractorProfile(
-  contractorId: string,
-  data: UpsertData
-): Promise<SupabaseServiceResult<ContractorProfile>> {
+export async function upsertContractorProfile({
+  contractorId,
+  data,
+  dbClient = db
+}: {
+  contractorId: string;
+  data: UpsertData;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ContractorProfile>> {
   try {
-    const rows = await db
+    const rows = await dbClient
       .insert(contractorProfile)
       .values({ id: contractorId, ...data, updatedAt: new Date() })
       .onConflictDoUpdate({
@@ -44,12 +49,17 @@ export async function upsertContractorProfile(
   }
 }
 
-export async function updateContractorProfile(
-  contractorId: string,
-  data: Partial<UpsertData>
-): Promise<SupabaseServiceResult<ContractorProfile>> {
+export async function updateContractorProfile({
+  contractorId,
+  data,
+  dbClient = db
+}: {
+  contractorId: string;
+  data: Partial<UpsertData>;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ContractorProfile>> {
   try {
-    const [row] = await db
+    const [row] = await dbClient
       .update(contractorProfile)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(contractorProfile.id, contractorId))
@@ -89,12 +99,17 @@ export type UpdateWithAddressInput = {
   existingAddressId: string | null;
 };
 
-export async function updateContractorProfileWithAddress(
-  contractorId: string,
-  input: UpdateWithAddressInput
-): Promise<SupabaseServiceResult<ContractorProfileWithAddress>> {
+export async function updateContractorProfileWithAddress({
+  contractorId,
+  input,
+  dbClient = db
+}: {
+  contractorId: string;
+  input: UpdateWithAddressInput;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ContractorProfileWithAddress>> {
   try {
-    await db.transaction(async (tx) => {
+    await dbClient.transaction(async (tx) => {
       if (input.address === null) {
         // Case 1: remove address
         await tx
@@ -161,7 +176,7 @@ export async function updateContractorProfileWithAddress(
       }
     });
 
-    const [fetchErr, updated] = await getContractorProfile(contractorId);
+    const [fetchErr, updated] = await getContractorProfile({ contractorId });
     if (fetchErr) {
       logger.error({ contractorId, errorCode: fetchErr.code }, "Failed to re-fetch profile after update");
       return [fetchErr, null];

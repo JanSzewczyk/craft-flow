@@ -38,7 +38,7 @@ export const getTemplateList = cache(async function (
 ): Promise<SupabaseServiceResult<TemplateListResult>> {
   logger.info({ userId, ...options }, "Loading template list");
 
-  const [profileError, profile] = await getCachedContractorProfile(userId);
+  const [profileError, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileError) {
     logger.error({ userId, errorCode: profileError.code }, "Failed to load contractor profile for template list");
     return [profileError, null];
@@ -55,7 +55,7 @@ export type TemplateLimits = {
 export const getTemplateLimits = cache(async function (userId: string): Promise<SupabaseServiceResult<TemplateLimits>> {
   logger.info({ userId }, "Loading template limits");
 
-  const [profileError, profile] = await getCachedContractorProfile(userId);
+  const [profileError, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileError) {
     logger.error({ userId, errorCode: profileError.code }, "Failed to load contractor profile for template limits");
     return [profileError, null];
@@ -114,7 +114,7 @@ export async function createTemplate(
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error(
       { userId, operation: "createTemplate", errorCode: profileErr.code },
@@ -157,7 +157,7 @@ export async function updateTemplate(
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error(
       { userId, operation: "updateTemplate", errorCode: profileErr.code },
@@ -204,7 +204,7 @@ export async function deleteTemplate(userId: string, id: string): Promise<Templa
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error(
       { userId, operation: "deleteTemplate", errorCode: profileErr.code },
@@ -238,7 +238,7 @@ export async function duplicateTemplate(userId: string, templateId: string): Pro
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile(userId);
+  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error(
       { userId, operation: "duplicateTemplate", errorCode: profileErr.code },

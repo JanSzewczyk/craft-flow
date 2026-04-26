@@ -52,9 +52,9 @@ export async function finalizeOnboardingAction(): RedirectAction {
 
   const { companyDetails, templateConfig, emailConfig, branding } = parsed.data;
 
-  const [profileError] = await upsertContractorProfile(userId, {
-    ...companyDetails,
-    ...(features.branding ? branding : {})
+  const [profileError] = await upsertContractorProfile({
+    contractorId: userId,
+    data: { ...companyDetails, ...(features.branding ? branding : {}) }
   });
   if (profileError) {
     logger.error({ userId, errorCode: profileError.code }, "Failed to upsert contractor profile");
@@ -62,10 +62,9 @@ export async function finalizeOnboardingAction(): RedirectAction {
   }
 
   if (features.whitelabelEmails && emailConfig) {
-    const [emailTemplateError] = await upsertEmailTemplate(userId, {
-      type: EmailTemplateType.WELCOME,
-      subject: emailConfig.emailSubject,
-      body: emailConfig.emailBody
+    const [emailTemplateError] = await upsertEmailTemplate({
+      contractorId: userId,
+      data: { type: EmailTemplateType.WELCOME, subject: emailConfig.emailSubject, body: emailConfig.emailBody }
     });
     if (emailTemplateError) {
       logger.error({ userId, errorCode: emailTemplateError.code }, "Failed to upsert email template");

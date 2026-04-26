@@ -5,7 +5,7 @@ import { type DefaultValues, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, AlertTitle, Button, toast } from "@szum-tech/design-system";
-import { CompanyProfileFormFields } from "~/features/contractor/components";
+import { CompanyProfileFormFields } from "~/features/contractor/components/form/company-profile-form-fields";
 import {
   companyDetailsSchema,
   type CompanyDetailsFormData

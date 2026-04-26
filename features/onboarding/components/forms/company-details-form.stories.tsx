@@ -50,7 +50,11 @@ export const FilledValid = meta.story({
     defaultValues: {
       companyName: "Stolarnia u Jana",
       industry: "stolarstwo",
-      phone: "+48 123 456 789"
+      email: "kontakt@stolarnia.pl",
+      phone: "+48 123 456 789",
+      nip: null,
+      regon: null,
+      address: null
     }
   }
 });

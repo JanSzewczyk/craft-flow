@@ -65,6 +65,20 @@ export default defineMain({
           {
             find: "~/features/crm/server/actions/delete-client.action",
             replacement: path.resolve(__dirname, "../__mocks__/features/crm/server/actions/delete-client.action.ts")
+          },
+          {
+            find: "~/features/contractor/server/services/company-profile.service",
+            replacement: path.resolve(
+              __dirname,
+              "../__mocks__/features/contractor/server/services/company-profile.service.ts"
+            )
+          },
+          {
+            find: "~/features/contractor/server/actions/company/update-company-profile.action",
+            replacement: path.resolve(
+              __dirname,
+              "../__mocks__/features/contractor/server/actions/company/update-company-profile.action.ts"
+            )
           }
         ]
       }

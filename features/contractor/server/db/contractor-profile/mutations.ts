@@ -5,8 +5,8 @@ import { createLogger } from "~/lib/logger";
 import { db } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-import { contractorProfile, type ContractorProfile } from "./schema";
 import { getContractorProfile, type ContractorProfile as ContractorProfileWithAddress } from "./queries";
+import { contractorProfile, type ContractorProfile } from "./schema";
 
 const logger = createLogger({ module: "contractor-db" });
 const RESOURCE_NAME = "ContractorProfile";

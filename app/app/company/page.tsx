@@ -1,3 +1,4 @@
+import { PencilIcon } from "lucide-react";
 import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
@@ -12,10 +13,9 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CompanyProfileCards } from "~/features/contractor/components";
 import { getCompanyProfile } from "~/features/contractor/server/services/company-profile.service";
 import { createLogger } from "~/lib/logger";
-import { PencilIcon } from "lucide-react";
-import { CompanyProfileCards } from "~/features/contractor/components";
 
 export const metadata: Metadata = {
   title: "Dane firmy"

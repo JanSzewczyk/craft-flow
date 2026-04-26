@@ -133,10 +133,7 @@ const filledData = companyDetailsFormBuilder.one({
     companyName: "Stolarnia u Jana",
     industry: "stolarstwo",
     email: "kontakt@stolarnia.pl",
-    phone: "+48 123 456 789",
-    nip: null,
-    regon: null,
-    address: null
+    phone: "+48 123 456 789"
   }
 });
 
@@ -159,14 +156,7 @@ WithValues.test("Address checkbox remains unchecked when no address in data", as
 // Story 3: Pre-filled with address
 // ---------------------------------------------------------------------------
 
-const dataWithAddress = companyDetailsFormBuilder.one({
-  traits: "withAddress",
-  overrides: {
-    companyName: "Firma z Adresem",
-    industry: "hydraulika",
-    email: "biuro@firma.pl"
-  }
-});
+const dataWithAddress = companyDetailsFormBuilder.one({ traits: "withAddress" });
 
 export const WithAddress = meta.story({
   render: () => <FormWrapper defaultValues={dataWithAddress} />

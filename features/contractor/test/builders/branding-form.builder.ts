@@ -20,5 +20,8 @@ export const brandingFormBuilder = build<BrandingFormData>({
   fields: {
     logoUrl: () => faker.image.url(),
     brandColor: oneOf(...BRAND_COLORS)
+  },
+  traits: {
+    noLogo: { overrides: { logoUrl: undefined } }
   }
 });

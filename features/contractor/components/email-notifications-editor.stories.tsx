@@ -59,12 +59,7 @@ EmptyEditor.test("Renders all expected content", async ({ canvas, step }) => {
 // Story 2: Editor with pre-filled values
 // ---------------------------------------------------------------------------
 
-const preFilledData = emailFormBuilder.one({
-  overrides: {
-    emailSubject: "Witaj w naszym projekcie!",
-    emailBody: "Dziękujemy za zaufanie. Chętnie odpowiemy na wszelkie pytania."
-  }
-});
+const preFilledData = emailFormBuilder.one();
 
 export const WithDefaults = meta.story({
   name: "With Defaults",
@@ -73,14 +68,12 @@ export const WithDefaults = meta.story({
   }
 });
 
-WithDefaults.test("Displays pre-filled values in form fields", async ({ canvas, step }) => {
+WithDefaults.test("Displays pre-filled values in form fields", async ({ canvas, args, step }) => {
   await step("Subject is pre-filled", async () => {
-    await expect(canvas.getByLabelText(/temat/i)).toHaveValue("Witaj w naszym projekcie!");
+    await expect(canvas.getByLabelText(/temat/i)).toHaveValue(args.defaultValues!.emailSubject);
   });
 
   await step("Body is pre-filled", async () => {
-    await expect(canvas.getByLabelText(/treść wiadomości/i)).toHaveValue(
-      "Dziękujemy za zaufanie. Chętnie odpowiemy na wszelkie pytania."
-    );
+    await expect(canvas.getByLabelText(/treść wiadomości/i)).toHaveValue(args.defaultValues!.emailBody);
   });
 });

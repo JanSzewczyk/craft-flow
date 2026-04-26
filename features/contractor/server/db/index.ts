@@ -1,11 +1,5 @@
 export { contractorProfile } from "./contractor-profile/schema";
-export {
-  upsertContractorProfile,
-  updateContractorProfile,
-  updateContractorProfileWithAddress,
-  type AddressInput,
-  type UpdateWithAddressInput
-} from "./contractor-profile/mutations";
+export { upsertContractorProfile, updateContractorProfile } from "./contractor-profile/mutations";
 export { getContractorProfile, getCachedContractorProfile, type ContractorProfile } from "./contractor-profile/queries";
 export { emailTemplates, emailTemplateTypeEnum, EmailTemplateType, type EmailTemplate } from "./email-templates/schema";
 export { upsertEmailTemplate } from "./email-templates/mutations";

@@ -8,6 +8,9 @@ export type ServiceErrorOptions = {
   isNotFound?: boolean;
   isAlreadyExists?: boolean;
   isPermissionDenied?: boolean;
+  isValidation?: boolean;
+  isLimitExceeded?: boolean;
+  isFkConstraint?: boolean;
   cause?: unknown;
   meta?: Record<string, unknown>;
 };
@@ -20,6 +23,9 @@ export abstract class BaseServiceError extends Error {
   readonly isNotFound: boolean;
   readonly isAlreadyExists: boolean;
   readonly isPermissionDenied: boolean;
+  readonly isValidation: boolean;
+  readonly isLimitExceeded: boolean;
+  readonly isFkConstraint: boolean;
   readonly meta: Record<string, unknown>;
 
   constructor(name: string, options: ServiceErrorOptions) {
@@ -30,6 +36,9 @@ export abstract class BaseServiceError extends Error {
     this.isNotFound = options.isNotFound ?? false;
     this.isAlreadyExists = options.isAlreadyExists ?? false;
     this.isPermissionDenied = options.isPermissionDenied ?? false;
+    this.isValidation = options.isValidation ?? false;
+    this.isLimitExceeded = options.isLimitExceeded ?? false;
+    this.isFkConstraint = options.isFkConstraint ?? false;
     this.meta = options.meta ?? {};
 
     if (options.cause) {

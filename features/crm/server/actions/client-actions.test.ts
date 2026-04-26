@@ -139,6 +139,7 @@ describe("deleteClientAction", () => {
     const fkError = new SupabaseServiceError({
       code: "fk_constraint",
       message: "Client has associated projects",
+      isFkConstraint: true,
       isRetryable: false
     });
     mocks.deleteClient.mockResolvedValue([fkError, null]);

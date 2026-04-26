@@ -113,9 +113,69 @@ export async function createTemplateAction(data: TemplateFormData): ActionRespon
 ## DB layer rules
 
 - `categorizeSupabaseError(error, "ResourceName")` in every `catch` block — never throw across layer boundaries.
-- Multi-step writes use `db.transaction()`.
 - Register new tables in `lib/supabase/schema.ts`.
 - Logger: `createLogger({ module: "domain-db" })`.
+
+### DB function signature
+
+Every DB function takes a **single object argument**. The object always includes `dbClient?: DbClient`
+with a default of the module-level `db`, enabling the function to run both standalone and inside
+a transaction without any change at the call site.
+
+Import `DbClient` from `~/lib/supabase/db`.
+
+```ts
+import { db, type DbClient } from "~/lib/supabase/db";
+
+export async function updateFoo({
+  fooId,
+  data,
+  dbClient = db
+}: {
+  fooId: string;
+  data: FooData;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Foo>> { ... }
+```
+
+### Transaction ownership
+
+**Transactions belong to the service layer, not the DB layer.**
+
+DB functions are single-operation SQL wrappers. Any operation that requires atomicity across
+multiple DB calls is orchestrated in the service via `withTransaction` from `~/lib/supabase/db`.
+Inside the callback, pass `tx` as `dbClient` to each DB function.
+Throw on error to trigger rollback — `categorizeSupabaseError` in the service `catch` block
+handles both raw Postgres errors and re-thrown `SupabaseServiceError` instances.
+
+```ts
+import { withTransaction } from "~/lib/supabase/db";
+import { categorizeSupabaseError } from "~/lib/supabase/errors";
+
+try {
+  await withTransaction(async (tx) => {
+    const [aErr, a] = await insertA({ data, dbClient: tx });
+    if (aErr) throw aErr; // rolls back
+
+    const [bErr] = await updateB({ id: a.id, dbClient: tx });
+    if (bErr) throw bErr;
+  });
+} catch (error) {
+  const serviceError = categorizeSupabaseError(error, "ResourceName");
+  logger.error({ userId, operation: "...", errorCode: serviceError.code }, "Transaction failed");
+  return [serviceError, null];
+}
+```
+
+### Cross-entity DB operations
+
+DB functions that touch an entity owned by another feature live in
+`features/shared/server/db/{entity}/mutations.ts` (or `queries.ts`).
+Import from the sub-path — never copy SQL into the calling feature's DB layer.
+
+```ts
+import { insertAddress, updateAddress, deleteAddress } from "~/features/shared/server/db/addresses";
+```
 
 ## Permissions file
 

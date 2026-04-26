@@ -6,10 +6,14 @@ import { type CompanyDetailsFormData } from "~/features/contractor/schemas";
 import {
   type ContractorProfile,
   getCachedContractorProfile,
-  updateContractorProfileWithAddress
+  updateContractorProfile
 } from "~/features/contractor/server/db";
+import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
+import { deleteAddress, insertAddress, updateAddress } from "~/features/shared/server/db/addresses";
 import { createLogger } from "~/lib/logger";
 import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
+import { withTransaction } from "~/lib/supabase/db";
+import { categorizeSupabaseError } from "~/lib/supabase/errors";
 
 const logger = createLogger({ module: "company-profile-service" });
 
@@ -69,36 +73,69 @@ export async function updateCompanyProfile(
     return [profileErr, null];
   }
 
-  // Determine resolved address: null if no address provided or all key fields are empty
-  const raw = data.address;
-  const resolvedAddress =
-    !raw || (!raw.street && !raw.postalCode && !raw.city)
-      ? null
-      : {
-          street: raw.street,
-          postalCode: raw.postalCode,
-          city: raw.city,
-          country: raw.country ?? "Polska",
-          additionalInfo: raw.additionalInfo
-        };
+  const profileFields = {
+    companyName: data.companyName,
+    industry: data.industry,
+    phone: data.phone,
+    nip: data.nip,
+    regon: data.regon,
+    email: data.email
+  };
+  const { address } = data;
+  const existingAddressId = profile.addressId;
 
-  const [updateErr, updated] = await updateContractorProfileWithAddress({
-    contractorId: userId,
-    input: {
-      companyName: data.companyName,
-      industry: data.industry,
-      phone: data.phone,
-      nip: data.nip,
-      regon: data.regon,
-      email: data.email,
-      address: resolvedAddress,
-      existingAddressId: profile.addressId ?? null
-    }
-  });
+  try {
+    await withTransaction(async (tx) => {
+      if (resolvedAddress === null) {
+        // Case 1: remove address (or no address before and after)
+        const [profErr] = await updateContractorProfile({
+          contractorId: userId,
+          data: { ...profileFields, addressId: null },
+          dbClient: tx
+        });
+        if (profErr) throw profErr;
 
-  if (updateErr) {
-    logger.error({ userId, operation: "updateCompanyProfile", errorCode: updateErr.code }, "DB update failed");
-    return [updateErr, null];
+        if (existingAddressId) {
+          const [delErr] = await deleteAddress({ addressId: existingAddressId, dbClient: tx });
+          if (delErr) throw delErr;
+        }
+      } else if (!existingAddressId) {
+        // Case 2: create new address
+        const [addrErr, addr] = await insertAddress({ data: resolvedAddress, dbClient: tx });
+        if (addrErr) throw addrErr;
+
+        const [profErr] = await updateContractorProfile({
+          contractorId: userId,
+          data: { ...profileFields, addressId: addr.id },
+          dbClient: tx
+        });
+        if (profErr) throw profErr;
+      } else {
+        // Case 3: update existing address
+        const [addrErr] = await updateAddress({ addressId: existingAddressId, data: resolvedAddress, dbClient: tx });
+        if (addrErr) throw addrErr;
+
+        const [profErr] = await updateContractorProfile({
+          contractorId: userId,
+          data: profileFields,
+          dbClient: tx
+        });
+        if (profErr) throw profErr;
+      }
+    });
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "CompanyProfile");
+    logger.error({ userId, operation: "updateCompanyProfile", errorCode: serviceError.code }, "Transaction failed");
+    return [serviceError, null];
+  }
+
+  const [fetchErr, updated] = await getContractorProfile({ contractorId: userId });
+  if (fetchErr) {
+    logger.error(
+      { userId, operation: "updateCompanyProfile", errorCode: fetchErr.code },
+      "Re-fetch after update failed"
+    );
+    return [fetchErr, null];
   }
 
   logger.info({ userId }, "Company profile updated successfully");
@@ -108,8 +145,8 @@ export async function updateCompanyProfile(
       companyName: updated.companyName,
       industry: updated.industry,
       phone: updated.phone,
-      nip: updated.nip ?? null,
-      regon: updated.regon ?? null,
+      nip: updated.nip,
+      regon: updated.regon,
       email: updated.email,
       address: updated.address
     }

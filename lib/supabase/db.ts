@@ -16,3 +16,7 @@ export const db = drizzle(client, { schema });
 export type DbClient =
   | PostgresJsDatabase<typeof schema>
   | PgTransaction<PostgresJsQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>;
+
+export function withTransaction<T>(callback: (tx: DbClient) => Promise<T>): Promise<T> {
+  return db.transaction(callback);
+}

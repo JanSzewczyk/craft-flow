@@ -70,20 +70,7 @@ WithProfile.test("Save button is disabled until form is dirty", async ({ canvas 
 
 export const SubmitError = meta.story({
   beforeEach: () => {
-    (getCompanyProfile as unknown as Mock).mockResolvedValue([
-      null,
-      companyProfileBuilder.one({
-        overrides: {
-          companyName: "Firma Testowa",
-          industry: "elektryka",
-          email: "test@firma.pl",
-          phone: null,
-          nip: null,
-          regon: null,
-          address: null
-        }
-      })
-    ]);
+    (getCompanyProfile as unknown as Mock).mockResolvedValue([null, companyProfileBuilder.one()]);
 
     (updateCompanyProfileAction as unknown as Mock).mockResolvedValue({
       success: false as const,

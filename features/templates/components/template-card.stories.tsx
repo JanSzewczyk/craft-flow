@@ -6,14 +6,7 @@ import { TemplateCard } from "./template-card";
 
 import preview from "~/.storybook/preview";
 
-const baseItem = templateListItemBuilder.one({
-  overrides: {
-    name: "Produkcja Stołu Loft",
-    description: "Szablon do produkcji stołów loftowych",
-    stepsCount: 4,
-    previewSteps: ["Projekt", "Zamówienie materiałów", "Produkcja"]
-  }
-});
+const baseItem = templateListItemBuilder.one();
 
 const meta = preview.meta({
   title: "Features/Templates/Template Card",
@@ -203,7 +196,7 @@ DeleteError.test("Shows error toast when delete fails", async ({ canvas, userEve
 
 export const NoDescription = meta.story({
   args: {
-    item: templateListItemBuilder.one({ traits: "noDescription", overrides: { name: "Produkcja Stołu Loft" } })
+    item: templateListItemBuilder.one({ traits: "noDescription" })
   }
 });
 

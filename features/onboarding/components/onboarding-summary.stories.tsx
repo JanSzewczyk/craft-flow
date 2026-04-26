@@ -51,7 +51,7 @@ const basicOnboardingState = {
   ...baseOnboardingState,
   companyDetails: {
     companyName: "Mała Firma",
-    industry: "construction",
+    industry: "remonty",
     phone: "+48 987 654 321",
     email: "kontakt@malafirma.pl",
     nip: null,

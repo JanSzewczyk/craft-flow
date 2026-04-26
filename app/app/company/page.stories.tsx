@@ -76,13 +76,7 @@ export const WithoutAddress = meta.story({
   beforeEach: () => {
     (getCompanyProfile as unknown as Mock).mockResolvedValue([
       null,
-      companyProfileBuilder.one({
-        traits: "noAddress",
-        overrides: {
-          companyName: "Firma Bez Adresu",
-          email: "kontakt@firma.pl"
-        }
-      })
+      companyProfileBuilder.one({ traits: "noAddress" })
     ]);
   }
 });
@@ -99,14 +93,7 @@ export const WithNoOptionalFields = meta.story({
   beforeEach: () => {
     (getCompanyProfile as unknown as Mock).mockResolvedValue([
       null,
-      companyProfileBuilder.one({
-        traits: "noOptionalFields",
-        overrides: {
-          companyName: "Firma Minimalna",
-          email: "kontakt@minimalna.pl",
-          address: null
-        }
-      })
+      companyProfileBuilder.one({ traits: ["noOptionalFields", "noAddress"] })
     ]);
   }
 });

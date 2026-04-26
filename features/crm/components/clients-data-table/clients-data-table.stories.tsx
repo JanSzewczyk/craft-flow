@@ -72,7 +72,7 @@ WithGuestClient.test("Shows 'Gość' badge for unregistered client", async ({ ca
 
 export const WithPhone = meta.story({
   args: {
-    items: [clientListItemBuilder.one({ overrides: { phone: "+48123456789" } })]
+    items: [clientListItemBuilder.one()]
   }
 });
 

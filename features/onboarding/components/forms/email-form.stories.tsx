@@ -1,4 +1,5 @@
 import { expect, fn, waitFor } from "storybook/test";
+import { emailFormBuilder } from "~/features/contractor/test/builders";
 import { DEFAULT_EMAIL_SUBJECT } from "~/features/onboarding/constants";
 
 import { EmailForm } from "./email-form";
@@ -42,10 +43,7 @@ DefaultValues.test("Calls onBackAction when back button is clicked", async ({ ca
 
 export const Empty = meta.story({
   args: {
-    defaultValues: {
-      emailSubject: "",
-      emailBody: ""
-    },
+    defaultValues: emailFormBuilder.one({ traits: "empty" }),
     onContinueAction: fn(async () => ({ success: true as const, data: null })) as never,
     onBackAction: fn()
   }
@@ -74,21 +72,18 @@ Empty.test("Does not call onContinueAction when form has validation errors", asy
 
 export const FilledValid = meta.story({
   args: {
-    defaultValues: {
-      emailSubject: "Temat testowy",
-      emailBody: "Treść wiadomości testowej długa"
-    },
+    defaultValues: emailFormBuilder.one(),
     onContinueAction: fn(async () => ({ success: true as const, data: null })) as never,
     onBackAction: fn()
   }
 });
 
-FilledValid.test("Renders pre-filled form values", async ({ canvas }) => {
+FilledValid.test("Renders pre-filled form values", async ({ canvas, args }) => {
   const subjectInput = canvas.getByLabelText("Temat");
-  await expect(subjectInput).toHaveValue("Temat testowy");
+  await expect(subjectInput).toHaveValue(args.defaultValues!.emailSubject);
 
   const bodyTextarea = canvas.getByLabelText("Treść wiadomości");
-  await expect(bodyTextarea).toHaveValue("Treść wiadomości testowej długa");
+  await expect(bodyTextarea).toHaveValue(args.defaultValues!.emailBody);
 });
 
 FilledValid.test("Calls onContinueAction on valid form submission", async ({ canvas, args, userEvent }) => {
@@ -107,8 +102,8 @@ FilledValid.test("Calls onContinueAction with correct form data", async ({ canva
   await waitFor(async () => {
     await expect(args.onContinueAction).toHaveBeenCalledWith(
       expect.objectContaining({
-        emailSubject: "Temat testowy",
-        emailBody: "Treść wiadomości testowej długa"
+        emailSubject: args.defaultValues!.emailSubject,
+        emailBody: args.defaultValues!.emailBody
       })
     );
   });

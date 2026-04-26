@@ -22,7 +22,7 @@ export const templateListItemBuilder = build<TemplateListItem>({
     id: () => faker.string.uuid(),
     name: () => faker.lorem.sentence({ min: 3, max: 5 }),
     description: () => faker.lorem.sentence(),
-    stepsCount: () => faker.number.int({ min: 2, max: 8 }),
+    stepsCount: () => faker.number.int({ min: 4, max: 8 }),
     previewSteps: () => [
       faker.lorem.sentence({ min: 3, max: 5 }),
       faker.lorem.sentence({ min: 3, max: 5 }),

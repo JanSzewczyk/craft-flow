@@ -22,6 +22,7 @@ export const brandingFormBuilder = build<BrandingFormData>({
     brandColor: oneOf(...BRAND_COLORS)
   },
   traits: {
-    noLogo: { overrides: { logoUrl: undefined } }
+    noLogo: { overrides: { logoUrl: undefined } },
+    withPurple: { overrides: { brandColor: "#7C3AED" } }
   }
 });

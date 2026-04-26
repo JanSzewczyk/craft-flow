@@ -1,4 +1,5 @@
 import { expect, fn, waitFor, within } from "storybook/test";
+import { brandingFormBuilder } from "~/features/contractor/test/builders";
 import { type RedirectAction } from "~/lib/action-types";
 
 import { BrandingForm } from "./branding-form";
@@ -68,9 +69,7 @@ Empty.test("Keyboard navigation moves focus to next color preset", async ({ canv
 
 export const WithPresetColor = meta.story({
   args: {
-    defaultValues: {
-      brandColor: "#7C3AED"
-    }
+    defaultValues: brandingFormBuilder.one({ traits: "withPurple" })
   }
 });
 
@@ -91,10 +90,7 @@ WithPresetColor.test("Color hex input reflects the selected brand color", async 
 
 export const WithExistingLogo = meta.story({
   args: {
-    defaultValues: {
-      brandColor: "#2563EB",
-      logoUrl: "https://placehold.co/64x64"
-    }
+    defaultValues: brandingFormBuilder.one({ overrides: { logoUrl: "https://placehold.co/64x64" } })
   }
 });
 

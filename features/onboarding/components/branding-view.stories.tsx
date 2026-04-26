@@ -1,4 +1,5 @@
 import { expect, fn } from "storybook/test";
+import { brandingFormBuilder } from "~/features/contractor/test/builders";
 import { type RedirectAction } from "~/lib/action-types";
 
 import { BrandingView } from "./branding-view";
@@ -44,9 +45,7 @@ Default.test("Default blue color preset is selected", async ({ canvas }) => {
 
 export const WithExistingBranding = meta.story({
   args: {
-    defaultValues: {
-      brandColor: "#7C3AED"
-    }
+    defaultValues: brandingFormBuilder.one({ traits: "withPurple" })
   }
 });
 

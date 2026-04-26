@@ -1,4 +1,5 @@
 import { expect, fn, waitFor } from "storybook/test";
+import { companyDetailsFormBuilder } from "~/features/contractor/test/builders";
 import { type RedirectAction } from "~/lib/action-types";
 
 import { CompanyDetailsForm } from "./company-details-form";
@@ -47,21 +48,18 @@ Empty.test("Does not call onContinueAction when form has validation errors", asy
 
 export const FilledValid = meta.story({
   args: {
-    defaultValues: {
-      companyName: "Stolarnia u Jana",
-      industry: "stolarstwo",
-      email: "kontakt@stolarnia.pl",
-      phone: "+48 123 456 789",
-      nip: null,
-      regon: null,
-      address: null
-    }
+    defaultValues: companyDetailsFormBuilder.one({
+      overrides: {
+        companyName: "Stolarnia u Jana",
+        industry: "stolarstwo"
+      }
+    })
   }
 });
 
-FilledValid.test("Renders pre-filled form values", async ({ canvas }) => {
+FilledValid.test("Renders pre-filled form values", async ({ canvas, args }) => {
   const companyNameInput = canvas.getByLabelText("Nazwa firmy");
-  await expect(companyNameInput).toHaveValue("Stolarnia u Jana");
+  await expect(companyNameInput).toHaveValue(args.defaultValues!.companyName as string);
 });
 
 FilledValid.test("Calls onContinueAction on valid form submission", async ({ canvas, args, userEvent }) => {
@@ -80,8 +78,8 @@ FilledValid.test("Calls onContinueAction with correct form data", async ({ canva
   await waitFor(async () => {
     await expect(args.onContinueAction).toHaveBeenCalledWith(
       expect.objectContaining({
-        companyName: "Stolarnia u Jana",
-        industry: "stolarstwo"
+        companyName: args.defaultValues!.companyName,
+        industry: args.defaultValues!.industry
       })
     );
   });

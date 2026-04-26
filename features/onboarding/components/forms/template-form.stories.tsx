@@ -1,4 +1,5 @@
 import { expect, fn, waitFor, within } from "storybook/test";
+import { templateFormBuilder } from "~/features/templates/test/builders";
 
 import { TemplateForm } from "./template-form";
 
@@ -88,23 +89,17 @@ SubmitValid.test("onContinueAction is called with the default form data", async 
 
 export const CustomValues = meta.story({
   args: {
-    defaultValues: {
-      name: "Remont łazienki",
-      description: "Kompleksowy remont",
-      steps: [
-        { title: "Projekt", description: null },
-        { title: "Wykonanie", description: null }
-      ]
-    }
+    defaultValues: templateFormBuilder.one()
   }
 });
 
-CustomValues.test("Renders pre-filled template name", async ({ canvas }) => {
+CustomValues.test("Renders pre-filled template name", async ({ canvas, args }) => {
   const nameInput = canvas.getByLabelText("Nazwa szablonu");
-  await expect(nameInput).toHaveValue("Remont łazienki");
+  await expect(nameInput).toHaveValue(args.defaultValues!.name);
 });
 
-CustomValues.test("Renders custom steps", async ({ canvas }) => {
-  await expect(canvas.getByText("Projekt")).toBeVisible();
-  await expect(canvas.getByText("Wykonanie")).toBeVisible();
+CustomValues.test("Renders custom steps", async ({ canvas, args }) => {
+  for (const step of args.defaultValues!.steps ?? []) {
+    await expect(canvas.getByText(step?.title ?? "")).toBeVisible();
+  }
 });

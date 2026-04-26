@@ -7,7 +7,7 @@ import { ClientDetailsSheet } from "./client-details-sheet";
 
 import preview from "~/.storybook/preview";
 
-const defaultClient = clientBuilder.one({ overrides: { name: "Jan Kowalski" } });
+const defaultClient = clientBuilder.one();
 
 const meta = preview.meta({
   title: "Features/CRM/Client Details Sheet",

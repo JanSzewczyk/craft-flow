@@ -57,7 +57,7 @@ LockedEmail.test("Email field is disabled when locked", async ({ canvas }) => {
 
 export const ValidationError = meta.story({
   args: {
-    defaultValues: { name: "", email: "", phone: null }
+    defaultValues: clientFormBuilder.one({ traits: "empty" })
   }
 });
 

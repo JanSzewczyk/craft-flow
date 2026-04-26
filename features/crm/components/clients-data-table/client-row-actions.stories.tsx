@@ -13,7 +13,7 @@ const meta = preview.meta({
     layout: "centered"
   },
   args: {
-    client: clientListItemBuilder.one({ overrides: { name: "Jan Kowalski" } }),
+    client: clientListItemBuilder.one(),
     onDeleteAction: fn(
       async () =>
         ({ success: true, data: { id: "1" }, message: "Klient został usunięty" }) as unknown as ActionResponse<{
@@ -45,7 +45,7 @@ NoProjects.test("'Zobacz szczegóły' links to client page", async ({ canvas, us
   });
 });
 
-NoProjects.test("'Usuń' opens confirmation dialog for client without projects", async ({ canvas, userEvent }) => {
+NoProjects.test("'Usuń' opens confirmation dialog for client without projects", async ({ canvas, userEvent, args }) => {
   await userEvent.click(canvas.getByRole("button", { name: /więcej opcji/i }));
 
   const body = within(document.body);
@@ -56,7 +56,7 @@ NoProjects.test("'Usuń' opens confirmation dialog for client without projects",
 
   await waitFor(async () => {
     await expect(screen.getByText("Usuń klienta")).toBeVisible();
-    await expect(screen.getByText(/jan kowalski/i)).toBeVisible();
+    await expect(screen.getByText(new RegExp(args.client.name, "i"))).toBeVisible();
   });
 });
 
@@ -79,7 +79,7 @@ NoProjects.test("Cancel closes confirmation dialog without calling action", asyn
 
 export const WithProjects = meta.story({
   args: {
-    client: clientListItemBuilder.one({ traits: "withProjects", overrides: { name: "Anna Nowak" } })
+    client: clientListItemBuilder.one({ traits: "withProjects" })
   }
 });
 
@@ -119,7 +119,6 @@ WithProjects.test("'Rozumiem' closes warning dialog", async ({ canvas, userEvent
 
 export const DeleteSuccess = meta.story({
   args: {
-    client: clientListItemBuilder.one({ overrides: { name: "Jan Kowalski" } }),
     onDeleteAction: fn(async () => ({ success: true as const, data: { id: "1" }, message: "Klient został usunięty" }))
   }
 });
@@ -151,7 +150,6 @@ DeleteSuccess.test("Calls onDeleteAction and shows success toast", async ({ canv
 
 export const DeleteError = meta.story({
   args: {
-    client: clientListItemBuilder.one({ overrides: { name: "Jan Kowalski" } }),
     onDeleteAction: fn(async () => ({ success: false as const, error: "Nie udało się usunąć klienta" }))
   }
 });

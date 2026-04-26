@@ -18,5 +18,8 @@ export const emailFormBuilder = build<EmailFormData>({
   fields: {
     emailSubject: () => faker.lorem.sentence(),
     emailBody: () => faker.lorem.paragraph() // min 10 chars required by schema
+  },
+  traits: {
+    empty: { overrides: { emailSubject: "", emailBody: "" } }
   }
 });

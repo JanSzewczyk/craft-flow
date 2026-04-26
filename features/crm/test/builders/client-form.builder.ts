@@ -23,6 +23,9 @@ export const clientFormBuilder = build<ClientFormData>({
   traits: {
     noPhone: {
       overrides: { phone: null }
+    },
+    empty: {
+      overrides: { name: "", email: "", phone: null }
     }
   }
 });

@@ -55,12 +55,12 @@ npm run test:ci               # Run tests for CI environment
 npm run test:coverage         # Generate test coverage report
 npm run test:unit             # Unit tests only (with coverage)
 npm run test:watch            # Watch mode
-npm run test:ui               # Vitest UI
 npm run test:storybook        # Storybook component tests (with coverage)
 
 # Run a single test file
 npx vitest run path/to/file.test.ts
 npx vitest run --project=unit path/to/file.test.ts
+npx vitest run --project=storybook path/to/file.stories.tsx
 
 # E2E tests (Playwright) - requires build first
 npm run build && npm run test:e2e
@@ -121,6 +121,8 @@ npm run analyze               # Bundle analyzer
 | Drizzle config | `drizzle.config.ts` |
 | DB client | `lib/supabase/db.ts` (server-only) |
 | DB schema | `lib/supabase/schema.ts` (central exports) |
+| Action types | `lib/action-types.ts` |
+| Service errors | `lib/supabase/errors.ts`, `lib/services/errors.ts` |
 
 ### Path Aliases
 
@@ -158,7 +160,7 @@ Each route group has its own layout for scoped UI chrome.
 
 ### Feature Module Structure
 
-Features follow a **feature-driven architecture** where each domain is self-contained. Features should include UI components, business logic, validation, and constants.
+Features follow a **feature-driven architecture** where each domain is self-contained.
 
 **Current Features:**
 - **auth**: Authentication flows (sign-in, sign-up, forgot-password, email verification)
@@ -172,24 +174,107 @@ Features follow a **feature-driven architecture** where each domain is self-cont
 - **projects**: Project and project steps management (linked to clients)
 - **templates**: Custom template management with configurable steps
 
-**Feature Structure:**
+**Feature Directory Layout:**
 ```
 features/{domain}/
-├── components/          # UI components
-├── constants/          # Static data
-├── schemas/            # Zod validation schemas (if needed)
-├── server/             # Server actions, db queries
-│   ├── actions/        # Server Actions
-│   ├── db/             # Drizzle queries, mutations, schema
-│   └── services/       # Business logic (step gating, plan checks, etc.)
-└── README.md           # Feature documentation
+├── components/
+│   ├── {component}.tsx
+│   ├── {component}.stories.tsx     # co-located with component
+│   └── index.tsx                   # barrel — components only
+├── constants/
+├── schemas/
+│   ├── {domain}-schema.ts          # Zod + exported *FormData types
+│   └── {domain}-schema.test.ts
+├── server/
+│   ├── actions/
+│   │   ├── {verb}-{domain}.action.ts
+│   │   ├── logger.ts               # createLogger({ module: "domain-actions" })
+│   │   ├── map-service-error.ts    # error code → Polish user message
+│   │   └── {domain}-actions.test.ts
+│   ├── db/
+│   │   ├── schema.ts               # Drizzle tables + inferred types
+│   │   ├── queries.ts              # SELECT — SupabaseServiceResult<T>
+│   │   ├── mutations.ts            # INSERT/UPDATE/DELETE — transactions where needed
+│   │   └── index.ts
+│   ├── services/
+│   │   └── {domain}.service.ts     # orchestration only, no raw SQL
+│   └── permissions.ts              # canDoX guard functions
+└── test/
+    └── builders/
+        ├── {entity}.builder.ts     # mimicry-js + faker
+        └── index.ts
 ```
 
-**Import Pattern:**
-- Import directly from the relevant file: `import { ContactForm } from "~/features/contact/components/contact-form"`
-- Do NOT create barrel `index.ts` files at the feature root — import directly from the specific module path
+**Import Rules:**
+- Import directly from sub-paths: `import { TemplateCard } from "~/features/templates/components"` ✓
+- **No top-level feature `index.ts`** — `import { X } from "~/features/templates"` ✗
+- `features/{domain}/components/index.tsx` is the only allowed barrel, and exports components only
 
-See `docs/ARCHITECTURE.md` for detailed design patterns and guidelines.
+### Layer Architecture
+
+```
+Action → Service → Permission → DB
+             ↓
+           Schema (Zod)    DB schema (Drizzle)
+```
+
+Each layer imports only downward.
+
+**Return types per layer:**
+
+| Layer | Type |
+|-------|------|
+| DB queries / mutations | `SupabaseServiceResult<T>` → `[SupabaseServiceError, null] \| [null, T]` |
+| Permissions | `SupabaseServiceResult<void>` |
+| Service reads | `SupabaseServiceResult<T>` — wrap with React `cache()` |
+| Service mutations | `ServiceResult<BaseServiceError, T>` |
+| Actions | `ActionResponse<T>` or `RedirectAction` from `~/lib/action-types` |
+
+Import sources:
+- `~/lib/supabase/errors` — `SupabaseServiceResult`, `SupabaseServiceError`, `categorizeSupabaseError`
+- `~/lib/services/errors` — `ServiceResult`, `BaseServiceError`
+- `~/lib/action-types` — `ActionResponse`, `RedirectAction`, `isActionSuccess`, `isActionFailed`
+
+**Service mutation guard chain (always in this order):**
+```ts
+const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
+if (roleErr) return [roleErr, null];
+
+const [profileErr, profile] = await getCachedContractorProfile(userId);
+if (profileErr) return [profileErr, null];
+
+const [permErr] = await canAddTemplate(profile.id);
+if (permErr) return [permErr, null];
+
+const [dbErr, result] = await ...;
+if (dbErr) return [dbErr, null];
+
+return [null, result];
+```
+
+**Server Action pattern:**
+```ts
+"use server";
+export async function createTemplateAction(data: TemplateFormData): ActionResponse<Template> {
+  const { isAuthenticated, userId } = await auth();
+  if (!isAuthenticated) return { success: false, error: "Nie jesteś zalogowany" };
+
+  const [error, template] = await createTemplate(userId, data);
+  if (error) return mapTemplateServiceError(error);
+
+  revalidatePath("/app/templates");
+  return { success: true, data: template, message: "Szablon został utworzony" };
+}
+```
+
+- No business logic in actions — delegate entirely to the service.
+- `revalidatePath` only on success.
+- `map-service-error.ts` translates `BaseServiceError.code` to Polish user strings.
+
+**DB layer rules:**
+- `categorizeSupabaseError(error, "ResourceName")` in every `catch` block.
+- Multi-step writes use `db.transaction()`.
+- Register new tables in `lib/supabase/schema.ts`.
 
 ### Environment Variables
 
@@ -202,29 +287,20 @@ Environment variables are validated at build-time using T3 Env:
 
 ### Logging
 
-Uses Pino logger (`lib/logger.ts`) with different behavior based on environment:
-
-**Development**: Uses `pino-pretty` transport for readable, colored output
-**Production**: Structured JSON logs for log aggregation services
-
-Create child loggers with context:
+Uses Pino logger (`lib/logger.ts`).
 
 ```typescript
 import logger, { createLogger } from "~/lib/logger";
-const apiLogger = createLogger({ module: "api" });
+const logger = createLogger({ module: "templates-service" });
+logger.info({ userId, templateId }, "Template created successfully");
+logger.error({ userId, operation: "createTemplate", errorCode: err.code }, "DB insert failed");
 ```
 
-Log levels controlled via `LOG_LEVEL` env var (fatal, error, warn, info, debug, trace).
-Request logging is handled automatically via `proxy.ts` with request ID tracking.
+Always include `userId`, `operation`, and `errorCode` on failures. Log at the layer where the error originates — do not re-log higher up. Log levels controlled via `LOG_LEVEL` env var.
 
 ### Database
 
-Uses **Drizzle ORM** with **PostgreSQL** hosted on Supabase:
-
-- **Client**: `lib/supabase/db.ts` (server-only, uses `postgres-js`)
-- **Central schema**: `lib/supabase/schema.ts` (exports all table definitions)
-- **Migrations**: `drizzle-kit` via `drizzle.config.ts`
-- **Model**: contractor-centric — all tables linked to `contractorProfile`
+Uses **Drizzle ORM** with **PostgreSQL** hosted on Supabase. All tables are contractor-centric:
 
 ```
 contractorProfile (PK: id)
@@ -237,85 +313,102 @@ contractorProfile (PK: id)
 └─ emailTemplates (FK: contractorId)
 ```
 
-Feature-level DB files live in `features/{domain}/server/db/` (schema, queries, mutations).
+Feature-level DB files live in `features/{domain}/server/db/`.
 Use React `cache()` for query optimization in server components.
 
 ### Testing Configuration
 
 Vitest 4.1 is configured with two project modes:
 
-- **unit**: Node environment for unit tests (`*.test.ts` files) with setup file `tests/unit/vitest.setup.ts`
-- **storybook**: Browser environment (Playwright) for Storybook component tests with setup file `tests/integration/vitest.setup.ts`
+- **unit**: Node environment for unit tests (`*.test.ts` files), setup: `tests/unit/vitest.setup.ts`
+- **storybook**: Browser environment (Playwright/Chromium) for Storybook component tests, setup: `tests/integration/vitest.setup.ts`
 
-Coverage reports include: text, HTML, JSON-summary, and JSON formats.
-Storybook tests use play functions for interaction testing with accessibility checks via @storybook/addon-a11y.
+**Storybook stories** use CSF Next format with `preview.meta()` / `meta.story()` and `.test()` method for interaction tests:
+
+```ts
+const meta = preview.meta({ title: "Features/...", component: MyComponent });
+export const Default = meta.story({ args: { ... } });
+Default.test("renders correctly", async ({ canvas }) => { ... });
+```
+
+**Test data builders** use `mimicry-js` + `faker`. One builder per entity, exported from `test/builders/index.ts`. All story `args` must use builders — no hardcoded test data.
+
+```ts
+export const myBuilder = build<MyType>({
+  fields: {
+    id: () => faker.string.uuid(),
+    name: () => faker.lorem.words(2)
+  },
+  traits: { withExtra: { overrides: { extra: "value" } } }
+});
+```
 
 ### Design System
 
-Uses `@szum-tech/design-system` package. Import components directly:
+Uses `@szum-tech/design-system`. Import components directly:
 
 ```typescript
 import { Button, Card, Tooltip } from "@szum-tech/design-system";
 ```
 
-Icons are re-exported via lucide-react through the design system:
-
-```typescript
-import { GithubIcon, SparklesIcon } from "lucide-react";
-```
-
-UI components are located in `components/ui/` with co-located Storybook stories (`*.stories.tsx`).
+Icons via `lucide-react` (re-exported through design system). Button icons use `startIcon`/`endIcon` props, not children.
 
 ### Theme Support
 
-Uses `next-themes` for dark/light/system switching. `ThemeProvider` in `app/layout.tsx`, `ThemeToggle` in `components/ui/theme-toggle.tsx`. Storybook has dark mode toggle via `@storybook-community/storybook-dark-mode`.
+Uses `next-themes` for dark/light/system switching. `ThemeProvider` in `app/layout.tsx`.
 
 ### Next.js Configuration
 
-- **React Compiler enabled** (`reactCompiler: true`) - automatic optimization of components
-- **Server Actions body limit**: 2MB configured
-- **Server External Packages**: Pino and pino-pretty are externalized for server-side logging
-- **Bundle Analyzer**: Available via `ANALYZE=true` environment variable
-- **Health Check Endpoints**: Multiple URL alias rewrites to `/api/health`: `/healthz`, `/api/healthz`, `/health`, `/ping`
-- **Image Optimization**: Configured remote patterns for Google Images and Supabase Storage
-- **Strict Mode**: React strict mode enabled for development warnings
+- **React Compiler enabled** (`reactCompiler: true`) — automatic memoization
+- **Server Actions body limit**: 2MB
+- **Health Check Endpoints**: `/healthz`, `/api/healthz`, `/health`, `/ping` all rewrite to `/api/health`
+- **Image Optimization**: remote patterns for Google Images and Supabase Storage
 
 ### Integrations & Services
 
-- **Clerk**: Authentication service (@clerk/nextjs) - requires CLERK_SECRET_KEY and NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-- **Resend**: Email service for transactional emails - requires RESEND_API_KEY
-- **React Hook Form**: Form handling and validation
-- **@axe-core/playwright**: Accessibility testing in Playwright E2E tests
-
-### Forms
-
-- **Complex forms**: React Hook Form + Zod resolver (`@hookform/resolvers`)
-- **Simple forms**: `useActionState` from React 19
-- **Server Actions**: Use standardized response types with Zod validation
-- **Action location**: `features/[feature]/server/actions/[action-name].ts`
+- **Clerk**: Authentication (@clerk/nextjs) — `CLERK_SECRET_KEY` + `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- **Resend**: Transactional email — `RESEND_API_KEY`
+- **@axe-core/playwright**: Accessibility testing in E2E tests
 
 ## Conventions
 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) for semantic release
 - ESLint: Uses `@szum-tech/eslint-config`
 - Prettier: Uses `@szum-tech/prettier-config`
-- Semantic Release: Uses `@szum-tech/semantic-release-config`
-- **TypeScript strict mode** with `noUncheckedIndexedAccess` enabled - safer array/object access
-- **Server-only code protection**: Use `import "server-only"` in modules that should never run on the client
+- **TypeScript strict mode** with `noUncheckedIndexedAccess` — always handle undefined array/object access explicitly
+- **Server-only code protection**: Use `import "server-only"` in modules that must never run on the client
+- UI strings are in Polish
 
 ## Common Pitfalls
 
 | Area | Don't | Do |
 |------|-------|----|
 | Components | Add `'use client'` unnecessarily | Default to Server Components |
-| Memoization | Use `useMemo`/`useCallback`/`memo` with React Compiler | Let compiler optimize automatically |
+| Memoization | Use `useMemo`/`useCallback`/`memo` | Let React Compiler optimize automatically |
 | Imports | Use relative paths (`../../../lib/utils`) | Use path aliases (`~/lib/utils`) |
-| Logging | Use `console.log` in production code | Use structured Pino logging (`logger.info(...)`) |
+| Feature imports | Import from feature root (`~/features/templates`) | Import from sub-paths (`~/features/templates/components`) |
+| Logging | Use `console.log` in production code | Use structured Pino logging |
 | `useFormStatus` | Use in same component as `<form>` | Use in a child component inside the form |
-| Server Actions | Return untyped objects | Use standardized response types with Zod validation |
+| Server Actions | Return untyped objects | Use `ActionResponse<T>` or `RedirectAction` |
 | TypeScript | Ignore `noUncheckedIndexedAccess` warnings | Handle undefined array/object access explicitly |
 | Env Variables | Skip validation in production | Use T3 Env for type-safe validation |
 | Icons | Import from random icon packages | Use `lucide-react` (re-exported via design system) |
+| React Hook Form child components | Read `form.formState.errors` from prop directly | Use `useFormState({ control: form.control })` in child — React Compiler memoizes children, blocking re-renders when parent form state changes |
+| Storybook test queries | `getByText("Wybierz branżę")` when Select placeholder matches error text | `getByText("...", { selector: '[data-slot="field-error"]' })` to target the error element specifically |
+| Nullable form fields | Omit nullable fields from `defaultValues` | Always include nullable fields as `null` — Zod `z.nullable()` rejects `undefined` |
+
+## New Feature Checklist
+
+- [ ] `schemas/{domain}-schema.ts` — Zod + `*FormData` types
+- [ ] `server/db/schema.ts` — Drizzle tables + types, registered in `lib/supabase/schema.ts`
+- [ ] `server/db/queries.ts` + `mutations.ts` + `index.ts`
+- [ ] `server/permissions.ts` — `canDoX` guards
+- [ ] `server/services/{domain}.service.ts` — guard chain, `cache()` on reads
+- [ ] `server/actions/{verb}-{domain}.action.ts` — thin, auth check, revalidate
+- [ ] `server/actions/map-service-error.ts` + `logger.ts`
+- [ ] `components/` — co-located stories
+- [ ] `test/builders/` — mimicry-js builders
+- [ ] Schema unit tests + action unit tests
 
 ## CI/CD & GitHub Actions
 
@@ -323,6 +416,6 @@ The project includes several GitHub Actions workflows in `.github/workflows/`:
 
 - **PR Check** (`pr-check.yml`): Validates builds, linting, formatting, types, and tests on every PR
 - **Code Review** (`code-review.yml`): AI-powered code reviews using OpenAI (requires OPENAI_API_KEY secret)
-- **Publish** (`publish.yml`): Automated semantic releases when merging to main branch (requires configuration)
+- **Publish** (`publish.yml`): Automated semantic releases when merging to main branch
 
 All workflows use `npm` as the package manager.

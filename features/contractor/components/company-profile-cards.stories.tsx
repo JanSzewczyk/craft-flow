@@ -32,26 +32,7 @@ const meta = preview.meta({
 export const WithAddress = meta.story({
   name: "With Address",
   args: {
-    data: companyProfileBuilder.one({
-      overrides: {
-        companyName: "Stolarnia u Jana",
-        industry: "stolarstwo",
-        email: "kontakt@stolarnia.pl",
-        phone: "+48 123 456 789",
-        nip: "1234567890",
-        regon: "123456789",
-        address: {
-          id: "addr-1",
-          street: "ul. Przykładowa 1",
-          postalCode: "00-001",
-          city: "Warszawa",
-          country: "Polska",
-          additionalInfo: "Piętro 3, biuro 12",
-          createdAt: new Date("2024-01-01"),
-          updatedAt: new Date("2024-01-01")
-        }
-      }
-    })
+    data: companyProfileBuilder.one({ traits: "withAddressAndAdditionalInfo" })
   }
 });
 
@@ -91,13 +72,7 @@ WithAddress.test("Renders all expected content", async ({ canvas, args, step }) 
 export const WithoutAddress = meta.story({
   name: "Without Address",
   args: {
-    data: companyProfileBuilder.one({
-      traits: "noAddress",
-      overrides: {
-        companyName: "Firma Bez Adresu Sp. z o.o.",
-        email: "biuro@firma.pl"
-      }
-    })
+    data: companyProfileBuilder.one({ traits: "noAddress" })
   }
 });
 
@@ -120,14 +95,7 @@ WithoutAddress.test("Does not render address fields", async ({ canvas }) => {
 export const NoOptionalFields = meta.story({
   name: "No Optional Fields",
   args: {
-    data: companyProfileBuilder.one({
-      traits: "noOptionalFields",
-      overrides: {
-        companyName: "Firma Minimalna",
-        email: "kontakt@minimalna.pl",
-        address: null
-      }
-    })
+    data: companyProfileBuilder.one({ traits: ["noOptionalFields", "noAddress"] })
   }
 });
 

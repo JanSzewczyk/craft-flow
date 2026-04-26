@@ -61,12 +61,7 @@ EmptyEditor.test("Save and cancel buttons are visible", async ({ canvas }) => {
 // Story 2: Editor with pre-filled values
 // ---------------------------------------------------------------------------
 
-const preFilledData = brandingFormBuilder.one({
-  overrides: {
-    brandColor: "#7C3AED",
-    logoUrl: undefined
-  }
-});
+const preFilledData = brandingFormBuilder.one({ traits: "noLogo" });
 
 export const WithDefaults = meta.story({
   name: "With Defaults",

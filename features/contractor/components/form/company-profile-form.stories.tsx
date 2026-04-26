@@ -1,6 +1,5 @@
 import { expect, fn, screen, waitFor } from "storybook/test";
 import { companyDetailsFormBuilder } from "~/features/contractor/test/builders";
-import { type RedirectAction } from "~/lib/action-types";
 
 import { CompanyProfileForm } from "./company-profile-form";
 
@@ -94,12 +93,7 @@ EmptyForm.test("Does not call onSaveAction when form has validation errors", asy
 const preFilledData = companyDetailsFormBuilder.one({
   overrides: {
     companyName: "Stolarnia u Jana",
-    industry: "stolarstwo",
-    email: "kontakt@stolarnia.pl",
-    phone: "+48 123 456 789",
-    nip: null,
-    regon: null,
-    address: null
+    email: "kontakt@stolarnia.pl"
   }
 });
 
@@ -144,17 +138,7 @@ PreFilled.test("Calls onSaveAction with form data when valid and dirty", async (
 export const SubmitError = meta.story({
   name: "Submit Error",
   args: {
-    defaultValues: companyDetailsFormBuilder.one({
-      overrides: {
-        companyName: "Firma Testowa",
-        industry: "elektryka",
-        email: "test@firma.pl",
-        phone: null,
-        nip: null,
-        regon: null,
-        address: null
-      }
-    }),
+    defaultValues: companyDetailsFormBuilder.one(),
     onSaveAction: fn(
       async () => ({ success: false as const, error: "Nie udało się zapisać zmian" }) as unknown as never
     )

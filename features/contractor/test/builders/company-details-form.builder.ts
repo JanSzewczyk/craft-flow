@@ -25,7 +25,19 @@ import { type CompanyDetailsFormData } from "~/features/contractor/schemas/compa
 export const companyDetailsFormBuilder = build<CompanyDetailsFormData>({
   fields: {
     companyName: () => faker.company.name(),
-    industry: () => faker.helpers.arrayElement(["woodworking", "construction", "plumbing", "electrical", "painting"]),
+    industry: () =>
+      faker.helpers.arrayElement([
+        "stolarstwo",
+        "hydraulika",
+        "elektryka",
+        "remonty",
+        "malarstwo",
+        "dekarstwo",
+        "podlogi",
+        "ogrodnictwo",
+        "hvac",
+        "inna"
+      ]),
     phone: () => faker.phone.number({ style: "international" }),
     email: () => faker.internet.email(),
     nip: null,
@@ -36,9 +48,9 @@ export const companyDetailsFormBuilder = build<CompanyDetailsFormData>({
     withAddress: {
       overrides: {
         address: {
-          street: "ul. Przykładowa 1",
-          postalCode: "00-001",
-          city: "Warszawa",
+          street: () => faker.location.streetAddress(),
+          postalCode: () => faker.location.zipCode("##-###"),
+          city: () => faker.location.city(),
           country: "Polska",
           additionalInfo: null
         }

@@ -57,14 +57,14 @@ export const companyProfileBuilder = build<CompanyProfile>({
     withAddressAndAdditionalInfo: {
       overrides: {
         address: {
-          id: faker.string.uuid(),
-          street: "ul. Przykładowa 1",
-          postalCode: "00-001",
-          city: "Warszawa",
+          id: () => faker.string.uuid(),
+          street: () => faker.location.streetAddress(),
+          postalCode: () => faker.location.zipCode("##-###"),
+          city: () => faker.location.city(),
           country: "Polska",
-          additionalInfo: "Piętro 3, biuro 12",
-          createdAt: new Date("2024-01-01"),
-          updatedAt: new Date("2024-01-01")
+          additionalInfo: () => faker.lorem.sentence(),
+          createdAt: () => faker.date.past(),
+          updatedAt: () => faker.date.recent()
         }
       }
     },

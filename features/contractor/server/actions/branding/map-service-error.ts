@@ -5,10 +5,9 @@ export function mapBrandingServiceError(error: BaseServiceError): { success: fal
     return { success: false, error: "Branding wymaga planu Standard lub wyższego" };
   }
 
-  switch (error.code) {
-    case "not_found":
-      return { success: false, error: "Profil nie istnieje" };
-    default:
-      return { success: false, error: "Wystąpił błąd serwera. Spróbuj ponownie." };
+  if (error.isNotFound) {
+    return { success: false, error: "Profil nie istnieje" };
   }
+
+  return { success: false, error: "Wystąpił błąd serwera. Spróbuj ponownie." };
 }

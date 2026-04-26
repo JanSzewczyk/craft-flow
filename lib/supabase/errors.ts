@@ -42,6 +42,7 @@ export class SupabaseServiceError extends BaseServiceError {
     return new SupabaseServiceError({
       code: "validation",
       message,
+      isValidation: true,
       isRetryable: false
     });
   }
@@ -58,6 +59,7 @@ export class SupabaseServiceError extends BaseServiceError {
     return new SupabaseServiceError({
       code: "limit_exceeded",
       message: `Resource limit of ${max} exceeded`,
+      isLimitExceeded: true,
       isRetryable: false,
       meta: { max }
     });
@@ -103,6 +105,7 @@ export class SupabaseServiceError extends BaseServiceError {
         return new SupabaseServiceError({
           code: "validation",
           message: `Invalid reference in ${resourceName}`,
+          isValidation: true,
           isRetryable: false,
           cause: error
         });

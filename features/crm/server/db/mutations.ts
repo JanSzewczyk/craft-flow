@@ -74,6 +74,7 @@ export async function deleteClient(id: string): Promise<SupabaseServiceResult<Cl
       const fkError = new SupabaseServiceError({
         code: "fk_constraint",
         message: "Client has associated projects",
+        isFkConstraint: true,
         isRetryable: false
       });
       logger.warn({ id, errorCode: fkError.code }, "Cannot delete client with associated projects");

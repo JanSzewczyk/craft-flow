@@ -1,10 +1,9 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { type CompanyDetailsFormData } from "~/features/contractor/schemas/company-details-schema";
-import { updateCompanyProfile } from "~/features/contractor/server/services/company-profile.service";
+import { updateCompanyProfile } from "~/features/contractor/server";
 import { type RedirectAction } from "~/lib/action-types";
 import { setToastCookie } from "~/lib/toast/server/toast.cookie";
 
@@ -20,9 +19,6 @@ export async function updateCompanyProfileAction(data: CompanyDetailsFormData): 
 
   const [error] = await updateCompanyProfile(userId, data);
   if (error) return mapCompanyServiceError(error);
-
-  revalidatePath("/app/company");
-  revalidatePath("/app/company/edit");
 
   await setToastCookie("Dane firmy zostały zaktualizowane");
 

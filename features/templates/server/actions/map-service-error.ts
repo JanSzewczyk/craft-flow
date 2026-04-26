@@ -5,15 +5,16 @@ export function mapTemplateServiceError(error: BaseServiceError): { success: fal
     return { success: false, error: "Brak uprawnień" };
   }
 
-  switch (error.code) {
-    case "limit_exceeded":
-      return {
-        success: false,
-        error: `Osiągnięto limit ${error.meta["max"]} szablonów. Zwiększ plan, aby dodać więcej.`
-      };
-    case "not_found":
-      return { success: false, error: "Szablon nie istnieje" };
-    default:
-      return { success: false, error: "Wystąpił błąd serwera. Spróbuj ponownie." };
+  if (error.isLimitExceeded) {
+    return {
+      success: false,
+      error: `Osiągnięto limit ${error.meta["max"]} szablonów. Zwiększ plan, aby dodać więcej.`
+    };
   }
+
+  if (error.isNotFound) {
+    return { success: false, error: "Szablon nie istnieje" };
+  }
+
+  return { success: false, error: "Wystąpił błąd serwera. Spróbuj ponownie." };
 }

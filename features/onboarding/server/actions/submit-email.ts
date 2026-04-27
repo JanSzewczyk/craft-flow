@@ -20,9 +20,12 @@ export async function submitEmailAction(emailConfig: EmailFormData, onboardingSt
     return { success: false, error: "Nie znaleziono aktywnego planu" };
   }
 
-  const [error] = await updateStepData(contractorId, {
-    currentStep: config.nextStep,
-    emailConfig
+  const [error] = await updateStepData({
+    contractorId,
+    stepData: {
+      currentStep: config.nextStep,
+      emailConfig
+    }
   });
   if (error) {
     logger.error({ contractorId, errorCode: error.code }, "Failed to save email config");

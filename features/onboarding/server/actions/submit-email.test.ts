@@ -54,8 +54,10 @@ describe("submitEmailAction", () => {
     await submitEmailAction(emailData, mockState);
 
     expect(mocks.updateStepData).toHaveBeenCalledWith(
-      mockState.contractorId,
-      expect.objectContaining({ emailConfig: emailData })
+      expect.objectContaining({
+        contractorId: mockState.contractorId,
+        stepData: expect.objectContaining({ emailConfig: emailData })
+      })
     );
     expect(mocks.redirect).toHaveBeenCalledWith(mockConfig.nextStep);
   });

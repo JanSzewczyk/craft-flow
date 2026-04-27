@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { projectSteps, projects, type Project, type ProjectStep } from "./schema";
@@ -11,9 +11,15 @@ const logger = createLogger({ module: "projects-db" });
 type ProjectInput = Pick<Project, "contractorId" | "clientId" | "name" | "publicToken"> &
   Partial<Pick<Project, "status">>;
 
-export async function createProject(data: ProjectInput): Promise<SupabaseServiceResult<Project>> {
+export async function createProject({
+  data,
+  dbClient = db
+}: {
+  data: ProjectInput;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Project>> {
   try {
-    const [row] = await db.insert(projects).values(data).returning();
+    const [row] = await dbClient.insert(projects).values(data).returning();
 
     if (!row) {
       const error = SupabaseServiceError.unknown("Failed to create project — no row returned");
@@ -30,12 +36,17 @@ export async function createProject(data: ProjectInput): Promise<SupabaseService
   }
 }
 
-export async function updateProject(
-  id: string,
-  data: Partial<Pick<Project, "name" | "status">>
-): Promise<SupabaseServiceResult<Project>> {
+export async function updateProject({
+  id,
+  data,
+  dbClient = db
+}: {
+  id: string;
+  data: Partial<Pick<Project, "name" | "status">>;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Project>> {
   try {
-    const [row] = await db
+    const [row] = await dbClient
       .update(projects)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(projects.id, id))
@@ -56,9 +67,15 @@ export async function updateProject(
   }
 }
 
-export async function deleteProject(id: string): Promise<SupabaseServiceResult<Project>> {
+export async function deleteProject({
+  id,
+  dbClient = db
+}: {
+  id: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Project>> {
   try {
-    const [row] = await db.delete(projects).where(eq(projects.id, id)).returning();
+    const [row] = await dbClient.delete(projects).where(eq(projects.id, id)).returning();
 
     if (!row) {
       const error = SupabaseServiceError.notFound("Project");
@@ -75,11 +92,15 @@ export async function deleteProject(id: string): Promise<SupabaseServiceResult<P
   }
 }
 
-export async function createProjectStep(
-  data: Pick<ProjectStep, "projectId" | "title" | "orderIndex">
-): Promise<SupabaseServiceResult<ProjectStep>> {
+export async function createProjectStep({
+  data,
+  dbClient = db
+}: {
+  data: Pick<ProjectStep, "projectId" | "title" | "orderIndex">;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ProjectStep>> {
   try {
-    const [row] = await db.insert(projectSteps).values(data).returning();
+    const [row] = await dbClient.insert(projectSteps).values(data).returning();
 
     if (!row) {
       const error = SupabaseServiceError.unknown("Failed to create project step — no row returned");
@@ -96,12 +117,17 @@ export async function createProjectStep(
   }
 }
 
-export async function updateProjectStepCompletion(
-  stepId: string,
-  completed: boolean
-): Promise<SupabaseServiceResult<ProjectStep>> {
+export async function updateProjectStepCompletion({
+  stepId,
+  completed,
+  dbClient = db
+}: {
+  stepId: string;
+  completed: boolean;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ProjectStep>> {
   try {
-    const [row] = await db
+    const [row] = await dbClient
       .update(projectSteps)
       .set({
         isCompleted: completed,
@@ -126,12 +152,17 @@ export async function updateProjectStepCompletion(
   }
 }
 
-export async function reorderProjectSteps(
-  projectId: string,
-  steps: { id: string; orderIndex: number }[]
-): Promise<SupabaseServiceResult<ProjectStep[]>> {
+export async function reorderProjectSteps({
+  projectId,
+  steps,
+  dbClient = db
+}: {
+  projectId: string;
+  steps: { id: string; orderIndex: number }[];
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ProjectStep[]>> {
   try {
-    const updated = await db.transaction(async (tx) => {
+    const updated = await dbClient.transaction(async (tx) => {
       const rows: ProjectStep[] = [];
       for (const step of steps) {
         const [row] = await tx

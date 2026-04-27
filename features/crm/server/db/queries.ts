@@ -1,7 +1,7 @@
 import { and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { projects } from "~/lib/supabase/schema";
 import { type PaginationMeta } from "~/types/pagination";
@@ -10,9 +10,15 @@ import { clients, type Client } from "./schema";
 
 const logger = createLogger({ module: "crm-db" });
 
-export async function getClientsByContractor(contractorId: string): Promise<SupabaseServiceResult<Client[]>> {
+export async function getClientsByContractor({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Client[]>> {
   try {
-    const rows = await db.select().from(clients).where(eq(clients.contractorId, contractorId));
+    const rows = await dbClient.select().from(clients).where(eq(clients.contractorId, contractorId));
     return [null, rows];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Client");
@@ -21,9 +27,15 @@ export async function getClientsByContractor(contractorId: string): Promise<Supa
   }
 }
 
-export async function getClientById(id: string): Promise<SupabaseServiceResult<Client>> {
+export async function getClientById({
+  id,
+  dbClient = db
+}: {
+  id: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Client>> {
   try {
-    const rows = await db.select().from(clients).where(eq(clients.id, id));
+    const rows = await dbClient.select().from(clients).where(eq(clients.id, id));
     const row = rows[0];
 
     if (!row) {
@@ -62,10 +74,15 @@ export type ClientListResult = {
   pagination: PaginationMeta;
 };
 
-export async function getClientListByContractor(
-  contractorId: string,
-  options: ClientListOptions
-): Promise<SupabaseServiceResult<ClientListResult>> {
+export async function getClientListByContractor({
+  contractorId,
+  options,
+  dbClient = db
+}: {
+  contractorId: string;
+  options: ClientListOptions;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ClientListResult>> {
   try {
     const { search, page, perPage } = options;
     const offset = (page - 1) * perPage;
@@ -78,7 +95,7 @@ export async function getClientListByContractor(
 
     const whereClause = and(...conditions)!;
 
-    const projectCountSubquery = db
+    const projectCountSubquery = dbClient
       .select({
         clientId: projects.clientId,
         projectCount: count().as("project_count")
@@ -88,7 +105,7 @@ export async function getClientListByContractor(
       .as("project_counts");
 
     const [rows, countResult] = await Promise.all([
-      db
+      dbClient
         .select({
           id: clients.id,
           contractorId: clients.contractorId,
@@ -105,7 +122,7 @@ export async function getClientListByContractor(
         .orderBy(desc(clients.createdAt))
         .limit(perPage)
         .offset(offset),
-      db.select({ value: count() }).from(clients).where(whereClause)
+      dbClient.select({ value: count() }).from(clients).where(whereClause)
     ]);
 
     const totalCount = countResult[0]?.value ?? 0;
@@ -143,9 +160,15 @@ export async function getClientListByContractor(
   }
 }
 
-export async function getClientCountByContractor(contractorId: string): Promise<SupabaseServiceResult<number>> {
+export async function getClientCountByContractor({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<number>> {
   try {
-    const [row] = await db.select({ value: count() }).from(clients).where(eq(clients.contractorId, contractorId));
+    const [row] = await dbClient.select({ value: count() }).from(clients).where(eq(clients.contractorId, contractorId));
 
     return [null, row?.value ?? 0];
   } catch (error) {

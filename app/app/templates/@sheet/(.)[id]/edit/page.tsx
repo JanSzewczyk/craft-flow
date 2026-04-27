@@ -9,7 +9,7 @@ export default async function EditTemplateInterceptedPage({ params }: PageProps<
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const [error, data] = await getTemplateWithSteps(id);
+  const [error, data] = await getTemplateWithSteps({ templateId: id });
   if (error || !data) notFound();
 
   return (

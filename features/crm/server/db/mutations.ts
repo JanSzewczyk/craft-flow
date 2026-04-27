@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { clients, type Client } from "./schema";
@@ -11,9 +11,17 @@ const RESOURCE_NAME = "Client";
 
 type ClientInput = Pick<Client, "name" | "email"> & Partial<Pick<Client, "phone" | "clerkUserId">>;
 
-export async function createClient(contractorId: string, data: ClientInput): Promise<SupabaseServiceResult<Client>> {
+export async function createClient({
+  contractorId,
+  data,
+  dbClient = db
+}: {
+  contractorId: string;
+  data: ClientInput;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Client>> {
   try {
-    const rows = await db
+    const rows = await dbClient
       .insert(clients)
       .values({ contractorId, ...data })
       .returning();
@@ -34,9 +42,17 @@ export async function createClient(contractorId: string, data: ClientInput): Pro
   }
 }
 
-export async function updateClient(id: string, data: Partial<ClientInput>): Promise<SupabaseServiceResult<Client>> {
+export async function updateClient({
+  id,
+  data,
+  dbClient = db
+}: {
+  id: string;
+  data: Partial<ClientInput>;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Client>> {
   try {
-    const [row] = await db
+    const [row] = await dbClient
       .update(clients)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(clients.id, id))
@@ -57,9 +73,15 @@ export async function updateClient(id: string, data: Partial<ClientInput>): Prom
   }
 }
 
-export async function deleteClient(id: string): Promise<SupabaseServiceResult<Client>> {
+export async function deleteClient({
+  id,
+  dbClient = db
+}: {
+  id: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Client>> {
   try {
-    const [row] = await db.delete(clients).where(eq(clients.id, id)).returning();
+    const [row] = await dbClient.delete(clients).where(eq(clients.id, id)).returning();
 
     if (!row) {
       const error = SupabaseServiceError.notFound(RESOURCE_NAME);

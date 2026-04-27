@@ -18,7 +18,7 @@ async function loadData() {
   }
   logger.info({ userId }, "Loading onboarding company-details page data");
 
-  const [onboardingError, onboarding] = await getCachedOnboardingState(userId);
+  const [onboardingError, onboarding] = await getCachedOnboardingState({ contractorId: userId });
   if (onboardingError && !onboardingError.isNotFound) {
     logger.error(
       {
@@ -34,7 +34,10 @@ async function loadData() {
   let onboardingData = onboarding;
 
   if (onboardingError && onboardingError.isNotFound) {
-    const [error, createdOnboarding] = await createOnboardingState(userId, OnboardingStep.COMPANY_DETAILS);
+    const [error, createdOnboarding] = await createOnboardingState({
+      contractorId: userId,
+      currentStep: OnboardingStep.COMPANY_DETAILS
+    });
     if (error) {
       logger.error(
         {

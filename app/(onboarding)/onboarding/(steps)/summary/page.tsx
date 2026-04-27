@@ -21,7 +21,7 @@ async function loadData() {
   const config = await getOnboardingPlanConfig(OnboardingStep.SUMMARY);
   if (!config) throw new Error("onboarding summary page data is missing");
 
-  const [onboardingError, onboarding] = await getCachedOnboardingState(userId);
+  const [onboardingError, onboarding] = await getCachedOnboardingState({ contractorId: userId });
   if (onboardingError) {
     logger.error(
       {

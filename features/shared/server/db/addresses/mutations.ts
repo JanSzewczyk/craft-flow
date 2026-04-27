@@ -9,13 +9,7 @@ import { addresses, type Address } from "../schema";
 const logger = createLogger({ module: "shared-db" });
 const RESOURCE_NAME = "Address";
 
-export type AddressData = {
-  street: string;
-  postalCode: string;
-  city: string;
-  country: string;
-  additionalInfo: string | null | undefined;
-};
+export type AddressData = Pick<Address, "street" | "postalCode" | "city" | "country" | "additionalInfo">;
 
 export async function insertAddress({
   data,

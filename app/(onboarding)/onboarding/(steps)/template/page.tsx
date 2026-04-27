@@ -22,7 +22,7 @@ async function loadData() {
   const config = await getOnboardingPlanConfig(OnboardingStep.TEMPLATE);
   if (!config) throw new Error("onboarding branding page data is missing");
 
-  const [onboardingError, onboardingState] = await getCachedOnboardingState(userId);
+  const [onboardingError, onboardingState] = await getCachedOnboardingState({ contractorId: userId });
   if (onboardingError) {
     logger.error(
       {

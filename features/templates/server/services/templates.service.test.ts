@@ -95,7 +95,7 @@ describe("templates.service", () => {
 
       expect(err).toBeNull();
       expect(result).toBe(listResult);
-      expect(mocks.getTemplateListByContractor).toHaveBeenCalledWith(profileId, options);
+      expect(mocks.getTemplateListByContractor).toHaveBeenCalledWith({ contractorId: profileId, options });
     });
   });
 
@@ -223,9 +223,9 @@ describe("templates.service", () => {
 
       await createTemplate(userId, formData);
 
-      expect(mocks.createTemplateWithSteps).toHaveBeenCalledWith(
-        profileId,
-        expect.objectContaining({
+      expect(mocks.createTemplateWithSteps).toHaveBeenCalledWith({
+        contractorId: profileId,
+        templateData: expect.objectContaining({
           name: formData.name,
           description: formData.description,
           steps: formData.steps.map((s, i) => ({
@@ -234,7 +234,7 @@ describe("templates.service", () => {
             orderIndex: i
           }))
         })
-      );
+      });
     });
   });
 
@@ -345,10 +345,10 @@ describe("templates.service", () => {
 
       await updateTemplate(userId, templateId, formData);
 
-      expect(mocks.replaceTemplateSteps).toHaveBeenCalledWith(
+      expect(mocks.replaceTemplateSteps).toHaveBeenCalledWith({
         templateId,
-        formData.steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
-      );
+        steps: formData.steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
+      });
     });
   });
 
@@ -509,7 +509,7 @@ describe("templates.service", () => {
 
       await duplicateTemplate(userId, templateId);
 
-      expect(mocks.duplicateTemplate).toHaveBeenCalledWith(templateId, "[Kopia] My Template");
+      expect(mocks.duplicateTemplate).toHaveBeenCalledWith({ templateId, newName: "[Kopia] My Template" });
     });
   });
 });

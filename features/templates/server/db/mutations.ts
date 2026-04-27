@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { templateSteps, templates, type Template } from "./schema";
@@ -11,12 +11,17 @@ const RESOURCE_NAME = "Template";
 
 type TemplateStepInput = { title: string; description?: string | null };
 
-export async function createTemplateWithSteps(
-  contractorId: string,
-  templateData: { name: string; description?: string | null; steps: TemplateStepInput[] }
-): Promise<SupabaseServiceResult<Template>> {
+export async function createTemplateWithSteps({
+  contractorId,
+  templateData,
+  dbClient = db
+}: {
+  contractorId: string;
+  templateData: { name: string; description?: string | null; steps: TemplateStepInput[] };
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Template>> {
   try {
-    const result = await db.transaction(async (tx) => {
+    const result = await dbClient.transaction(async (tx) => {
       const [template] = await tx
         .insert(templates)
         .values({ contractorId, name: templateData.name, description: templateData.description })
@@ -49,12 +54,17 @@ export async function createTemplateWithSteps(
   }
 }
 
-export async function updateTemplate(
-  id: string,
-  data: { name: string; description?: string | null }
-): Promise<SupabaseServiceResult<Template>> {
+export async function updateTemplate({
+  id,
+  data,
+  dbClient = db
+}: {
+  id: string;
+  data: { name: string; description?: string | null };
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Template>> {
   try {
-    const [row] = await db
+    const [row] = await dbClient
       .update(templates)
       .set({ name: data.name, description: data.description, updatedAt: new Date() })
       .where(eq(templates.id, id))
@@ -75,9 +85,15 @@ export async function updateTemplate(
   }
 }
 
-export async function deleteTemplate(id: string): Promise<SupabaseServiceResult<Template>> {
+export async function deleteTemplate({
+  id,
+  dbClient = db
+}: {
+  id: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Template>> {
   try {
-    const result = await db.transaction(async (tx) => {
+    const result = await dbClient.transaction(async (tx) => {
       await tx.delete(templateSteps).where(eq(templateSteps.templateId, id));
       const [row] = await tx.delete(templates).where(eq(templates.id, id)).returning();
 
@@ -99,12 +115,17 @@ export async function deleteTemplate(id: string): Promise<SupabaseServiceResult<
 
 export type ReplaceStepInput = { title: string; description?: string | null; orderIndex: number };
 
-export async function replaceTemplateSteps(
-  templateId: string,
-  steps: ReplaceStepInput[]
-): Promise<SupabaseServiceResult<Template>> {
+export async function replaceTemplateSteps({
+  templateId,
+  steps,
+  dbClient = db
+}: {
+  templateId: string;
+  steps: ReplaceStepInput[];
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Template>> {
   try {
-    const result = await db.transaction(async (tx) => {
+    const result = await dbClient.transaction(async (tx) => {
       await tx.delete(templateSteps).where(eq(templateSteps.templateId, templateId));
 
       if (steps.length > 0) {
@@ -140,9 +161,17 @@ export async function replaceTemplateSteps(
   }
 }
 
-export async function duplicateTemplate(templateId: string, newName: string): Promise<SupabaseServiceResult<Template>> {
+export async function duplicateTemplate({
+  templateId,
+  newName,
+  dbClient = db
+}: {
+  templateId: string;
+  newName: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Template>> {
   try {
-    const result = await db.transaction(async (tx) => {
+    const result = await dbClient.transaction(async (tx) => {
       const [original] = await tx.select().from(templates).where(eq(templates.id, templateId));
 
       if (!original) {

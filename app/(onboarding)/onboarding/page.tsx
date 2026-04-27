@@ -7,7 +7,7 @@ async function loadData() {
   const { isAuthenticated, userId } = await auth();
   if (!isAuthenticated) redirect("/sign-in");
 
-  const [error, state] = await getOnboardingState(userId);
+  const [error, state] = await getOnboardingState({ contractorId: userId });
 
   if (error) {
     const config = await getOnboardingPlanConfig();

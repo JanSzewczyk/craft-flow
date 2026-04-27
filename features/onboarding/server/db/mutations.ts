@@ -2,19 +2,24 @@ import { eq } from "drizzle-orm";
 
 import { type OnboardingStep } from "~/features/onboarding/constants/onboarding-steps";
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { SupabaseServiceError, categorizeSupabaseError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { type OnboardingState, onboardingState } from "./schema";
 
 const logger = createLogger({ module: "onboarding-db" });
 
-export async function createOnboardingState(
-  contractorId: string,
-  currentStep: OnboardingStep
-): Promise<SupabaseServiceResult<OnboardingState>> {
+export async function createOnboardingState({
+  contractorId,
+  currentStep,
+  dbClient = db
+}: {
+  contractorId: string;
+  currentStep: OnboardingStep;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<OnboardingState>> {
   try {
-    const rows = await db
+    const rows = await dbClient
       .insert(onboardingState)
       .values({
         contractorId,
@@ -46,14 +51,19 @@ export async function createOnboardingState(
   }
 }
 
-export async function updateStepData(
-  contractorId: string,
+export async function updateStepData({
+  contractorId,
+  stepData,
+  dbClient = db
+}: {
+  contractorId: string;
   stepData: Partial<
     Pick<OnboardingState, "currentStep" | "branding" | "companyDetails" | "emailConfig" | "templateConfig">
-  >
-): Promise<SupabaseServiceResult<OnboardingState>> {
+  >;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<OnboardingState>> {
   try {
-    const [row] = await db
+    const [row] = await dbClient
       .update(onboardingState)
       .set({
         ...stepData,
@@ -77,9 +87,15 @@ export async function updateStepData(
   }
 }
 
-export async function markOnboardingComplete(contractorId: string): Promise<SupabaseServiceResult<OnboardingState>> {
+export async function markOnboardingComplete({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<OnboardingState>> {
   try {
-    const [row] = await db
+    const [row] = await dbClient
       .update(onboardingState)
       .set({
         completed: true,

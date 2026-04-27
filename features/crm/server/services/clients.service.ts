@@ -39,7 +39,7 @@ export const getClientList = cache(async function (
     return [profileError, null];
   }
 
-  return getClientListByContractor(profile.id, options);
+  return getClientListByContractor({ contractorId: profile.id, options });
 });
 
 export const getClientDetail = cache(async function (
@@ -54,7 +54,7 @@ export const getClientDetail = cache(async function (
     return [profileError, null];
   }
 
-  const [clientError, client] = await getClientById(clientId);
+  const [clientError, client] = await getClientById({ id: clientId });
   if (clientError) {
     logger.error({ userId, clientId, errorCode: clientError.code }, "Failed to fetch client");
     return [clientError, null];
@@ -76,7 +76,7 @@ export const getClientDetail = cache(async function (
 // ---------------------------------------------------------------------------
 
 async function checkOwnership(clientId: string, contractorId: string): Promise<SupabaseServiceResult<Client>> {
-  const [err, client] = await getClientById(clientId);
+  const [err, client] = await getClientById({ id: clientId });
   if (err) {
     logger.error({ clientId, operation: "checkOwnership", errorCode: err.code }, "Failed to fetch client");
     return [err, null];
@@ -117,7 +117,7 @@ export async function createClient(userId: string, data: ClientFormData): Promis
     return [profileErr, null];
   }
 
-  const [createErr, client] = await createClientDb(profile.id, data);
+  const [createErr, client] = await createClientDb({ contractorId: profile.id, data });
   if (createErr) {
     logger.error({ userId, operation: "createClient", errorCode: createErr.code }, "DB insert failed");
     return [createErr, null];
@@ -158,7 +158,7 @@ export async function updateClient(
     return [validationError, null];
   }
 
-  const [updateErr, updated] = await updateClientDb(clientId, data);
+  const [updateErr, updated] = await updateClientDb({ id: clientId, data });
   if (updateErr) {
     logger.error({ userId, clientId, operation: "updateClient", errorCode: updateErr.code }, "DB update failed");
     return [updateErr, null];
@@ -189,7 +189,7 @@ export async function deleteClient(userId: string, clientId: string): Promise<Cl
   const [ownerErr] = await checkOwnership(clientId, profile.id);
   if (ownerErr) return [ownerErr, null];
 
-  const [deleteErr] = await deleteClientDb(clientId);
+  const [deleteErr] = await deleteClientDb({ id: clientId });
   if (deleteErr) {
     logger.error({ userId, clientId, operation: "deleteClient", errorCode: deleteErr.code }, "DB delete failed");
     return [deleteErr, null];

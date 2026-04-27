@@ -55,8 +55,10 @@ describe("submitTemplateAction", () => {
     await submitTemplateAction(templateData, mockState);
 
     expect(mocks.updateStepData).toHaveBeenCalledWith(
-      mockState.contractorId,
-      expect.objectContaining({ templateConfig: templateData })
+      expect.objectContaining({
+        contractorId: mockState.contractorId,
+        stepData: expect.objectContaining({ templateConfig: templateData })
+      })
     );
     expect(mocks.redirect).toHaveBeenCalledWith(mockConfig.nextStep);
   });

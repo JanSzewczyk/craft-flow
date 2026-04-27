@@ -1,7 +1,7 @@
 import { and, count, desc, eq, ilike, sql } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { type PaginationMeta } from "~/types/pagination";
 
@@ -9,9 +9,15 @@ import { templateSteps, templates, type Template, type TemplateStep } from "./sc
 
 const logger = createLogger({ module: "templates-db" });
 
-export async function getTemplatesByContractor(contractorId: string): Promise<SupabaseServiceResult<Template[]>> {
+export async function getTemplatesByContractor({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Template[]>> {
   try {
-    const rows = await db.select().from(templates).where(eq(templates.contractorId, contractorId));
+    const rows = await dbClient.select().from(templates).where(eq(templates.contractorId, contractorId));
     return [null, rows];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Template");
@@ -20,11 +26,15 @@ export async function getTemplatesByContractor(contractorId: string): Promise<Su
   }
 }
 
-export async function getTemplateWithSteps(
-  templateId: string
-): Promise<SupabaseServiceResult<{ template: Template; steps: TemplateStep[] }>> {
+export async function getTemplateWithSteps({
+  templateId,
+  dbClient = db
+}: {
+  templateId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<{ template: Template; steps: TemplateStep[] }>> {
   try {
-    const rows = await db.select().from(templates).where(eq(templates.id, templateId));
+    const rows = await dbClient.select().from(templates).where(eq(templates.id, templateId));
     const template = rows[0];
 
     if (!template) {
@@ -33,7 +43,7 @@ export async function getTemplateWithSteps(
       return [error, null];
     }
 
-    const steps = await db.select().from(templateSteps).where(eq(templateSteps.templateId, templateId));
+    const steps = await dbClient.select().from(templateSteps).where(eq(templateSteps.templateId, templateId));
     return [null, { template, steps }];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Template");
@@ -63,15 +73,20 @@ export type TemplateListResult = {
   pagination: PaginationMeta;
 };
 
-export async function getTemplateListByContractor(
-  contractorId: string,
-  options: TemplateListOptions
-): Promise<SupabaseServiceResult<TemplateListResult>> {
+export async function getTemplateListByContractor({
+  contractorId,
+  options,
+  dbClient = db
+}: {
+  contractorId: string;
+  options: TemplateListOptions;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<TemplateListResult>> {
   try {
     const { search, page, perPage } = options;
     const offset = (page - 1) * perPage;
 
-    const stepCountSubquery = db
+    const stepCountSubquery = dbClient
       .select({
         templateId: templateSteps.templateId,
         stepsCount: count().as("steps_count")
@@ -89,7 +104,7 @@ export async function getTemplateListByContractor(
     const whereClause = and(...conditions)!;
 
     const [rows, countResult] = await Promise.all([
-      db
+      dbClient
         .select({
           id: templates.id,
           name: templates.name,
@@ -104,7 +119,7 @@ export async function getTemplateListByContractor(
         .orderBy(desc(templates.updatedAt))
         .limit(perPage)
         .offset(offset),
-      db.select({ value: count() }).from(templates).where(whereClause)
+      dbClient.select({ value: count() }).from(templates).where(whereClause)
     ]);
 
     // For each template, fetch up to 3 preview step titles
@@ -112,7 +127,7 @@ export async function getTemplateListByContractor(
     const previewStepsMap = new Map<string, string[]>();
 
     if (templateIds.length > 0) {
-      const allPreviewSteps = await db
+      const allPreviewSteps = await dbClient
         .select({
           templateId: templateSteps.templateId,
           title: templateSteps.title,
@@ -167,9 +182,18 @@ export async function getTemplateListByContractor(
   }
 }
 
-export async function getTemplateCountByContractor(contractorId: string): Promise<SupabaseServiceResult<number>> {
+export async function getTemplateCountByContractor({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<number>> {
   try {
-    const [row] = await db.select({ value: count() }).from(templates).where(eq(templates.contractorId, contractorId));
+    const [row] = await dbClient
+      .select({ value: count() })
+      .from(templates)
+      .where(eq(templates.contractorId, contractorId));
 
     return [null, row?.value ?? 0];
   } catch (error) {

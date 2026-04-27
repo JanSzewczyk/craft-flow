@@ -260,6 +260,15 @@ describe("finalizeOnboardingAction", () => {
 
     await finalizeOnboardingAction();
 
-    expect(mocks.createTemplateWithSteps).toHaveBeenCalledWith("user-123", validState.templateConfig);
+    expect(mocks.createTemplateWithSteps).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contractorId: "user-123",
+        templateData: expect.objectContaining({
+          name: validState.templateConfig!.name,
+          description: validState.templateConfig!.description,
+          steps: validState.templateConfig!.steps
+        })
+      })
+    );
   });
 });

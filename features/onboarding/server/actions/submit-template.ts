@@ -23,9 +23,12 @@ export async function submitTemplateAction(
     return { success: false, error: "Nie znaleziono aktywnego planu" };
   }
 
-  const [error] = await updateStepData(contractorId, {
-    currentStep: config.nextStep,
-    templateConfig
+  const [error] = await updateStepData({
+    contractorId,
+    stepData: {
+      currentStep: config.nextStep,
+      templateConfig
+    }
   });
   if (error) {
     logger.error({ contractorId, errorCode: error.code }, "Failed to save template config");

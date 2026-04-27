@@ -44,7 +44,7 @@ export const getTemplateList = cache(async function (
     return [profileError, null];
   }
 
-  return getTemplateListByContractor(profile.id, options);
+  return getTemplateListByContractor({ contractorId: profile.id, options });
 });
 
 export type TemplateLimits = {
@@ -61,7 +61,7 @@ export const getTemplateLimits = cache(async function (userId: string): Promise<
     return [profileError, null];
   }
 
-  const [countError, used] = await getTemplateCountByContractor(profile.id);
+  const [countError, used] = await getTemplateCountByContractor({ contractorId: profile.id });
   if (countError) {
     logger.error({ userId, errorCode: countError.code }, "Failed to count templates");
     return [countError, null];
@@ -79,7 +79,7 @@ export const getTemplateLimits = cache(async function (userId: string): Promise<
 // ---------------------------------------------------------------------------
 
 async function checkOwnership(templateId: string, contractorId: string): Promise<SupabaseServiceResult<Template>> {
-  const [err, existing] = await getTemplateWithSteps(templateId);
+  const [err, existing] = await getTemplateWithSteps({ templateId });
   if (err) {
     logger.error({ templateId, operation: "checkOwnership", errorCode: err.code }, "Failed to fetch template");
     return [err, null];
@@ -130,10 +130,13 @@ export async function createTemplate(
   }
 
   const { name, description, steps } = data;
-  const [createErr, template] = await createTemplateWithSteps(profile.id, {
-    name,
-    description,
-    steps: steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
+  const [createErr, template] = await createTemplateWithSteps({
+    contractorId: profile.id,
+    templateData: {
+      name,
+      description,
+      steps: steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
+    }
   });
   if (createErr) {
     logger.error({ userId, operation: "createTemplate", errorCode: createErr.code }, "DB insert failed");
@@ -170,7 +173,7 @@ export async function updateTemplate(
   if (ownerErr) return [ownerErr, null];
 
   const { name, description, steps } = data;
-  const [updateErr, updated] = await updateTemplateDb(id, { name, description });
+  const [updateErr, updated] = await updateTemplateDb({ id, data: { name, description } });
   if (updateErr) {
     logger.error(
       { userId, templateId: id, operation: "updateTemplate", errorCode: updateErr.code },
@@ -179,10 +182,10 @@ export async function updateTemplate(
     return [updateErr, null];
   }
 
-  const [stepsErr] = await replaceTemplateSteps(
-    id,
-    steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
-  );
+  const [stepsErr] = await replaceTemplateSteps({
+    templateId: id,
+    steps: steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
+  });
   if (stepsErr) {
     logger.error(
       { userId, templateId: id, operation: "updateTemplate", errorCode: stepsErr.code },
@@ -216,7 +219,7 @@ export async function deleteTemplate(userId: string, id: string): Promise<Templa
   const [ownerErr] = await checkOwnership(id, profile.id);
   if (ownerErr) return [ownerErr, null];
 
-  const [deleteErr] = await deleteTemplateDb(id);
+  const [deleteErr] = await deleteTemplateDb({ id });
   if (deleteErr) {
     logger.error(
       { userId, templateId: id, operation: "deleteTemplate", errorCode: deleteErr.code },
@@ -257,7 +260,7 @@ export async function duplicateTemplate(userId: string, templateId: string): Pro
   if (ownerErr) return [ownerErr, null];
 
   const newName = `[Kopia] ${existing.name}`;
-  const [dupErr, template] = await duplicateTemplateDb(templateId, newName);
+  const [dupErr, template] = await duplicateTemplateDb({ templateId, newName });
   if (dupErr) {
     logger.error({ userId, templateId, operation: "duplicateTemplate", errorCode: dupErr.code }, "DB duplicate failed");
     return [dupErr, null];

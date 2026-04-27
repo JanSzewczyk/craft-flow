@@ -28,7 +28,7 @@ async function loadData() {
     redirect(config.currentStep);
   }
 
-  const [onboardingError, onboardingState] = await getCachedOnboardingState(userId);
+  const [onboardingError, onboardingState] = await getCachedOnboardingState({ contractorId: userId });
   if (onboardingError) {
     if (onboardingError.isNotFound) {
       logger.warn({ userId }, "No onboarding state found, redirecting to first step");

@@ -4,12 +4,10 @@ const mocks = vi.hoisted(() => ({
   getPlanFeatures: vi.fn(),
   getTemplateListByContractor: vi.fn(),
   getTemplateCountByContractor: vi.fn(),
-  getTemplateWithSteps: vi.fn(),
-  createTemplateWithSteps: vi.fn(),
+  getTemplateById: vi.fn(),
+  createTemplate: vi.fn(),
   updateTemplate: vi.fn(),
   deleteTemplate: vi.fn(),
-  replaceTemplateSteps: vi.fn(),
-  duplicateTemplate: vi.fn(),
   canAddTemplate: vi.fn()
 }));
 
@@ -21,14 +19,12 @@ vi.mock("~/features/billing/server", () => ({ getPlanFeatures: mocks.getPlanFeat
 vi.mock("~/features/templates/server/db/queries", () => ({
   getTemplateListByContractor: mocks.getTemplateListByContractor,
   getTemplateCountByContractor: mocks.getTemplateCountByContractor,
-  getTemplateWithSteps: mocks.getTemplateWithSteps
+  getTemplateById: mocks.getTemplateById
 }));
 vi.mock("~/features/templates/server/db/mutations", () => ({
-  createTemplateWithSteps: mocks.createTemplateWithSteps,
+  createTemplate: mocks.createTemplate,
   updateTemplate: mocks.updateTemplate,
-  deleteTemplate: mocks.deleteTemplate,
-  replaceTemplateSteps: mocks.replaceTemplateSteps,
-  duplicateTemplate: mocks.duplicateTemplate
+  deleteTemplate: mocks.deleteTemplate
 }));
 vi.mock("~/features/templates/server/permissions", () => ({ canAddTemplate: mocks.canAddTemplate }));
 
@@ -189,13 +185,13 @@ describe("templates.service", () => {
 
       expect(err).toBe(limitError);
       expect(result).toBeNull();
-      expect(mocks.createTemplateWithSteps).not.toHaveBeenCalled();
+      expect(mocks.createTemplate).not.toHaveBeenCalled();
     });
 
-    test("returns error when createTemplateWithSteps fails", async () => {
+    test("returns error when createTemplate DB call fails", async () => {
       setupAuthAndProfile();
       mocks.canAddTemplate.mockResolvedValue([null, undefined]);
-      mocks.createTemplateWithSteps.mockResolvedValue([dbError, null]);
+      mocks.createTemplate.mockResolvedValue([dbError, null]);
 
       const [err, result] = await createTemplate(userId, formData);
 
@@ -207,7 +203,7 @@ describe("templates.service", () => {
       setupAuthAndProfile();
       mocks.canAddTemplate.mockResolvedValue([null, undefined]);
       const template = templateBuilder.one({ overrides: { contractorId: profileId } });
-      mocks.createTemplateWithSteps.mockResolvedValue([null, template]);
+      mocks.createTemplate.mockResolvedValue([null, template]);
 
       const [err, result] = await createTemplate(userId, formData);
 
@@ -215,22 +211,22 @@ describe("templates.service", () => {
       expect(result).toBe(template);
     });
 
-    test("calls createTemplateWithSteps with correct profile id and mapped step data", async () => {
+    test("calls createTemplate with correct profile id and mapped step data", async () => {
       setupAuthAndProfile();
       mocks.canAddTemplate.mockResolvedValue([null, undefined]);
       const template = templateBuilder.one({ overrides: { contractorId: profileId } });
-      mocks.createTemplateWithSteps.mockResolvedValue([null, template]);
+      mocks.createTemplate.mockResolvedValue([null, template]);
 
       await createTemplate(userId, formData);
 
-      expect(mocks.createTemplateWithSteps).toHaveBeenCalledWith({
+      expect(mocks.createTemplate).toHaveBeenCalledWith({
         contractorId: profileId,
-        templateData: expect.objectContaining({
+        createTemplateData: expect.objectContaining({
           name: formData.name,
           description: formData.description,
           steps: formData.steps.map((s, i) => ({
             title: s.title,
-            description: s.description,
+            description: s.description ?? null,
             orderIndex: i
           }))
         })
@@ -263,13 +259,13 @@ describe("templates.service", () => {
 
       expect(err).toBe(profileError);
       expect(result).toBeNull();
-      expect(mocks.getTemplateWithSteps).not.toHaveBeenCalled();
+      expect(mocks.getTemplateById).not.toHaveBeenCalled();
     });
 
     test("returns error when ownership check fails (template not found)", async () => {
       setupAuthAndProfile();
       const notFoundError = { code: "not_found", message: "Template not found" };
-      mocks.getTemplateWithSteps.mockResolvedValue([notFoundError, null]);
+      mocks.getTemplateById.mockResolvedValue([notFoundError, null]);
 
       const [err, result] = await updateTemplate(userId, templateId, formData);
 
@@ -283,7 +279,7 @@ describe("templates.service", () => {
       const otherContractorTemplate = templateBuilder.one({
         overrides: { contractorId: "other-contractor-id" }
       });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: otherContractorTemplate, steps: [] }]);
+      mocks.getTemplateById.mockResolvedValue([null, otherContractorTemplate]);
 
       const [err, result] = await updateTemplate(userId, templateId, formData);
 
@@ -295,23 +291,8 @@ describe("templates.service", () => {
     test("returns error when updateTemplate DB call fails", async () => {
       setupAuthAndProfile();
       const ownedTemplate = templateBuilder.one({ overrides: { contractorId: profileId, id: templateId } });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
+      mocks.getTemplateById.mockResolvedValue([null, ownedTemplate]);
       mocks.updateTemplate.mockResolvedValue([dbError, null]);
-
-      const [err, result] = await updateTemplate(userId, templateId, formData);
-
-      expect(err).toBe(dbError);
-      expect(result).toBeNull();
-      expect(mocks.replaceTemplateSteps).not.toHaveBeenCalled();
-    });
-
-    test("returns error when replaceTemplateSteps fails", async () => {
-      setupAuthAndProfile();
-      const ownedTemplate = templateBuilder.one({ overrides: { contractorId: profileId, id: templateId } });
-      const updatedTemplate = templateBuilder.one({ overrides: { contractorId: profileId, id: templateId } });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
-      mocks.updateTemplate.mockResolvedValue([null, updatedTemplate]);
-      mocks.replaceTemplateSteps.mockResolvedValue([dbError, null]);
 
       const [err, result] = await updateTemplate(userId, templateId, formData);
 
@@ -325,9 +306,8 @@ describe("templates.service", () => {
       const updatedTemplate = templateBuilder.one({
         overrides: { contractorId: profileId, id: templateId, name: formData.name }
       });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
+      mocks.getTemplateById.mockResolvedValue([null, ownedTemplate]);
       mocks.updateTemplate.mockResolvedValue([null, updatedTemplate]);
-      mocks.replaceTemplateSteps.mockResolvedValue([null, updatedTemplate]);
 
       const [err, result] = await updateTemplate(userId, templateId, formData);
 
@@ -335,19 +315,22 @@ describe("templates.service", () => {
       expect(result).toBe(updatedTemplate);
     });
 
-    test("calls replaceTemplateSteps with mapped steps including orderIndex", async () => {
+    test("calls updateTemplate with mapped steps including orderIndex", async () => {
       setupAuthAndProfile();
       const ownedTemplate = templateBuilder.one({ overrides: { contractorId: profileId, id: templateId } });
       const updatedTemplate = templateBuilder.one({ overrides: { contractorId: profileId, id: templateId } });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
+      mocks.getTemplateById.mockResolvedValue([null, ownedTemplate]);
       mocks.updateTemplate.mockResolvedValue([null, updatedTemplate]);
-      mocks.replaceTemplateSteps.mockResolvedValue([null, updatedTemplate]);
 
       await updateTemplate(userId, templateId, formData);
 
-      expect(mocks.replaceTemplateSteps).toHaveBeenCalledWith({
-        templateId,
-        steps: formData.steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
+      expect(mocks.updateTemplate).toHaveBeenCalledWith({
+        id: templateId,
+        updateInput: {
+          name: formData.name,
+          description: formData.description,
+          steps: formData.steps.map((s, i) => ({ title: s.title, description: s.description ?? null, orderIndex: i }))
+        }
       });
     });
   });
@@ -374,12 +357,12 @@ describe("templates.service", () => {
 
       expect(err).toBe(profileError);
       expect(result).toBeNull();
-      expect(mocks.getTemplateWithSteps).not.toHaveBeenCalled();
+      expect(mocks.getTemplateById).not.toHaveBeenCalled();
     });
 
     test("returns error when ownership check fails", async () => {
       setupAuthAndProfile();
-      mocks.getTemplateWithSteps.mockResolvedValue([ownershipError, null]);
+      mocks.getTemplateById.mockResolvedValue([ownershipError, null]);
 
       const [err, result] = await deleteTemplate(userId, templateId);
 
@@ -391,7 +374,7 @@ describe("templates.service", () => {
     test("returns error when deleteTemplate DB call fails", async () => {
       setupAuthAndProfile();
       const ownedTemplate = templateBuilder.one({ overrides: { contractorId: profileId, id: templateId } });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
+      mocks.getTemplateById.mockResolvedValue([null, ownedTemplate]);
       mocks.deleteTemplate.mockResolvedValue([dbError, null]);
 
       const [err, result] = await deleteTemplate(userId, templateId);
@@ -403,7 +386,7 @@ describe("templates.service", () => {
     test("returns id on successful deletion", async () => {
       setupAuthAndProfile();
       const ownedTemplate = templateBuilder.one({ overrides: { contractorId: profileId, id: templateId } });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
+      mocks.getTemplateById.mockResolvedValue([null, ownedTemplate]);
       mocks.deleteTemplate.mockResolvedValue([null, ownedTemplate]);
 
       const [err, result] = await deleteTemplate(userId, templateId);
@@ -447,29 +430,29 @@ describe("templates.service", () => {
 
       expect(err).toBe(limitError);
       expect(result).toBeNull();
-      expect(mocks.getTemplateWithSteps).not.toHaveBeenCalled();
+      expect(mocks.getTemplateById).not.toHaveBeenCalled();
     });
 
     test("returns error when ownership check fails", async () => {
       setupAuthAndProfile();
       mocks.canAddTemplate.mockResolvedValue([null, undefined]);
-      mocks.getTemplateWithSteps.mockResolvedValue([ownershipError, null]);
+      mocks.getTemplateById.mockResolvedValue([ownershipError, null]);
 
       const [err, result] = await duplicateTemplate(userId, templateId);
 
       expect(err).toBe(ownershipError);
       expect(result).toBeNull();
-      expect(mocks.duplicateTemplate).not.toHaveBeenCalled();
+      expect(mocks.createTemplate).not.toHaveBeenCalled();
     });
 
-    test("returns error when duplicateTemplate DB call fails", async () => {
+    test("returns error when createTemplate DB call fails", async () => {
       setupAuthAndProfile();
       mocks.canAddTemplate.mockResolvedValue([null, undefined]);
       const ownedTemplate = templateBuilder.one({
         overrides: { contractorId: profileId, id: templateId, name: "Original Name" }
       });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
-      mocks.duplicateTemplate.mockResolvedValue([dbError, null]);
+      mocks.getTemplateById.mockResolvedValue([null, ownedTemplate]);
+      mocks.createTemplate.mockResolvedValue([dbError, null]);
 
       const [err, result] = await duplicateTemplate(userId, templateId);
 
@@ -484,10 +467,10 @@ describe("templates.service", () => {
         overrides: { contractorId: profileId, id: templateId, name: "Original Name" }
       });
       const newTemplate = templateBuilder.one({
-        overrides: { contractorId: profileId, id: templateId, name: "[Kopia] Original Name" }
+        overrides: { contractorId: profileId, name: "[Kopia] Original Name" }
       });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
-      mocks.duplicateTemplate.mockResolvedValue([null, newTemplate]);
+      mocks.getTemplateById.mockResolvedValue([null, ownedTemplate]);
+      mocks.createTemplate.mockResolvedValue([null, newTemplate]);
 
       const [err, result] = await duplicateTemplate(userId, templateId);
 
@@ -495,21 +478,28 @@ describe("templates.service", () => {
       expect(result).toBe(newTemplate);
     });
 
-    test("calls duplicateTemplate with '[Kopia] <original name>' as the new name", async () => {
+    test("calls createTemplate with '[Kopia] <original name>' and copies steps from existing template", async () => {
       setupAuthAndProfile();
       mocks.canAddTemplate.mockResolvedValue([null, undefined]);
       const ownedTemplate = templateBuilder.one({
         overrides: { contractorId: profileId, id: templateId, name: "My Template" }
       });
       const newTemplate = templateBuilder.one({
-        overrides: { contractorId: profileId, id: templateId, name: "[Kopia] My Template" }
+        overrides: { contractorId: profileId, name: "[Kopia] My Template" }
       });
-      mocks.getTemplateWithSteps.mockResolvedValue([null, { template: ownedTemplate, steps: [] }]);
-      mocks.duplicateTemplate.mockResolvedValue([null, newTemplate]);
+      mocks.getTemplateById.mockResolvedValue([null, ownedTemplate]);
+      mocks.createTemplate.mockResolvedValue([null, newTemplate]);
 
       await duplicateTemplate(userId, templateId);
 
-      expect(mocks.duplicateTemplate).toHaveBeenCalledWith({ templateId, newName: "[Kopia] My Template" });
+      expect(mocks.createTemplate).toHaveBeenCalledWith({
+        contractorId: profileId,
+        createTemplateData: {
+          name: "[Kopia] My Template",
+          description: ownedTemplate.description,
+          steps: ownedTemplate.steps
+        }
+      });
     });
   });
 });

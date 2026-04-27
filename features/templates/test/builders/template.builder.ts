@@ -1,7 +1,7 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import { type Template } from "~/features/templates/server/db/schema";
+import { type Template, type TemplateStep } from "~/features/templates/server/db/schema";
 
 /**
  * Builder for Template test data.
@@ -21,12 +21,19 @@ export const templateBuilder = build<Template>({
     contractorId: () => faker.string.uuid(),
     name: () => faker.lorem.words(3),
     description: () => faker.lorem.sentence(),
+    steps: (): TemplateStep[] => [
+      { title: faker.lorem.words(3), description: faker.lorem.sentence(), orderIndex: 0 },
+      { title: faker.lorem.words(3), description: null, orderIndex: 1 }
+    ],
     createdAt: () => faker.date.past(),
     updatedAt: () => faker.date.recent()
   },
   traits: {
     noDescription: {
       overrides: { description: null }
+    },
+    noSteps: {
+      overrides: { steps: [] }
     }
   }
 });

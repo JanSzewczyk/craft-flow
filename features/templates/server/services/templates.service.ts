@@ -6,16 +6,14 @@ import { getPlanFeatures } from "~/features/billing/server";
 import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import { type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import {
-  createTemplateWithSteps,
+  createTemplate as createTemplateDb,
   deleteTemplate as deleteTemplateDb,
-  duplicateTemplate as duplicateTemplateDb,
-  replaceTemplateSteps,
   updateTemplate as updateTemplateDb
 } from "~/features/templates/server/db/mutations";
 import {
+  getTemplateById,
   getTemplateCountByContractor,
   getTemplateListByContractor,
-  getTemplateWithSteps,
   type TemplateListOptions,
   type TemplateListResult
 } from "~/features/templates/server/db/queries";
@@ -79,13 +77,13 @@ export const getTemplateLimits = cache(async function (userId: string): Promise<
 // ---------------------------------------------------------------------------
 
 async function checkOwnership(templateId: string, contractorId: string): Promise<SupabaseServiceResult<Template>> {
-  const [err, existing] = await getTemplateWithSteps({ templateId });
+  const [err, existing] = await getTemplateById({ templateId });
   if (err) {
     logger.error({ templateId, operation: "checkOwnership", errorCode: err.code }, "Failed to fetch template");
     return [err, null];
   }
 
-  if (existing.template.contractorId !== contractorId) {
+  if (existing.contractorId !== contractorId) {
     logger.warn(
       { templateId, contractorId, operation: "checkOwnership" },
       "Ownership check failed: template belongs to another contractor"
@@ -93,7 +91,7 @@ async function checkOwnership(templateId: string, contractorId: string): Promise
     return [SupabaseServiceError.unauthorized(), null];
   }
 
-  return [null, existing.template];
+  return [null, existing];
 }
 
 // ---------------------------------------------------------------------------
@@ -104,7 +102,7 @@ export type TemplateMutationResult<T> = ServiceResult<BaseServiceError, T>;
 
 export async function createTemplate(
   userId: string,
-  data: TemplateFormData
+  formData: TemplateFormData
 ): Promise<TemplateMutationResult<Template>> {
   logger.info({ userId }, "Creating template");
 
@@ -129,13 +127,13 @@ export async function createTemplate(
     return [limitsErr, null];
   }
 
-  const { name, description, steps } = data;
-  const [createErr, template] = await createTemplateWithSteps({
+  const { name, description, steps } = formData;
+  const [createErr, template] = await createTemplateDb({
     contractorId: profile.id,
-    templateData: {
+    createTemplateData: {
       name,
       description,
-      steps: steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
+      steps: steps.map((s, i) => ({ title: s.title, description: s.description ?? null, orderIndex: i }))
     }
   });
   if (createErr) {
@@ -150,7 +148,7 @@ export async function createTemplate(
 export async function updateTemplate(
   userId: string,
   id: string,
-  data: TemplateFormData
+  formData: TemplateFormData
 ): Promise<TemplateMutationResult<Template>> {
   logger.info({ userId, templateId: id }, "Updating template");
 
@@ -172,26 +170,21 @@ export async function updateTemplate(
   const [ownerErr] = await checkOwnership(id, profile.id);
   if (ownerErr) return [ownerErr, null];
 
-  const { name, description, steps } = data;
-  const [updateErr, updated] = await updateTemplateDb({ id, data: { name, description } });
+  const { name, description, steps } = formData;
+  const [updateErr, updated] = await updateTemplateDb({
+    id,
+    updateInput: {
+      name,
+      description,
+      steps: steps.map((s, i) => ({ title: s.title, description: s.description ?? null, orderIndex: i }))
+    }
+  });
   if (updateErr) {
     logger.error(
       { userId, templateId: id, operation: "updateTemplate", errorCode: updateErr.code },
       "DB update failed"
     );
     return [updateErr, null];
-  }
-
-  const [stepsErr] = await replaceTemplateSteps({
-    templateId: id,
-    steps: steps.map((s, i) => ({ title: s.title, description: s.description, orderIndex: i }))
-  });
-  if (stepsErr) {
-    logger.error(
-      { userId, templateId: id, operation: "updateTemplate", errorCode: stepsErr.code },
-      "Steps replace failed"
-    );
-    return [stepsErr, null];
   }
 
   logger.info({ userId, templateId: id }, "Template updated successfully");
@@ -259,11 +252,17 @@ export async function duplicateTemplate(userId: string, templateId: string): Pro
   const [ownerErr, existing] = await checkOwnership(templateId, profile.id);
   if (ownerErr) return [ownerErr, null];
 
-  const newName = `[Kopia] ${existing.name}`;
-  const [dupErr, template] = await duplicateTemplateDb({ templateId, newName });
-  if (dupErr) {
-    logger.error({ userId, templateId, operation: "duplicateTemplate", errorCode: dupErr.code }, "DB duplicate failed");
-    return [dupErr, null];
+  const [createErr, template] = await createTemplateDb({
+    contractorId: existing.contractorId,
+    createTemplateData: {
+      name: `[Kopia] ${existing.name}`,
+      description: existing.description,
+      steps: existing.steps
+    }
+  });
+  if (createErr) {
+    logger.error({ userId, templateId, operation: "duplicateTemplate", errorCode: createErr.code }, "DB insert failed");
+    return [createErr, null];
   }
 
   logger.info({ userId, templateId, newTemplateId: template.id }, "Template duplicated successfully");

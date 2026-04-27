@@ -1,13 +1,14 @@
-import { and, count, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { type PaginationMeta } from "~/types/pagination";
 
-import { templateSteps, templates, type Template, type TemplateStep } from "./schema";
+import { templates, type Template } from "./schema";
 
 const logger = createLogger({ module: "templates-db" });
+const RESOURCE_NAME = "Template";
 
 export async function getTemplatesByContractor({
   contractorId,
@@ -15,39 +16,37 @@ export async function getTemplatesByContractor({
 }: {
   contractorId: string;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<Template[]>> {
+}): Promise<SupabaseServiceResult<Array<Template>>> {
   try {
     const rows = await dbClient.select().from(templates).where(eq(templates.contractorId, contractorId));
     return [null, rows];
   } catch (error) {
-    const serviceError = categorizeSupabaseError(error, "Template");
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to get templates");
     return [serviceError, null];
   }
 }
 
-export async function getTemplateWithSteps({
+export async function getTemplateById({
   templateId,
   dbClient = db
 }: {
   templateId: string;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<{ template: Template; steps: TemplateStep[] }>> {
+}): Promise<SupabaseServiceResult<Template>> {
   try {
-    const rows = await dbClient.select().from(templates).where(eq(templates.id, templateId));
-    const template = rows[0];
+    const [template] = await dbClient.select().from(templates).where(eq(templates.id, templateId));
 
     if (!template) {
-      const error = SupabaseServiceError.notFound("Template");
+      const error = SupabaseServiceError.notFound(RESOURCE_NAME);
       logger.error({ templateId, errorCode: error.code }, "Template not found");
       return [error, null];
     }
 
-    const steps = await dbClient.select().from(templateSteps).where(eq(templateSteps.templateId, templateId));
-    return [null, { template, steps }];
+    return [null, template];
   } catch (error) {
-    const serviceError = categorizeSupabaseError(error, "Template");
-    logger.error({ templateId, errorCode: serviceError.code }, "Failed to get template with steps");
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
+    logger.error({ templateId, errorCode: serviceError.code }, "Failed to get template");
     return [serviceError, null];
   }
 }
@@ -57,7 +56,7 @@ export type TemplateListItem = {
   name: string;
   description: string | null;
   stepsCount: number;
-  previewSteps: string[];
+  previewSteps: Array<string>;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -69,7 +68,7 @@ export type TemplateListOptions = {
 };
 
 export type TemplateListResult = {
-  items: TemplateListItem[];
+  items: Array<TemplateListItem>;
   pagination: PaginationMeta;
 };
 
@@ -86,15 +85,6 @@ export async function getTemplateListByContractor({
     const { search, page, perPage } = options;
     const offset = (page - 1) * perPage;
 
-    const stepCountSubquery = dbClient
-      .select({
-        templateId: templateSteps.templateId,
-        stepsCount: count().as("steps_count")
-      })
-      .from(templateSteps)
-      .groupBy(templateSteps.templateId)
-      .as("step_counts");
-
     const conditions = [eq(templates.contractorId, contractorId)];
 
     if (search) {
@@ -105,16 +95,8 @@ export async function getTemplateListByContractor({
 
     const [rows, countResult] = await Promise.all([
       dbClient
-        .select({
-          id: templates.id,
-          name: templates.name,
-          description: templates.description,
-          stepsCount: sql<number>`coalesce(${stepCountSubquery.stepsCount}, 0)`,
-          createdAt: templates.createdAt,
-          updatedAt: templates.updatedAt
-        })
+        .select()
         .from(templates)
-        .leftJoin(stepCountSubquery, eq(templates.id, stepCountSubquery.templateId))
         .where(whereClause)
         .orderBy(desc(templates.updatedAt))
         .limit(perPage)
@@ -122,40 +104,14 @@ export async function getTemplateListByContractor({
       dbClient.select({ value: count() }).from(templates).where(whereClause)
     ]);
 
-    // For each template, fetch up to 3 preview step titles
-    const templateIds = rows.map((r) => r.id);
-    const previewStepsMap = new Map<string, string[]>();
-
-    if (templateIds.length > 0) {
-      const allPreviewSteps = await dbClient
-        .select({
-          templateId: templateSteps.templateId,
-          title: templateSteps.title,
-          orderIndex: templateSteps.orderIndex
-        })
-        .from(templateSteps)
-        .where(
-          templateIds.length === 1
-            ? eq(templateSteps.templateId, templateIds[0]!)
-            : sql`${templateSteps.templateId} = ANY(ARRAY[${sql.join(
-                templateIds.map((id) => sql`${id}::uuid`),
-                sql`, `
-              )}])`
-        )
-        .orderBy(templateSteps.templateId, templateSteps.orderIndex);
-
-      for (const step of allPreviewSteps) {
-        const existing = previewStepsMap.get(step.templateId) ?? [];
-        if (existing.length < 3) {
-          existing.push(step.title);
-          previewStepsMap.set(step.templateId, existing);
-        }
-      }
-    }
-
-    const items: TemplateListItem[] = rows.map((row) => ({
-      ...row,
-      previewSteps: previewStepsMap.get(row.id) ?? []
+    const items: Array<TemplateListItem> = rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      stepsCount: row.steps.length,
+      previewSteps: row.steps.slice(0, 3).map((s) => s.title),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt
     }));
 
     const totalCount = countResult[0]?.value ?? 0;
@@ -176,7 +132,7 @@ export async function getTemplateListByContractor({
       }
     ];
   } catch (error) {
-    const serviceError = categorizeSupabaseError(error, "Template");
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to get template list");
     return [serviceError, null];
   }
@@ -197,7 +153,7 @@ export async function getTemplateCountByContractor({
 
     return [null, row?.value ?? 0];
   } catch (error) {
-    const serviceError = categorizeSupabaseError(error, "Template");
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to count templates");
     return [serviceError, null];
   }

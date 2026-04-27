@@ -9,7 +9,7 @@ import { upsertContractorProfile, upsertEmailTemplate, EmailTemplateType } from 
 import { onboardingFormDataSchema } from "~/features/onboarding/schemas/onboarding-form-data-schema";
 import { getOnboardingPlanConfig } from "~/features/onboarding/server";
 import { getCachedOnboardingState, markOnboardingComplete } from "~/features/onboarding/server/db";
-import { createTemplateWithSteps } from "~/features/templates/server/db";
+import { createTemplate } from "~/features/templates/server/db";
 import { type RedirectAction } from "~/lib/action-types";
 import { createLogger } from "~/lib/logger";
 
@@ -82,12 +82,16 @@ export async function finalizeOnboardingAction(): RedirectAction {
   }
 
   if (templateConfig) {
-    const [templateError] = await createTemplateWithSteps({
+    const [templateError] = await createTemplate({
       contractorId: userId,
-      templateData: {
+      createTemplateData: {
         name: templateConfig.name,
         description: templateConfig.description,
-        steps: templateConfig.steps
+        steps: templateConfig.steps.map((s, i) => ({
+          title: s.title,
+          description: s.description ?? null,
+          orderIndex: i
+        }))
       }
     });
     if (templateError) {

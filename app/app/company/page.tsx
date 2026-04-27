@@ -30,18 +30,18 @@ async function loadData() {
     redirect("/sign-in");
   }
 
-  const [error, data] = await getCompanyProfile(userId);
+  const [error, companyProfile] = await getCompanyProfile(userId);
   if (error) {
     logger.error({ userId, errorCode: error.code }, "Failed to load company profile");
     throw error;
   }
 
   logger.info({ userId }, "Successfully loaded company page data");
-  return { data };
+  return { companyProfile };
 }
 
 export default async function CompanyPage() {
-  const { data } = await loadData();
+  const { companyProfile } = await loadData();
 
   return (
     <div className="space-y-6">
@@ -68,7 +68,7 @@ export default async function CompanyPage() {
           <Link href="/app/company/edit">Edytuj</Link>
         </Button>
       </div>
-      <CompanyProfileCards data={data} />
+      <CompanyProfileCards companyProfile={companyProfile} />
     </div>
   );
 }

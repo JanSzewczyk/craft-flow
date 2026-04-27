@@ -9,10 +9,8 @@ import { contractorProfile, type ContractorProfile } from "./schema";
 const logger = createLogger({ module: "contractor-db" });
 const RESOURCE_NAME = "ContractorProfile";
 
-type UpsertData = Pick<
-  ContractorProfile,
-  "companyName" | "industry" | "email" | "phone" | "nip" | "regon" | "brandColor" | "logoUrl" | "addressId"
->;
+type UpsertData = Pick<ContractorProfile, "companyName" | "industry" | "email" | "phone" | "nip" | "regon"> &
+  Partial<Pick<ContractorProfile, "brandColor" | "logoUrl" | "addressId">>;
 
 export async function upsertContractorProfile({
   contractorId,

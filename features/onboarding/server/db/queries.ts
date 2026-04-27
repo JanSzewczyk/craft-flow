@@ -3,7 +3,7 @@ import { cache } from "react";
 import { eq } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { onboardingState, type OnboardingState } from "./schema";
@@ -11,9 +11,15 @@ import { onboardingState, type OnboardingState } from "./schema";
 const logger = createLogger({ module: "onboarding-db" });
 const RESOURCE_NAME = "OnboardingState";
 
-export async function getOnboardingState(contractorId: string): Promise<SupabaseServiceResult<OnboardingState>> {
+export async function getOnboardingState({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<OnboardingState>> {
   try {
-    const rows = await db.select().from(onboardingState).where(eq(onboardingState.contractorId, contractorId));
+    const rows = await dbClient.select().from(onboardingState).where(eq(onboardingState.contractorId, contractorId));
     const row = rows[0];
     if (!row) {
       const error = SupabaseServiceError.notFound(RESOURCE_NAME);

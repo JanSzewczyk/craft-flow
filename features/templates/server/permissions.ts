@@ -9,7 +9,7 @@ import { SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase
  * Returns `SupabaseServiceResult<void>` — [error, null] if limit reached, [null, undefined] otherwise.
  */
 export async function canAddTemplate(contractorId: string): Promise<SupabaseServiceResult<void>> {
-  const [countError, used] = await getTemplateCountByContractor(contractorId);
+  const [countError, used] = await getTemplateCountByContractor({ contractorId });
   if (countError) return [countError, null];
 
   const {

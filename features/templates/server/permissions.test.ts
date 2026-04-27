@@ -83,6 +83,6 @@ describe("canAddTemplate", () => {
     mocks.getTemplateCountByContractor.mockResolvedValue([null, 0]);
     mocks.getPlanFeatures.mockResolvedValue(buildCapabilities(10));
     await canAddTemplate("contractor-abc");
-    expect(mocks.getTemplateCountByContractor).toHaveBeenCalledWith("contractor-abc");
+    expect(mocks.getTemplateCountByContractor).toHaveBeenCalledWith({ contractorId: "contractor-abc" });
   });
 });

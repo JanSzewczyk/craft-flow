@@ -54,8 +54,10 @@ describe("submitBrandingAction", () => {
     await submitBrandingAction(brandingData, mockState);
 
     expect(mocks.updateStepData).toHaveBeenCalledWith(
-      mockState.contractorId,
-      expect.objectContaining({ branding: brandingData })
+      expect.objectContaining({
+        contractorId: mockState.contractorId,
+        stepData: expect.objectContaining({ branding: brandingData })
+      })
     );
     expect(mocks.redirect).toHaveBeenCalledWith(mockConfig.nextStep);
   });

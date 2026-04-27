@@ -17,12 +17,12 @@ async function _getProjectList(
   options: ProjectListOptions
 ): Promise<SupabaseServiceResult<ProjectListResult>> {
   logger.info({ userId, ...options }, "Loading project list");
-  return getProjectListByContractor(userId, options);
+  return getProjectListByContractor({ contractorId: userId, options });
 }
 
 async function _getProjectStatusCounts(userId: string): Promise<SupabaseServiceResult<ProjectCountsByStatus>> {
   logger.info({ userId }, "Loading project status counts");
-  return getProjectCountsByStatus(userId);
+  return getProjectCountsByStatus({ contractorId: userId });
 }
 
 export const getCachedProjectList = cache(_getProjectList);

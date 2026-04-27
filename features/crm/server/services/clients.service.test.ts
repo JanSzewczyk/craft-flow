@@ -82,7 +82,7 @@ describe("clients.service", () => {
 
       expect(err).toBeNull();
       expect(result).toBe(listResult);
-      expect(mocks.getClientListByContractor).toHaveBeenCalledWith(profileId, options);
+      expect(mocks.getClientListByContractor).toHaveBeenCalledWith({ contractorId: profileId, options });
     });
   });
 
@@ -194,7 +194,7 @@ describe("clients.service", () => {
 
       await createClient(userId, formData);
 
-      expect(mocks.createClient).toHaveBeenCalledWith(profileId, formData);
+      expect(mocks.createClient).toHaveBeenCalledWith({ contractorId: profileId, data: formData });
     });
   });
 

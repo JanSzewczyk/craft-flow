@@ -3,7 +3,7 @@ import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { clients } from "~/features/crm/server/db/schema";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 import { createLogger } from "~/lib/logger";
-import { db } from "~/lib/supabase/db";
+import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { type PaginationMeta } from "~/types/pagination";
 
@@ -11,9 +11,15 @@ import { projectSteps, projects, type Project, type ProjectStep, type ProjectSta
 
 const logger = createLogger({ module: "projects-db" });
 
-export async function getProjectsByContractor(contractorId: string): Promise<SupabaseServiceResult<Project[]>> {
+export async function getProjectsByContractor({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Project[]>> {
   try {
-    const rows = await db.select().from(projects).where(eq(projects.contractorId, contractorId));
+    const rows = await dbClient.select().from(projects).where(eq(projects.contractorId, contractorId));
     return [null, rows];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Project");
@@ -22,9 +28,15 @@ export async function getProjectsByContractor(contractorId: string): Promise<Sup
   }
 }
 
-export async function getProjectById(id: string): Promise<SupabaseServiceResult<Project>> {
+export async function getProjectById({
+  id,
+  dbClient = db
+}: {
+  id: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Project>> {
   try {
-    const rows = await db.select().from(projects).where(eq(projects.id, id));
+    const rows = await dbClient.select().from(projects).where(eq(projects.id, id));
     const row = rows[0];
 
     if (!row) {
@@ -41,9 +53,15 @@ export async function getProjectById(id: string): Promise<SupabaseServiceResult<
   }
 }
 
-export async function getProjectSteps(projectId: string): Promise<SupabaseServiceResult<ProjectStep[]>> {
+export async function getProjectSteps({
+  projectId,
+  dbClient = db
+}: {
+  projectId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ProjectStep[]>> {
   try {
-    const rows = await db.select().from(projectSteps).where(eq(projectSteps.projectId, projectId));
+    const rows = await dbClient.select().from(projectSteps).where(eq(projectSteps.projectId, projectId));
     return [null, rows];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "ProjectStep");
@@ -75,15 +93,20 @@ export type ProjectListResult = {
   pagination: PaginationMeta;
 };
 
-export async function getProjectListByContractor(
-  contractorId: string,
-  options: ProjectListOptions
-): Promise<SupabaseServiceResult<ProjectListResult>> {
+export async function getProjectListByContractor({
+  contractorId,
+  options,
+  dbClient = db
+}: {
+  contractorId: string;
+  options: ProjectListOptions;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ProjectListResult>> {
   try {
     const { status, search, page, perPage } = options;
     const offset = (page - 1) * perPage;
 
-    const stepCountSubquery = db
+    const stepCountSubquery = dbClient
       .select({
         projectId: projectSteps.projectId,
         totalSteps: count().as("total_steps"),
@@ -107,7 +130,7 @@ export async function getProjectListByContractor(
     const whereClause = and(...conditions)!;
 
     const [items, countResult] = await Promise.all([
-      db
+      dbClient
         .select({
           id: projects.id,
           name: projects.name,
@@ -125,7 +148,7 @@ export async function getProjectListByContractor(
         .orderBy(desc(projects.updatedAt))
         .limit(perPage)
         .offset(offset),
-      db
+      dbClient
         .select({ value: count() })
         .from(projects)
         .innerJoin(clients, eq(projects.clientId, clients.id))
@@ -158,11 +181,15 @@ export async function getProjectListByContractor(
 
 export type ProjectCountsByStatus = Record<ProjectStatusFilter, number>;
 
-export async function getProjectCountsByStatus(
-  contractorId: string
-): Promise<SupabaseServiceResult<ProjectCountsByStatus>> {
+export async function getProjectCountsByStatus({
+  contractorId,
+  dbClient = db
+}: {
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ProjectCountsByStatus>> {
   try {
-    const rows = await db
+    const rows = await dbClient
       .select({
         status: projects.status,
         count: count()

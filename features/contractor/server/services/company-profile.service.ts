@@ -86,7 +86,7 @@ export async function updateCompanyProfile(
 
   try {
     await withTransaction(async (tx) => {
-      if (resolvedAddress === null) {
+      if (address === null) {
         // Case 1: remove address (or no address before and after)
         const [profErr] = await updateContractorProfile({
           contractorId: userId,
@@ -101,7 +101,7 @@ export async function updateCompanyProfile(
         }
       } else if (!existingAddressId) {
         // Case 2: create new address
-        const [addrErr, addr] = await insertAddress({ data: resolvedAddress, dbClient: tx });
+        const [addrErr, addr] = await insertAddress({ data: address, dbClient: tx });
         if (addrErr) throw addrErr;
 
         const [profErr] = await updateContractorProfile({
@@ -112,7 +112,7 @@ export async function updateCompanyProfile(
         if (profErr) throw profErr;
       } else {
         // Case 3: update existing address
-        const [addrErr] = await updateAddress({ addressId: existingAddressId, data: resolvedAddress, dbClient: tx });
+        const [addrErr] = await updateAddress({ addressId: existingAddressId, data: address, dbClient: tx });
         if (addrErr) throw addrErr;
 
         const [profErr] = await updateContractorProfile({

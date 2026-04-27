@@ -32,7 +32,7 @@ export async function finalizeOnboardingAction(): RedirectAction {
 
   logger.info({ userId }, "Finalizing onboarding");
 
-  const [getError, state] = await getCachedOnboardingState(userId);
+  const [getError, state] = await getCachedOnboardingState({ contractorId: userId });
   if (getError) {
     logger.error({ userId, errorCode: getError.code }, "Failed to fetch onboarding state");
     return { success: false, error: "Nie znaleziono stanu onboardingu" };
@@ -54,7 +54,16 @@ export async function finalizeOnboardingAction(): RedirectAction {
 
   const [profileError] = await upsertContractorProfile({
     contractorId: userId,
-    data: { ...companyDetails, ...(features.branding ? branding : {}) }
+    data: {
+      companyName: companyDetails.companyName,
+      industry: companyDetails.industry,
+      phone: companyDetails.phone,
+      nip: companyDetails.nip,
+      regon: companyDetails.regon,
+      email: companyDetails.email,
+      addressId: null,
+      ...(features.branding ? branding : {})
+    }
   });
   if (profileError) {
     logger.error({ userId, errorCode: profileError.code }, "Failed to upsert contractor profile");
@@ -73,10 +82,13 @@ export async function finalizeOnboardingAction(): RedirectAction {
   }
 
   if (templateConfig) {
-    const [templateError] = await createTemplateWithSteps(userId, {
-      name: templateConfig.name,
-      description: templateConfig.description,
-      steps: templateConfig.steps
+    const [templateError] = await createTemplateWithSteps({
+      contractorId: userId,
+      templateData: {
+        name: templateConfig.name,
+        description: templateConfig.description,
+        steps: templateConfig.steps
+      }
     });
     if (templateError) {
       logger.error({ userId, errorCode: templateError.code }, "Failed to create template");
@@ -85,7 +97,7 @@ export async function finalizeOnboardingAction(): RedirectAction {
   }
 
   const [markResult, metadataResult] = await Promise.all([
-    markOnboardingComplete(userId),
+    markOnboardingComplete({ contractorId: userId }),
     setUserMetadata(userId, {
       roles: [Role.CONTRACTOR],
       onboardingComplete: true

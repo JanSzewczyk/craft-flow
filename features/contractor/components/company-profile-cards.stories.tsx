@@ -57,14 +57,14 @@ WithAddress.test("Renders all expected content", async ({ canvas, args, step }) 
   });
 
   await step("Address fields are visible", async () => {
-    await expect(canvas.getByText(args.data.address!.street!)).toBeVisible();
-    await expect(canvas.getByText(args.data.address!.postalCode!)).toBeVisible();
-    await expect(canvas.getByText(args.data.address!.city!)).toBeVisible();
-    await expect(canvas.getByText(args.data.address!.country!)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.address!.street!)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.address!.postalCode!)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.address!.city!)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.address!.country!)).toBeVisible();
   });
 
   await step("Additional info row is visible", async () => {
-    await expect(canvas.getByText(args.data.address!.additionalInfo!)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.address!.additionalInfo!)).toBeVisible();
   });
 });
 
@@ -75,7 +75,7 @@ WithAddress.test("Renders all expected content", async ({ canvas, args, step }) 
 export const WithoutAddress = meta.story({
   name: "Without Address",
   args: {
-    data: companyProfileBuilder.one({ traits: "noAddress" })
+    companyProfile: companyProfileBuilder.one({ traits: "noAddress" })
   }
 });
 
@@ -98,7 +98,7 @@ WithoutAddress.test("Does not render address fields", async ({ canvas }) => {
 export const NoOptionalFields = meta.story({
   name: "No Optional Fields",
   args: {
-    data: companyProfileBuilder.one({ traits: ["noOptionalFields", "noAddress"] })
+    companyProfile: companyProfileBuilder.one({ traits: ["noOptionalFields", "noAddress"] })
   }
 });
 

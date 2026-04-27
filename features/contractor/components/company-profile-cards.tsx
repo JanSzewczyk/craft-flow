@@ -19,10 +19,10 @@ function ProfileField({ label, value, className }: ProfileFieldProps) {
 }
 
 type CompanyProfileCardsProps = {
-  data: CompanyProfile;
+  companyProfile: CompanyProfile;
 };
 
-export function CompanyProfileCards({ data }: CompanyProfileCardsProps) {
+export function CompanyProfileCards({ companyProfile }: CompanyProfileCardsProps) {
   return (
     <div className="space-y-4">
       <Card>
@@ -34,12 +34,12 @@ export function CompanyProfileCards({ data }: CompanyProfileCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-8">
-            <ProfileField label="Nazwa firmy" value={data.companyName} />
-            <ProfileField label="Branża" value={data.industry} />
-            <ProfileField label="NIP" value={data.nip} />
-            <ProfileField label="REGON" value={data.regon} />
-            <ProfileField label="Publiczny e-mail" value={data.email} />
-            <ProfileField label="Telefon" value={data.phone} />
+            <ProfileField label="Nazwa firmy" value={companyProfile.companyName} />
+            <ProfileField label="Branża" value={companyProfile.industry} />
+            <ProfileField label="NIP" value={companyProfile.nip} />
+            <ProfileField label="REGON" value={companyProfile.regon} />
+            <ProfileField label="Publiczny e-mail" value={companyProfile.email} />
+            <ProfileField label="Telefon" value={companyProfile.phone} />
           </div>
         </CardContent>
       </Card>
@@ -52,16 +52,16 @@ export function CompanyProfileCards({ data }: CompanyProfileCardsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {data.address ? (
+          {companyProfile.address ? (
             <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-8">
-              <ProfileField label="Ulica i numer" value={data.address.street} />
-              <ProfileField label="Kod pocztowy" value={data.address.postalCode} />
-              <ProfileField label="Miasto" value={data.address.city} />
-              <ProfileField label="Kraj" value={data.address.country} />
-              {data.address.additionalInfo ? (
+              <ProfileField label="Ulica i numer" value={companyProfile.address.street} />
+              <ProfileField label="Kod pocztowy" value={companyProfile.address.postalCode} />
+              <ProfileField label="Miasto" value={companyProfile.address.city} />
+              <ProfileField label="Kraj" value={companyProfile.address.country} />
+              {companyProfile.address.additionalInfo ? (
                 <ProfileField
                   label="Informacje dodatkowe"
-                  value={data.address.additionalInfo}
+                  value={companyProfile.address.additionalInfo}
                   className="sm:col-span-2"
                 />
               ) : null}

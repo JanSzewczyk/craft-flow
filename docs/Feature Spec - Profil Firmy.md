@@ -114,7 +114,7 @@ const profile \= await db
 
 Zapis odbywa się wewnątrz **transakcji SQL**:
 
-1. Walidacja schematu (Zod w trybie .optional() dla bloku adresu).
+1. Walidacja schematu (Zod w trybie .null() dla bloku adresu).
 2. Sprawdzenie, czy formularz zawiera dane adresowe.
 3. **Jeśli brak adresu z frontendu:** Wykonaj tylko UPDATE na tabeli contractor_profile. Jeśli wcześniej był przypisany
    adres, a teraz wykonawca go wyczyścił – usuń powiązany rekord w addresses i ustaw address_id na NULL.

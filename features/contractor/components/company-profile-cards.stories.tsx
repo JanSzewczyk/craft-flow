@@ -22,6 +22,9 @@ const meta = preview.meta({
   component: CompanyProfileCards,
   parameters: {
     layout: "padded"
+  },
+  args: {
+    companyProfile: companyProfileBuilder.one()
   }
 });
 
@@ -32,7 +35,7 @@ const meta = preview.meta({
 export const WithAddress = meta.story({
   name: "With Address",
   args: {
-    data: companyProfileBuilder.one({ traits: "withAddressAndAdditionalInfo" })
+    companyProfile: companyProfileBuilder.one({ traits: "withAddressAndAdditionalInfo" })
   }
 });
 
@@ -42,11 +45,11 @@ WithAddress.test("Renders all expected content", async ({ canvas, args, step }) 
   });
 
   await step("Business fields are visible", async () => {
-    await expect(canvas.getByText(args.data.companyName)).toBeVisible();
-    await expect(canvas.getByText(args.data.email)).toBeVisible();
-    await expect(canvas.getByText(args.data.nip!)).toBeVisible();
-    await expect(canvas.getByText(args.data.regon!)).toBeVisible();
-    await expect(canvas.getByText(args.data.phone!)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.companyName)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.email)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.nip!)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.regon!)).toBeVisible();
+    await expect(canvas.getByText(args.companyProfile.phone!)).toBeVisible();
   });
 
   await step("Siedziba Firmy card is visible", async () => {

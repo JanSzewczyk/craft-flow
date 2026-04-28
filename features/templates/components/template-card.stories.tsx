@@ -6,7 +6,7 @@ import { TemplateCard } from "./template-card";
 
 import preview from "~/.storybook/preview";
 
-const baseItem = templateListItemBuilder.one();
+const baseItem = templateListItemBuilder.one({ overrides: { stepsCount: 4 } });
 
 const meta = preview.meta({
   title: "Features/Templates/Template Card",

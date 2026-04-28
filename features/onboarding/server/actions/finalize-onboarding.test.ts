@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   markOnboardingComplete: vi.fn(),
   upsertContractorProfile: vi.fn(),
   upsertEmailTemplate: vi.fn(),
-  createTemplateWithSteps: vi.fn(),
+  createTemplate: vi.fn(),
   setUserMetadata: vi.fn()
 }));
 
@@ -24,7 +24,7 @@ vi.mock("~/features/contractor/server/db", () => ({
   upsertEmailTemplate: mocks.upsertEmailTemplate,
   EmailTemplateType: { WELCOME: "welcome" }
 }));
-vi.mock("~/features/templates/server/db", () => ({ createTemplateWithSteps: mocks.createTemplateWithSteps }));
+vi.mock("~/features/templates/server/db", () => ({ createTemplate: mocks.createTemplate }));
 vi.mock("~/features/auth/server/api/set-user-metadata", () => ({ setUserMetadata: mocks.setUserMetadata }));
 vi.mock("~/features/auth/constants/roles", () => ({ Role: { CONTRACTOR: "CONTRACTOR" } }));
 vi.mock("~/lib/logger", () => {
@@ -63,7 +63,7 @@ function setupHappyPath(config = premiumConfig, state = validState) {
   mocks.getCachedOnboardingState.mockResolvedValue([null, state]);
   mocks.upsertContractorProfile.mockResolvedValue([null, {}]);
   mocks.upsertEmailTemplate.mockResolvedValue([null, {}]);
-  mocks.createTemplateWithSteps.mockResolvedValue([null, {}]);
+  mocks.createTemplate.mockResolvedValue([null, {}]);
   mocks.markOnboardingComplete.mockResolvedValue([null, {}]);
   mocks.setUserMetadata.mockResolvedValue([null, {}]);
 }
@@ -155,7 +155,7 @@ describe("finalizeOnboardingAction", () => {
     const result = await finalizeOnboardingAction();
 
     expect(result).toEqual({ success: false, error: "Nie udało się zapisać szablonu e-mail" });
-    expect(mocks.createTemplateWithSteps).not.toHaveBeenCalled();
+    expect(mocks.createTemplate).not.toHaveBeenCalled();
   });
 
   test("does NOT call upsertEmailTemplate for basic plan (no whitelabel emails)", async () => {
@@ -169,9 +169,9 @@ describe("finalizeOnboardingAction", () => {
 
   // ── Template creation ───────────────────────────────────────────────────────
 
-  test("returns error when createTemplateWithSteps fails", async () => {
+  test("returns error when createTemplate fails", async () => {
     setupHappyPath();
-    mocks.createTemplateWithSteps.mockResolvedValue([dbError, null]);
+    mocks.createTemplate.mockResolvedValue([dbError, null]);
 
     const result = await finalizeOnboardingAction();
 
@@ -210,7 +210,7 @@ describe("finalizeOnboardingAction", () => {
 
     expect(mocks.upsertContractorProfile).toHaveBeenCalledOnce();
     expect(mocks.upsertEmailTemplate).toHaveBeenCalledOnce();
-    expect(mocks.createTemplateWithSteps).toHaveBeenCalledOnce();
+    expect(mocks.createTemplate).toHaveBeenCalledOnce();
     expect(mocks.markOnboardingComplete).toHaveBeenCalledOnce();
     expect(mocks.setUserMetadata).toHaveBeenCalledOnce();
     expect(mocks.redirect).toHaveBeenCalledWith("/onboarding/success");
@@ -255,18 +255,22 @@ describe("finalizeOnboardingAction", () => {
     });
   });
 
-  test("createTemplateWithSteps receives correct template data", async () => {
+  test("createTemplate receives correct template data", async () => {
     setupHappyPath(premiumConfig);
 
     await finalizeOnboardingAction();
 
-    expect(mocks.createTemplateWithSteps).toHaveBeenCalledWith(
+    expect(mocks.createTemplate).toHaveBeenCalledWith(
       expect.objectContaining({
         contractorId: "user-123",
-        templateData: expect.objectContaining({
+        createTemplateData: expect.objectContaining({
           name: validState.templateConfig!.name,
           description: validState.templateConfig!.description,
-          steps: validState.templateConfig!.steps
+          steps: validState.templateConfig!.steps.map((s, i) => ({
+            title: s.title,
+            description: s.description ?? null,
+            orderIndex: i
+          }))
         })
       })
     );

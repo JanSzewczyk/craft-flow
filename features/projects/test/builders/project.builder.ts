@@ -16,7 +16,9 @@ export const projectBuilder = build<Project>({
     publicToken: () => faker.string.alphanumeric(16),
     lastClientViewAt: () => null,
     createdAt: () => faker.date.past(),
-    updatedAt: () => faker.date.recent()
+    updatedAt: () => faker.date.recent(),
+    client: () => clientBuilder.one(),
+    steps: () => []
   },
   traits: {
     active: { overrides: { status: "ACTIVE" } },

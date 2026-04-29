@@ -4,7 +4,8 @@ import { type LucideIcon, CheckCircleIcon, FolderOpenIcon, HardHatIcon } from "l
 
 import { type PlanId } from "~/features/billing/constants";
 import { detectClerkPlan, getPlanById, getPlanFeatures } from "~/features/billing/server";
-import { type ContractorProfile, getContractorProfile } from "~/features/contractor/server/db";
+import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
+import { type ContractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import {
   getCachedActiveProjectsCount,
   getCachedCompletedProjectsThisMonth,

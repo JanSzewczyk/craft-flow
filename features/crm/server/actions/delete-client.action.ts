@@ -15,7 +15,7 @@ export async function deleteClientAction(id: string): ActionResponse<{ id: strin
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, result] = await deleteClient(userId, id);
+  const [error, result] = await deleteClient({ contractorId: userId, clientId: id });
   if (error) return mapClientServiceError(error);
 
   revalidatePath("/app/clients");

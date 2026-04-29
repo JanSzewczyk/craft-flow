@@ -37,7 +37,7 @@ async function loadData() {
     return { canUseEmails: false as const, data: null };
   }
 
-  const [error, data] = await getEmailTemplateData(userId);
+  const [error, data] = await getEmailTemplateData({ contractorId: userId });
   if (error) {
     logger.error({ userId, errorCode: error.code }, "Failed to load email template data");
     throw error;

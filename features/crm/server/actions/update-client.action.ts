@@ -18,7 +18,7 @@ export async function updateClientAction(id: string, data: ClientFormData): Acti
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, client] = await updateClient(userId, id, data);
+  const [error, client] = await updateClient({ contractorId: userId, clientId: id, data });
   if (error) return mapClientServiceError(error);
 
   revalidatePath("/app/clients");

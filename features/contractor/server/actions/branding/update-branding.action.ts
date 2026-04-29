@@ -16,7 +16,7 @@ export async function updateBrandingAction(data: BrandingFormData): ActionRespon
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, branding] = await updateBranding(userId, data);
+  const [error, branding] = await updateBranding({ contractorId: userId, data });
   if (error) return mapBrandingServiceError(error);
 
   revalidatePath("/app/branding");

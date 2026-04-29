@@ -83,7 +83,7 @@ describe("createTemplateAction", () => {
   test("calls service with correct userId and data", async () => {
     mocks.createTemplate.mockResolvedValue([null, mockTemplate]);
     await createTemplateAction(templateData);
-    expect(mocks.createTemplate).toHaveBeenCalledWith("user-1", templateData);
+    expect(mocks.createTemplate).toHaveBeenCalledWith({ contractorId: "user-1", formData: templateData });
   });
 });
 

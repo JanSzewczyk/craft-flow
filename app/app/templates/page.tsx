@@ -41,13 +41,16 @@ async function loadData(searchParams: PageProps<"/app/templates">["searchParams"
   const params = await searchParams;
   const { search, page } = parseSearchParams(params);
 
-  const [listError, listResult] = await getTemplateList(userId, { search, page, perPage: 12 });
+  const [listError, listResult] = await getTemplateList({
+    contractorId: userId,
+    options: { search, page, perPage: 12 }
+  });
   if (listError) {
     logger.error({ userId, errorCode: listError.code }, "Failed to load template list");
     throw listError;
   }
 
-  const [limitsError, limits] = await getTemplateLimits(userId);
+  const [limitsError, limits] = await getTemplateLimits({ contractorId: userId });
   if (limitsError) {
     logger.error({ userId, errorCode: limitsError.code }, "Failed to load template limits");
     throw limitsError;

@@ -18,7 +18,7 @@ export async function createClientAction(data: ClientFormData): ActionResponse<C
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, client] = await createClient(userId, data);
+  const [error, client] = await createClient({ contractorId: userId, data });
   if (error) return mapClientServiceError(error);
 
   revalidatePath("/app/clients");

@@ -25,7 +25,7 @@ export default async function ClientDetailPage({ params }: PageProps<"/app/clien
     redirect("/sign-in");
   }
 
-  const [error, client] = await getClientDetail(userId, id);
+  const [error, client] = await getClientDetail({ contractorId: userId, clientId: id });
   if (error || !client) notFound();
 
   return (

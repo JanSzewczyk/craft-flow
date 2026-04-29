@@ -38,7 +38,7 @@ async function loadData(searchParams: PageProps<"/app/clients">["searchParams"])
   const params = await searchParams;
   const { search, page } = parseSearchParams(params);
 
-  const [listError, listResult] = await getClientList(userId, { search, page, perPage: 10 });
+  const [listError, listResult] = await getClientList({ contractorId: userId, options: { search, page, perPage: 10 } });
   if (listError) {
     logger.error({ userId, errorCode: listError.code }, "Failed to load client list");
     throw listError;

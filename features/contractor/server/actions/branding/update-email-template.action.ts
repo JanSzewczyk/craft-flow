@@ -17,7 +17,7 @@ export async function updateEmailTemplateAction(data: EmailFormData): ActionResp
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, template] = await saveEmailTemplate(userId, data);
+  const [error, template] = await saveEmailTemplate({ contractorId: userId, data });
   if (error) return mapBrandingServiceError(error);
 
   revalidatePath("/app/email-notifications");

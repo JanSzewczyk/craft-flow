@@ -67,7 +67,7 @@ export async function updateCompanyProfile(
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileErr, profile] = await getContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, operation: "updateCompanyProfile", errorCode: profileErr.code }, "Profile not found");
     return [profileErr, null];

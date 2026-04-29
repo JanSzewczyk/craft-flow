@@ -1,18 +1,15 @@
 import { cache } from "react";
 
-import { and, count, desc, eq, ilike, ne, or, sql, type BuildQueryResult } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 
 import { clients } from "~/features/crm/server/db/schema";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
-import { type TSchema } from "~/lib/supabase/types";
 import { type PaginationMeta } from "~/types/pagination";
 
-import { projectSteps, projects, type ProjectStep, type ProjectStatus } from "./schema";
-
-export type Project = BuildQueryResult<TSchema, TSchema["projects"], { with: { client: true; steps: true } }>;
+import { projectSteps, projects, type ProjectStep, type ProjectStatus, type Project, type ProjectRow } from "./schema";
 
 const logger = createLogger({ module: "projects-db" });
 
@@ -22,7 +19,7 @@ export async function getProjectsByContractor({
 }: {
   contractorId: string;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<Array<typeof projects.$inferSelect>>> {
+}): Promise<SupabaseServiceResult<Array<ProjectRow>>> {
   try {
     const rows = await dbClient.select().from(projects).where(eq(projects.contractorId, contractorId));
     return [null, rows];

@@ -1,20 +1,17 @@
-import { cache } from "react";
+import * as React from "react";
 
-import { type BuildQueryResult, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
-import { type TSchema } from "~/lib/supabase/types";
 
-import { contractorProfile } from "./schema";
+import { type ContractorProfile, contractorProfile } from "./schema";
 
 const logger = createLogger({ module: "contractor-db" });
 const RESOURCE_NAME = "ContractorProfile";
 
-export type ContractorProfile = BuildQueryResult<TSchema, TSchema["contractorProfile"], { with: { address: true } }>;
-
-export async function getContractorProfile({
+export const getContractorProfile = React.cache(async function ({
   contractorId,
   dbClient = db
 }: {
@@ -39,6 +36,4 @@ export async function getContractorProfile({
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to get contractor profile");
     return [serviceError, null];
   }
-}
-
-export const getCachedContractorProfile = cache(getContractorProfile);
+});

@@ -4,13 +4,13 @@ import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-import { contractorProfile, type ContractorProfile } from "./schema";
+import { contractorProfile, type ContractorProfileRow } from "./schema";
 
 const logger = createLogger({ module: "contractor-db" });
 const RESOURCE_NAME = "ContractorProfile";
 
-type UpsertData = Pick<ContractorProfile, "companyName" | "industry" | "email" | "phone" | "nip" | "regon"> &
-  Partial<Pick<ContractorProfile, "brandColor" | "logoUrl" | "addressId">>;
+type UpsertData = Pick<ContractorProfileRow, "companyName" | "industry" | "email" | "phone" | "nip" | "regon"> &
+  Partial<Pick<ContractorProfileRow, "brandColor" | "logoUrl" | "addressId">>;
 
 export async function upsertContractorProfile({
   contractorId,
@@ -20,7 +20,7 @@ export async function upsertContractorProfile({
   contractorId: string;
   data: UpsertData;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<ContractorProfile>> {
+}): Promise<SupabaseServiceResult<ContractorProfileRow>> {
   try {
     const rows = await dbClient
       .insert(contractorProfile)
@@ -55,7 +55,7 @@ export async function updateContractorProfile({
   contractorId: string;
   data: Partial<UpsertData>;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<ContractorProfile>> {
+}): Promise<SupabaseServiceResult<ContractorProfileRow>> {
   try {
     const [row] = await dbClient
       .update(contractorProfile)

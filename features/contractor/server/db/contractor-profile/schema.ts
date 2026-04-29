@@ -1,7 +1,8 @@
-import { relations } from "drizzle-orm";
+import { type BuildQueryResult, relations } from "drizzle-orm";
 
 import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { addresses } from "~/features/shared/server/db/schema";
+import { type TSchema } from "~/lib/supabase/types";
 
 export const contractorProfile = pgTable("contractor_profile", {
   id: varchar("id", { length: 255 }).primaryKey(),
@@ -20,7 +21,8 @@ export const contractorProfile = pgTable("contractor_profile", {
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
-export type ContractorProfile = typeof contractorProfile.$inferSelect;
+export type ContractorProfileRow = typeof contractorProfile.$inferSelect;
+export type ContractorProfile = BuildQueryResult<TSchema, TSchema["contractorProfile"], { with: { address: true } }>;
 
 export const contractorProfileRelations = relations(contractorProfile, ({ one }) => ({
   address: one(addresses, {

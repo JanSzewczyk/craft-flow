@@ -4,7 +4,7 @@ import { type LucideIcon, CheckCircleIcon, FolderOpenIcon, HardHatIcon } from "l
 
 import { type PlanId } from "~/features/billing/constants";
 import { detectClerkPlan, getPlanById, getPlanFeatures } from "~/features/billing/server";
-import { getCachedContractorProfile, type ContractorProfile } from "~/features/contractor/server/db";
+import { type ContractorProfile, getContractorProfile } from "~/features/contractor/server/db";
 import {
   getCachedActiveProjectsCount,
   getCachedCompletedProjectsThisMonth,
@@ -38,7 +38,7 @@ export type DashboardData = {
 };
 
 async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<DashboardData>> {
-  const [profileError, contractor] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileError, contractor] = await getContractorProfile({ contractorId: userId });
 
   if (profileError) {
     logger.error(

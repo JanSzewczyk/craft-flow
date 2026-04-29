@@ -4,8 +4,8 @@ import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
 import { type BrandingFormData } from "~/features/contractor/schemas/branding-schema";
 import { type EmailFormData } from "~/features/contractor/schemas/email-schema";
-import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import { updateContractorProfile } from "~/features/contractor/server/db/contractor-profile/mutations";
+import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
 import { type ContractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { upsertEmailTemplate } from "~/features/contractor/server/db/email-templates/mutations";
 import { getEmailTemplateByType } from "~/features/contractor/server/db/email-templates/queries";
@@ -27,7 +27,7 @@ export const getBrandingData = cache(async function (
 ): Promise<ServiceResult<BaseServiceError, BrandingData>> {
   logger.info({ userId }, "Loading branding data");
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileErr, profile] = await getContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, errorCode: profileErr.code }, "Failed to load contractor profile");
     return [profileErr, null];

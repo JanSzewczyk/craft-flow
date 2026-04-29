@@ -3,12 +3,9 @@ import { cache } from "react";
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
 import { type CompanyDetailsFormData } from "~/features/contractor/schemas";
-import {
-  type ContractorProfile,
-  getCachedContractorProfile,
-  updateContractorProfile
-} from "~/features/contractor/server/db";
+import { updateContractorProfile } from "~/features/contractor/server/db/contractor-profile/mutations";
 import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
+import { type ContractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { deleteAddress, insertAddress, updateAddress } from "~/features/shared/server/db/addresses";
 import { createLogger } from "~/lib/logger";
 import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
@@ -31,7 +28,7 @@ export const getCompanyProfile = cache(async function (
 ): Promise<ServiceResult<BaseServiceError, CompanyProfile>> {
   logger.info({ userId }, "Loading company profile data");
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileErr, profile] = await getContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error({ userId, errorCode: profileErr.code }, "Failed to load contractor profile");
     return [profileErr, null];

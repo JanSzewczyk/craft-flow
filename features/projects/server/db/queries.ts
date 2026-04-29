@@ -1,6 +1,6 @@
 import { cache } from "react";
 
-import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, ne, or, sql } from "drizzle-orm";
 
 import { clients } from "~/features/crm/server/db/schema";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
@@ -224,6 +224,32 @@ export async function getProjectCountsByStatus({
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Project");
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to get project counts by status");
+    return [serviceError, null];
+  }
+}
+
+export async function getProjectCountCreatedSince({
+  contractorId,
+  since,
+  dbClient = db
+}: {
+  contractorId: string;
+  since: Date;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<number>> {
+  try {
+    const [row] = await dbClient
+      .select({ value: count() })
+      .from(projects)
+      .where(
+        and(eq(projects.contractorId, contractorId), gte(projects.createdAt, since), ne(projects.status, "DELETED"))
+      );
+
+    const value = row?.value ?? 0;
+    return [null, value];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Project");
+    logger.error({ contractorId, errorCode: serviceError.code }, "Failed to count projects created since date");
     return [serviceError, null];
   }
 }

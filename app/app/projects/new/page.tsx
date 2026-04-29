@@ -11,7 +11,6 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import { getClientsByContractor } from "~/features/crm/server/db";
 import { CreateProjectForm } from "~/features/projects/components/create-project-form";
 import { createProjectAction } from "~/features/projects/server/actions/create-project.action";
@@ -31,15 +30,9 @@ async function loadData() {
     redirect("/sign-in");
   }
 
-  const [profileError, profile] = await getCachedContractorProfile({ contractorId: userId });
-  if (profileError) {
-    logger.error({ userId, errorCode: profileError.code }, "Failed to load contractor profile");
-    throw profileError;
-  }
-
   const [[templatesError, templates], [clientsError, clients]] = await Promise.all([
-    getTemplatesByContractor({ contractorId: profile.id }),
-    getClientsByContractor({ contractorId: profile.id })
+    getTemplatesByContractor({ contractorId: userId }),
+    getClientsByContractor({ contractorId: userId })
   ]);
 
   if (templatesError) {

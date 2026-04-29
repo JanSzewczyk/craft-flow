@@ -1,5 +1,8 @@
+import { randomBytes } from "crypto";
+
 import { eq } from "drizzle-orm";
 
+import { type TemplateStep } from "~/features/templates/server/db/schema";
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
@@ -180,6 +183,56 @@ export async function reorderProjectSteps({
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "ProjectStep");
     logger.error({ projectId, errorCode: serviceError.code }, "Failed to reorder project steps");
+    return [serviceError, null];
+  }
+}
+
+export async function createProjectWithSteps({
+  contractorId,
+  clientId,
+  name,
+  templateSteps: steps,
+  dbClient = db
+}: {
+  contractorId: string;
+  clientId: string;
+  name: string;
+  templateSteps: Array<TemplateStep>;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Project>> {
+  try {
+    const publicToken = randomBytes(8).toString("hex");
+
+    const project = await dbClient.transaction(async (tx) => {
+      const projectRows = await tx
+        .insert(projects)
+        .values({ contractorId, clientId, name, publicToken, status: "DRAFT" })
+        .returning();
+
+      const projectRow = projectRows[0];
+      if (!projectRow) {
+        const error = SupabaseServiceError.unknown("Failed to insert project — no row returned");
+        logger.error({ contractorId, errorCode: error.code }, "Insert returned no rows");
+        throw error;
+      }
+
+      if (steps.length > 0) {
+        const stepValues = steps.map((step) => ({
+          projectId: projectRow.id,
+          title: step.title,
+          orderIndex: step.orderIndex
+        }));
+        await tx.insert(projectSteps).values(stepValues);
+      }
+
+      return projectRow;
+    });
+
+    logger.info({ contractorId, projectId: project.id, stepCount: steps.length }, "Created project with steps");
+    return [null, project];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Project");
+    logger.error({ contractorId, errorCode: serviceError.code }, "Failed to create project with steps");
     return [serviceError, null];
   }
 }

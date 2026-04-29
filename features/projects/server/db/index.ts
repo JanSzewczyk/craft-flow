@@ -5,7 +5,8 @@ export {
   deleteProject,
   createProjectStep,
   updateProjectStepCompletion,
-  reorderProjectSteps
+  reorderProjectSteps,
+  createProjectWithSteps
 } from "./mutations";
 export {
   getProjectsByContractor,

@@ -1,4 +1,6 @@
-import { boolean, integer, pgEnum, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+
+import { boolean, integer, pgEnum, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { clients } from "~/features/crm/server/db/schema";
 
@@ -13,6 +15,7 @@ export const projects = pgTable("projects", {
     .notNull()
     .references(() => clients.id, { onDelete: "restrict" }),
   name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
   status: projectStatusEnum("status").default("DRAFT").notNull(),
   publicToken: varchar("public_token", { length: 50 }).notNull().unique(),
   lastClientViewAt: timestamp("last_client_view_at"),
@@ -46,3 +49,11 @@ export const ProjectStatus = {
 } as const satisfies Record<ProjectStatus, ProjectStatus>;
 
 export const ProjectStatuses = projectStatusEnum.enumValues;
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  client: one(clients, {
+    fields: [projects.clientId],
+    references: [clients.id]
+  }),
+  steps: many(projectSteps)
+}));

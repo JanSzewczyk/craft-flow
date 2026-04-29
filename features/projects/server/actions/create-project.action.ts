@@ -2,22 +2,23 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { createProjectSchema, type CreateProjectFormData } from "~/features/projects/schemas/project-schema";
-import { type Project } from "~/features/projects/server/db/schema";
+import { redirect } from "next/navigation";
+import { projectSchema, type ProjectFormData } from "~/features/projects/schemas/project-schema";
 import { createProject } from "~/features/projects/server/services/create-project.service";
-import { type ActionResponse } from "~/lib/action-types";
+import { type RedirectAction } from "~/lib/action-types";
+import { setToastCookie } from "~/lib/toast/server/toast.cookie";
 
 import { logger } from "./logger";
 import { mapProjectServiceError } from "./map-service-error";
 
-export async function createProjectAction(data: CreateProjectFormData): ActionResponse<Project> {
+export async function createProjectAction(data: ProjectFormData): RedirectAction {
   const { isAuthenticated, userId } = await auth();
   if (!isAuthenticated) {
     logger.warn({ operation: "createProjectAction" }, "Unauthenticated access attempt");
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const parsed = createProjectSchema.safeParse(data);
+  const parsed = projectSchema.safeParse(data);
   if (!parsed.success) {
     return {
       success: false,
@@ -30,5 +31,6 @@ export async function createProjectAction(data: CreateProjectFormData): ActionRe
   if (error) return mapProjectServiceError(error);
 
   revalidatePath("/app/projects");
-  return { success: true, data: project, message: "Projekt został utworzony" };
+  await setToastCookie("Projekt został utworzony pomyślnie");
+  redirect(`/app/projects/${project.id}`);
 }

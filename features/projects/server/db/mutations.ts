@@ -7,7 +7,7 @@ import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-import { projectSteps, projects, type Project, type ProjectStep } from "./schema";
+import { Project, projectSteps, projects, type ProjectStep } from "./schema";
 
 const logger = createLogger({ module: "projects-db" });
 
@@ -191,12 +191,14 @@ export async function createProjectWithSteps({
   contractorId,
   clientId,
   name,
+  description,
   templateSteps: steps,
   dbClient = db
 }: {
   contractorId: string;
   clientId: string;
   name: string;
+  description: string | null;
   templateSteps: Array<TemplateStep>;
   dbClient?: DbClient;
 }): Promise<SupabaseServiceResult<Project>> {
@@ -206,7 +208,7 @@ export async function createProjectWithSteps({
     const project = await dbClient.transaction(async (tx) => {
       const projectRows = await tx
         .insert(projects)
-        .values({ contractorId, clientId, name, publicToken, status: "DRAFT" })
+        .values({ contractorId, clientId, name, description, publicToken, status: "DRAFT" })
         .returning();
 
       const projectRow = projectRows[0];

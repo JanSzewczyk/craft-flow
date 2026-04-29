@@ -1,13 +1,18 @@
-import { and, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
+import { cache } from "react";
+
+import { and, count, desc, eq, ilike, ne, or, sql, type BuildQueryResult } from "drizzle-orm";
 
 import { clients } from "~/features/crm/server/db/schema";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
+import { type TSchema } from "~/lib/supabase/types";
 import { type PaginationMeta } from "~/types/pagination";
 
-import { projectSteps, projects, type Project, type ProjectStep, type ProjectStatus } from "./schema";
+import { projectSteps, projects, type ProjectStep, type ProjectStatus } from "./schema";
+
+export type Project = BuildQueryResult<TSchema, TSchema["projects"], { with: { client: true; steps: true } }>;
 
 const logger = createLogger({ module: "projects-db" });
 
@@ -17,7 +22,7 @@ export async function getProjectsByContractor({
 }: {
   contractorId: string;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<Project[]>> {
+}): Promise<SupabaseServiceResult<Array<typeof projects.$inferSelect>>> {
   try {
     const rows = await dbClient.select().from(projects).where(eq(projects.contractorId, contractorId));
     return [null, rows];
@@ -36,8 +41,10 @@ export async function getProjectById({
   dbClient?: DbClient;
 }): Promise<SupabaseServiceResult<Project>> {
   try {
-    const rows = await dbClient.select().from(projects).where(eq(projects.id, id));
-    const row = rows[0];
+    const row = await dbClient.query.projects.findFirst({
+      where: eq(projects.id, id),
+      with: { client: true, steps: true }
+    });
 
     if (!row) {
       const error = SupabaseServiceError.notFound("Project");
@@ -52,6 +59,8 @@ export async function getProjectById({
     return [serviceError, null];
   }
 }
+
+export const getCachedProjectById = cache(getProjectById);
 
 export async function getProjectSteps({
   projectId,

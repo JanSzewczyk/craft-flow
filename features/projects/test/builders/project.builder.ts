@@ -11,6 +11,7 @@ export const projectBuilder = build<Project>({
     contractorId: () => faker.string.uuid(),
     clientId: () => faker.string.uuid(),
     name: () => faker.lorem.words(3),
+    description: () => null,
     status: "DRAFT",
     publicToken: () => faker.string.alphanumeric(16),
     lastClientViewAt: () => null,

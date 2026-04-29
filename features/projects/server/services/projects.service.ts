@@ -5,7 +5,6 @@ import { randomBytes } from "crypto";
 import { clerkClient } from "@clerk/nextjs/server";
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
-import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import { createClient } from "~/features/crm/server/db/mutations";
 import { getClientById, getClientsByContractor } from "~/features/crm/server/db/queries";
 import { type Client } from "~/features/crm/server/db/schema";
@@ -23,27 +22,24 @@ const logger = createLogger({ module: "create-project-service" });
 type ProjectRow = { id: string };
 export type CreateProjectResult = ServiceResult<BaseServiceError, ProjectRow>;
 
-export async function createProject(userId: string, formData: ProjectFormData): Promise<CreateProjectResult> {
-  logger.info({ userId }, "Creating project");
+export async function createProject({
+  contractorId,
+  formData
+}: {
+  contractorId: string;
+  formData: ProjectFormData;
+}): Promise<CreateProjectResult> {
+  logger.info({ contractorId }, "Creating project");
 
-  const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) {
-    logger.warn({ userId, operation: "createProject", errorCode: roleErr.code }, "Role check failed");
+    logger.warn({ contractorId, operation: "createProject", errorCode: roleErr.code }, "Role check failed");
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
-  if (profileErr) {
-    logger.error(
-      { userId, operation: "createProject", errorCode: profileErr.code },
-      "Failed to load contractor profile"
-    );
-    return [profileErr, null];
-  }
-
-  const [permErr] = await canCreateProject(profile.id);
+  const [permErr] = await canCreateProject(contractorId);
   if (permErr) {
-    logger.warn({ userId, operation: "createProject", errorCode: permErr.code }, "Permission check failed");
+    logger.warn({ contractorId, operation: "createProject", errorCode: permErr.code }, "Permission check failed");
     return [permErr, null];
   }
 
@@ -53,16 +49,16 @@ export async function createProject(userId: string, formData: ProjectFormData): 
     const [clientErr, existingClient] = await getClientById({ id: formData.clientId });
     if (clientErr) {
       logger.error(
-        { userId, operation: "createProject", clientId: formData.clientId, errorCode: clientErr.code },
+        { contractorId, operation: "createProject", clientId: formData.clientId, errorCode: clientErr.code },
         "Failed to fetch client"
       );
       return [clientErr, null];
     }
 
-    if (existingClient.contractorId !== profile.id) {
+    if (existingClient.contractorId !== contractorId) {
       const ownerErr = SupabaseServiceError.unauthorized();
       logger.warn(
-        { userId, operation: "createProject", clientId: formData.clientId },
+        { contractorId, operation: "createProject", clientId: formData.clientId },
         "Client belongs to another contractor"
       );
       return [ownerErr, null];
@@ -72,10 +68,10 @@ export async function createProject(userId: string, formData: ProjectFormData): 
   } else {
     const { name, email, phone } = formData.newClient!;
 
-    const [listErr, existingClients] = await getClientsByContractor({ contractorId: profile.id });
+    const [listErr, existingClients] = await getClientsByContractor({ contractorId });
     if (listErr) {
       logger.error(
-        { userId, operation: "createProject", errorCode: listErr.code },
+        { contractorId, operation: "createProject", errorCode: listErr.code },
         "Failed to fetch client list for duplicate check"
       );
       return [listErr, null];
@@ -84,7 +80,7 @@ export async function createProject(userId: string, formData: ProjectFormData): 
     const duplicate = existingClients.find((c: Client) => c.email === email);
     if (duplicate) {
       const dupErr = SupabaseServiceError.alreadyExists("Client");
-      logger.warn({ userId, operation: "createProject", email }, "Client with this email already exists");
+      logger.warn({ contractorId, operation: "createProject", email }, "Client with this email already exists");
       return [dupErr, null];
     }
 
@@ -95,23 +91,23 @@ export async function createProject(userId: string, formData: ProjectFormData): 
       const foundUser = users.data[0];
       if (foundUser) {
         clerkUserId = foundUser.id;
-        logger.info({ userId, operation: "createProject", email }, "Found existing Clerk user for new client");
+        logger.info({ contractorId, operation: "createProject", email }, "Found existing Clerk user for new client");
       }
     } catch (_clerkErr) {
       logger.warn(
-        { userId, operation: "createProject", email },
+        { contractorId, operation: "createProject", email },
         "Clerk lookup failed — creating client without clerkUserId"
       );
     }
 
     const [createClientErr, newClient] = await createClient({
-      contractorId: profile.id,
+      contractorId,
       data: { name, email, phone: phone ?? null, clerkUserId }
     });
 
     if (createClientErr) {
       logger.error(
-        { userId, operation: "createProject", errorCode: createClientErr.code },
+        { contractorId, operation: "createProject", errorCode: createClientErr.code },
         "Failed to create new client"
       );
       return [createClientErr, null];
@@ -123,16 +119,16 @@ export async function createProject(userId: string, formData: ProjectFormData): 
   const [templateErr, template] = await getTemplateById({ templateId: formData.templateId });
   if (templateErr) {
     logger.error(
-      { userId, operation: "createProject", templateId: formData.templateId, errorCode: templateErr.code },
+      { contractorId, operation: "createProject", templateId: formData.templateId, errorCode: templateErr.code },
       "Failed to fetch template"
     );
     return [templateErr, null];
   }
 
-  if (template.contractorId !== profile.id) {
+  if (template.contractorId !== contractorId) {
     const ownerErr = SupabaseServiceError.unauthorized();
     logger.warn(
-      { userId, operation: "createProject", templateId: formData.templateId },
+      { contractorId, operation: "createProject", templateId: formData.templateId },
       "Template belongs to another contractor"
     );
     return [ownerErr, null];
@@ -145,7 +141,7 @@ export async function createProject(userId: string, formData: ProjectFormData): 
 
       const [projectErr, createdProject] = await createProjectDb({
         data: {
-          contractorId: profile.id,
+          contractorId,
           clientId,
           name: formData.name,
           description: formData.description,
@@ -169,10 +165,13 @@ export async function createProject(userId: string, formData: ProjectFormData): 
     });
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Project");
-    logger.error({ userId, operation: "createProject", errorCode: serviceError.code }, "Failed to create project");
+    logger.error(
+      { contractorId, operation: "createProject", errorCode: serviceError.code },
+      "Failed to create project"
+    );
     return [serviceError, null];
   }
 
-  logger.info({ userId, projectId: project.id }, "Project created successfully");
+  logger.info({ contractorId, projectId: project.id }, "Project created successfully");
   return [null, project];
 }

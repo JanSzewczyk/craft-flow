@@ -17,7 +17,7 @@ export async function duplicateTemplateAction(id: string): ActionResponse<Templa
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, template] = await duplicateTemplate(userId, id);
+  const [error, template] = await duplicateTemplate({ contractorId: userId, templateId: id });
   if (error) return mapTemplateServiceError(error);
 
   revalidatePath("/app/templates");

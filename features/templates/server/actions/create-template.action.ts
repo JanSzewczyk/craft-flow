@@ -18,7 +18,7 @@ export async function createTemplateAction(data: TemplateFormData): ActionRespon
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, template] = await createTemplate(userId, data);
+  const [error, template] = await createTemplate({ contractorId: userId, formData: data });
   if (error) return mapTemplateServiceError(error);
 
   revalidatePath("/app/templates");

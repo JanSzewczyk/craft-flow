@@ -18,7 +18,7 @@ export async function updateTemplateAction(id: string, data: TemplateFormData): 
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, template] = await updateTemplate(userId, id, data);
+  const [error, template] = await updateTemplate({ contractorId: userId, templateId: id, formData: data });
   if (error) return mapTemplateServiceError(error);
 
   revalidatePath("/app/templates");

@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { projectSchema, type ProjectFormData } from "~/features/projects/schemas/project-schema";
-import { createProject } from "~/features/projects/server/services/create-project.service";
+import { createProject } from "~/features/projects/server/services/projects.service";
 import { type RedirectAction } from "~/lib/action-types";
 import { setToastCookie } from "~/lib/toast/server/toast.cookie";
 
@@ -27,7 +27,7 @@ export async function createProjectAction(data: ProjectFormData): RedirectAction
     };
   }
 
-  const [error, project] = await createProject(userId, parsed.data);
+  const [error, project] = await createProject({ contractorId: userId, formData: parsed.data });
   if (error) return mapProjectServiceError(error);
 
   revalidatePath("/app/projects");

@@ -15,7 +15,7 @@ export async function deleteTemplateAction(id: string): ActionResponse<{ id: str
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const [error, result] = await deleteTemplate(userId, id);
+  const [error, result] = await deleteTemplate({ contractorId: userId, templateId: id });
   if (error) return mapTemplateServiceError(error);
 
   revalidatePath("/app/templates");

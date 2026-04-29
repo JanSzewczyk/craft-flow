@@ -3,7 +3,6 @@ import { cache } from "react";
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
 import { getPlanFeatures } from "~/features/billing/server";
-import { getCachedContractorProfile } from "~/features/contractor/server/db";
 import { type TemplateFormData } from "~/features/templates/schemas/template-schema";
 import {
   createTemplate as createTemplateDb,
@@ -30,19 +29,16 @@ const logger = createLogger({ module: "templates-service" });
 // Read service (cached for request deduplication during render)
 // ---------------------------------------------------------------------------
 
-export const getTemplateList = cache(async function (
-  userId: string,
-  options: TemplateListOptions
-): Promise<SupabaseServiceResult<TemplateListResult>> {
-  logger.info({ userId, ...options }, "Loading template list");
+export const getTemplateList = cache(async function ({
+  contractorId,
+  options
+}: {
+  contractorId: string;
+  options: TemplateListOptions;
+}): Promise<SupabaseServiceResult<TemplateListResult>> {
+  logger.info({ contractorId, ...options }, "Loading template list");
 
-  const [profileError, profile] = await getCachedContractorProfile({ contractorId: userId });
-  if (profileError) {
-    logger.error({ userId, errorCode: profileError.code }, "Failed to load contractor profile for template list");
-    return [profileError, null];
-  }
-
-  return getTemplateListByContractor({ contractorId: profile.id, options });
+  return getTemplateListByContractor({ contractorId, options });
 });
 
 export type TemplateLimits = {
@@ -50,18 +46,16 @@ export type TemplateLimits = {
   max: number | null;
 };
 
-export const getTemplateLimits = cache(async function (userId: string): Promise<SupabaseServiceResult<TemplateLimits>> {
-  logger.info({ userId }, "Loading template limits");
+export const getTemplateLimits = cache(async function ({
+  contractorId
+}: {
+  contractorId: string;
+}): Promise<SupabaseServiceResult<TemplateLimits>> {
+  logger.info({ contractorId }, "Loading template limits");
 
-  const [profileError, profile] = await getCachedContractorProfile({ contractorId: userId });
-  if (profileError) {
-    logger.error({ userId, errorCode: profileError.code }, "Failed to load contractor profile for template limits");
-    return [profileError, null];
-  }
-
-  const [countError, used] = await getTemplateCountByContractor({ contractorId: profile.id });
+  const [countError, used] = await getTemplateCountByContractor({ contractorId });
   if (countError) {
-    logger.error({ userId, errorCode: countError.code }, "Failed to count templates");
+    logger.error({ contractorId, errorCode: countError.code }, "Failed to count templates");
     return [countError, null];
   }
 
@@ -100,36 +94,30 @@ async function checkOwnership(templateId: string, contractorId: string): Promise
 
 export type TemplateMutationResult<T> = ServiceResult<BaseServiceError, T>;
 
-export async function createTemplate(
-  userId: string,
-  formData: TemplateFormData
-): Promise<TemplateMutationResult<Template>> {
-  logger.info({ userId }, "Creating template");
+export async function createTemplate({
+  contractorId,
+  formData
+}: {
+  contractorId: string;
+  formData: TemplateFormData;
+}): Promise<TemplateMutationResult<Template>> {
+  logger.info({ contractorId }, "Creating template");
 
-  const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) {
-    logger.warn({ userId, operation: "createTemplate", errorCode: roleErr.code }, "Role check failed");
+    logger.warn({ contractorId, operation: "createTemplate", errorCode: roleErr.code }, "Role check failed");
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
-  if (profileErr) {
-    logger.error(
-      { userId, operation: "createTemplate", errorCode: profileErr.code },
-      "Failed to load contractor profile"
-    );
-    return [profileErr, null];
-  }
-
-  const [limitsErr] = await canAddTemplate(profile.id);
+  const [limitsErr] = await canAddTemplate(contractorId);
   if (limitsErr) {
-    logger.warn({ userId, operation: "createTemplate", errorCode: limitsErr.code }, "Template limit reached");
+    logger.warn({ contractorId, operation: "createTemplate", errorCode: limitsErr.code }, "Template limit reached");
     return [limitsErr, null];
   }
 
   const { name, description, steps } = formData;
   const [createErr, template] = await createTemplateDb({
-    contractorId: profile.id,
+    contractorId,
     createTemplateData: {
       name,
       description,
@@ -137,42 +125,37 @@ export async function createTemplate(
     }
   });
   if (createErr) {
-    logger.error({ userId, operation: "createTemplate", errorCode: createErr.code }, "DB insert failed");
+    logger.error({ contractorId, operation: "createTemplate", errorCode: createErr.code }, "DB insert failed");
     return [createErr, null];
   }
 
-  logger.info({ userId, templateId: template.id }, "Template created successfully");
+  logger.info({ contractorId, templateId: template.id }, "Template created successfully");
   return [null, template];
 }
 
-export async function updateTemplate(
-  userId: string,
-  id: string,
-  formData: TemplateFormData
-): Promise<TemplateMutationResult<Template>> {
-  logger.info({ userId, templateId: id }, "Updating template");
+export async function updateTemplate({
+  contractorId,
+  templateId,
+  formData
+}: {
+  contractorId: string;
+  templateId: string;
+  formData: TemplateFormData;
+}): Promise<TemplateMutationResult<Template>> {
+  logger.info({ contractorId, templateId }, "Updating template");
 
-  const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) {
-    logger.warn({ userId, operation: "updateTemplate", errorCode: roleErr.code }, "Role check failed");
+    logger.warn({ contractorId, operation: "updateTemplate", errorCode: roleErr.code }, "Role check failed");
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
-  if (profileErr) {
-    logger.error(
-      { userId, operation: "updateTemplate", errorCode: profileErr.code },
-      "Failed to load contractor profile"
-    );
-    return [profileErr, null];
-  }
-
-  const [ownerErr] = await checkOwnership(id, profile.id);
+  const [ownerErr] = await checkOwnership(templateId, contractorId);
   if (ownerErr) return [ownerErr, null];
 
   const { name, description, steps } = formData;
   const [updateErr, updated] = await updateTemplateDb({
-    id,
+    id: templateId,
     updateInput: {
       name,
       description,
@@ -181,75 +164,69 @@ export async function updateTemplate(
   });
   if (updateErr) {
     logger.error(
-      { userId, templateId: id, operation: "updateTemplate", errorCode: updateErr.code },
+      { contractorId, templateId, operation: "updateTemplate", errorCode: updateErr.code },
       "DB update failed"
     );
     return [updateErr, null];
   }
 
-  logger.info({ userId, templateId: id }, "Template updated successfully");
+  logger.info({ contractorId, templateId }, "Template updated successfully");
   return [null, updated];
 }
 
-export async function deleteTemplate(userId: string, id: string): Promise<TemplateMutationResult<{ id: string }>> {
-  logger.info({ userId, templateId: id }, "Deleting template");
+export async function deleteTemplate({
+  contractorId,
+  templateId
+}: {
+  contractorId: string;
+  templateId: string;
+}): Promise<TemplateMutationResult<{ id: string }>> {
+  logger.info({ contractorId, templateId }, "Deleting template");
 
-  const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) {
-    logger.warn({ userId, operation: "deleteTemplate", errorCode: roleErr.code }, "Role check failed");
+    logger.warn({ contractorId, operation: "deleteTemplate", errorCode: roleErr.code }, "Role check failed");
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
-  if (profileErr) {
-    logger.error(
-      { userId, operation: "deleteTemplate", errorCode: profileErr.code },
-      "Failed to load contractor profile"
-    );
-    return [profileErr, null];
-  }
-
-  const [ownerErr] = await checkOwnership(id, profile.id);
+  const [ownerErr] = await checkOwnership(templateId, contractorId);
   if (ownerErr) return [ownerErr, null];
 
-  const [deleteErr] = await deleteTemplateDb({ id });
+  const [deleteErr] = await deleteTemplateDb({ id: templateId });
   if (deleteErr) {
     logger.error(
-      { userId, templateId: id, operation: "deleteTemplate", errorCode: deleteErr.code },
+      { contractorId, templateId, operation: "deleteTemplate", errorCode: deleteErr.code },
       "DB delete failed"
     );
     return [deleteErr, null];
   }
 
-  logger.info({ userId, templateId: id }, "Template deleted successfully");
-  return [null, { id }];
+  logger.info({ contractorId, templateId }, "Template deleted successfully");
+  return [null, { id: templateId }];
 }
 
-export async function duplicateTemplate(userId: string, templateId: string): Promise<TemplateMutationResult<Template>> {
-  logger.info({ userId, templateId }, "Duplicating template");
+export async function duplicateTemplate({
+  contractorId,
+  templateId
+}: {
+  contractorId: string;
+  templateId: string;
+}): Promise<TemplateMutationResult<Template>> {
+  logger.info({ contractorId, templateId }, "Duplicating template");
 
-  const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) {
-    logger.warn({ userId, operation: "duplicateTemplate", errorCode: roleErr.code }, "Role check failed");
+    logger.warn({ contractorId, operation: "duplicateTemplate", errorCode: roleErr.code }, "Role check failed");
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
-  if (profileErr) {
-    logger.error(
-      { userId, operation: "duplicateTemplate", errorCode: profileErr.code },
-      "Failed to load contractor profile"
-    );
-    return [profileErr, null];
-  }
-
-  const [limitsErr] = await canAddTemplate(profile.id);
+  const [limitsErr] = await canAddTemplate(contractorId);
   if (limitsErr) {
-    logger.warn({ userId, operation: "duplicateTemplate", errorCode: limitsErr.code }, "Template limit reached");
+    logger.warn({ contractorId, operation: "duplicateTemplate", errorCode: limitsErr.code }, "Template limit reached");
     return [limitsErr, null];
   }
 
-  const [ownerErr, existing] = await checkOwnership(templateId, profile.id);
+  const [ownerErr, existing] = await checkOwnership(templateId, contractorId);
   if (ownerErr) return [ownerErr, null];
 
   const [createErr, template] = await createTemplateDb({
@@ -261,10 +238,13 @@ export async function duplicateTemplate(userId: string, templateId: string): Pro
     }
   });
   if (createErr) {
-    logger.error({ userId, templateId, operation: "duplicateTemplate", errorCode: createErr.code }, "DB insert failed");
+    logger.error(
+      { contractorId, templateId, operation: "duplicateTemplate", errorCode: createErr.code },
+      "DB insert failed"
+    );
     return [createErr, null];
   }
 
-  logger.info({ userId, templateId, newTemplateId: template.id }, "Template duplicated successfully");
+  logger.info({ contractorId, templateId, newTemplateId: template.id }, "Template duplicated successfully");
   return [null, template];
 }

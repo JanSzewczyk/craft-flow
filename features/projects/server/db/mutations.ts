@@ -1,8 +1,5 @@
-import { randomBytes } from "crypto";
-
 import { eq } from "drizzle-orm";
 
-import { type TemplateStep } from "~/features/templates/server/db/schema";
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
@@ -12,7 +9,7 @@ import { Project, projectSteps, projects, type ProjectStep } from "./schema";
 const logger = createLogger({ module: "projects-db" });
 
 type ProjectInput = Pick<Project, "contractorId" | "clientId" | "name" | "publicToken"> &
-  Partial<Pick<Project, "status">>;
+  Partial<Pick<Project, "status" | "description">>;
 
 export async function createProject({
   data,
@@ -187,54 +184,26 @@ export async function reorderProjectSteps({
   }
 }
 
-export async function createProjectWithSteps({
-  contractorId,
-  clientId,
-  name,
-  description,
-  templateSteps: steps,
+export async function createProjectSteps({
+  projectId,
+  steps,
   dbClient = db
 }: {
-  contractorId: string;
-  clientId: string;
-  name: string;
-  description: string | null;
-  templateSteps: Array<TemplateStep>;
+  projectId: string;
+  steps: Array<Pick<ProjectStep, "title" | "orderIndex">>;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<Project>> {
+}): Promise<SupabaseServiceResult<ProjectStep[]>> {
   try {
-    const publicToken = randomBytes(8).toString("hex");
+    const rows = await dbClient
+      .insert(projectSteps)
+      .values(steps.map((s) => ({ projectId, title: s.title, orderIndex: s.orderIndex })))
+      .returning();
 
-    const project = await dbClient.transaction(async (tx) => {
-      const projectRows = await tx
-        .insert(projects)
-        .values({ contractorId, clientId, name, description, publicToken, status: "DRAFT" })
-        .returning();
-
-      const projectRow = projectRows[0];
-      if (!projectRow) {
-        const error = SupabaseServiceError.unknown("Failed to insert project — no row returned");
-        logger.error({ contractorId, errorCode: error.code }, "Insert returned no rows");
-        throw error;
-      }
-
-      if (steps.length > 0) {
-        const stepValues = steps.map((step) => ({
-          projectId: projectRow.id,
-          title: step.title,
-          orderIndex: step.orderIndex
-        }));
-        await tx.insert(projectSteps).values(stepValues);
-      }
-
-      return projectRow;
-    });
-
-    logger.info({ contractorId, projectId: project.id, stepCount: steps.length }, "Created project with steps");
-    return [null, project];
+    logger.info({ projectId, stepCount: rows.length }, "Created project steps");
+    return [null, rows];
   } catch (error) {
-    const serviceError = categorizeSupabaseError(error, "Project");
-    logger.error({ contractorId, errorCode: serviceError.code }, "Failed to create project with steps");
+    const serviceError = categorizeSupabaseError(error, "ProjectStep");
+    logger.error({ projectId, errorCode: serviceError.code }, "Failed to create project steps");
     return [serviceError, null];
   }
 }

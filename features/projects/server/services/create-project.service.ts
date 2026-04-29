@@ -1,5 +1,7 @@
 import "server-only";
 
+import { randomBytes } from "crypto";
+
 import { clerkClient } from "@clerk/nextjs/server";
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
@@ -8,12 +10,13 @@ import { createClient } from "~/features/crm/server/db/mutations";
 import { getClientById, getClientsByContractor } from "~/features/crm/server/db/queries";
 import { type Client } from "~/features/crm/server/db/schema";
 import { type ProjectFormData } from "~/features/projects/schemas/project-schema";
-import { createProjectWithSteps } from "~/features/projects/server/db";
+import { createProject as createProjectDb, createProjectSteps } from "~/features/projects/server/db/mutations";
 import { canCreateProject } from "~/features/projects/server/permissions";
+import { withTransaction } from "~/lib/supabase/db";
 import { getTemplateById } from "~/features/templates/server/db/queries";
 import { createLogger } from "~/lib/logger";
 import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
-import { SupabaseServiceError } from "~/lib/supabase/errors";
+import { categorizeSupabaseError, SupabaseServiceError } from "~/lib/supabase/errors";
 
 const logger = createLogger({ module: "create-project-service" });
 
@@ -135,17 +138,39 @@ export async function createProject(userId: string, formData: ProjectFormData): 
     return [ownerErr, null];
   }
 
-  const [projectErr, project] = await createProjectWithSteps({
-    contractorId: profile.id,
-    clientId,
-    name: formData.name,
-    description: formData.description,
-    templateSteps: template.steps
-  });
+  let project: { id: string };
+  try {
+    project = await withTransaction(async (tx) => {
+      const publicToken = randomBytes(8).toString("hex");
 
-  if (projectErr) {
-    logger.error({ userId, operation: "createProject", errorCode: projectErr.code }, "Failed to create project");
-    return [projectErr, null];
+      const [projectErr, createdProject] = await createProjectDb({
+        data: {
+          contractorId: profile.id,
+          clientId,
+          name: formData.name,
+          description: formData.description,
+          publicToken,
+          status: "DRAFT"
+        },
+        dbClient: tx
+      });
+      if (projectErr) throw projectErr;
+
+      if (template.steps.length > 0) {
+        const [stepsErr] = await createProjectSteps({
+          projectId: createdProject.id,
+          steps: template.steps.map((s) => ({ title: s.title, orderIndex: s.orderIndex })),
+          dbClient: tx
+        });
+        if (stepsErr) throw stepsErr;
+      }
+
+      return createdProject;
+    });
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Project");
+    logger.error({ userId, operation: "createProject", errorCode: serviceError.code }, "Failed to create project");
+    return [serviceError, null];
   }
 
   logger.info({ userId, projectId: project.id }, "Project created successfully");

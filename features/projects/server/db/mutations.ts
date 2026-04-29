@@ -4,12 +4,12 @@ import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-import { Project, projectSteps, projects, type ProjectStep } from "./schema";
+import { type ProjectRow, projectSteps, projects, type ProjectStep } from "./schema";
 
 const logger = createLogger({ module: "projects-db" });
 
-type ProjectInput = Pick<Project, "contractorId" | "clientId" | "name" | "publicToken"> &
-  Partial<Pick<Project, "status" | "description">>;
+type ProjectInput = Pick<ProjectRow, "contractorId" | "clientId" | "name" | "publicToken"> &
+  Partial<Pick<ProjectRow, "status" | "description">>;
 
 export async function createProject({
   data,
@@ -17,7 +17,7 @@ export async function createProject({
 }: {
   data: ProjectInput;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<Project>> {
+}): Promise<SupabaseServiceResult<ProjectRow>> {
   try {
     const [row] = await dbClient.insert(projects).values(data).returning();
 
@@ -42,9 +42,9 @@ export async function updateProject({
   dbClient = db
 }: {
   id: string;
-  data: Partial<Pick<Project, "name" | "status">>;
+  data: Partial<Pick<ProjectRow, "name" | "status">>;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<Project>> {
+}): Promise<SupabaseServiceResult<ProjectRow>> {
   try {
     const [row] = await dbClient
       .update(projects)
@@ -73,7 +73,7 @@ export async function deleteProject({
 }: {
   id: string;
   dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<Project>> {
+}): Promise<SupabaseServiceResult<ProjectRow>> {
   try {
     const [row] = await dbClient.delete(projects).where(eq(projects.id, id)).returning();
 

@@ -2,7 +2,7 @@ import { cache } from "react";
 
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
-import { getCachedContractorProfile } from "~/features/contractor/server/db";
+import { getContractorProfile } from "~/features/contractor/server/db";
 import { type ClientFormData } from "~/features/crm/schemas/client-schema";
 import {
   createClient as createClientDb,
@@ -33,7 +33,7 @@ export const getClientList = cache(async function (
 ): Promise<SupabaseServiceResult<ClientListResult>> {
   logger.info({ userId, ...options }, "Loading client list");
 
-  const [profileError, profile] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileError, profile] = await getContractorProfile({ contractorId: userId });
   if (profileError) {
     logger.error({ userId, errorCode: profileError.code }, "Failed to load contractor profile for client list");
     return [profileError, null];
@@ -48,7 +48,7 @@ export const getClientDetail = cache(async function (
 ): Promise<SupabaseServiceResult<Client>> {
   logger.info({ userId, clientId }, "Loading client detail");
 
-  const [profileError, profile] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileError, profile] = await getContractorProfile({ contractorId: userId });
   if (profileError) {
     logger.error({ userId, errorCode: profileError.code }, "Failed to load contractor profile for client detail");
     return [profileError, null];
@@ -99,7 +99,7 @@ async function checkOwnership(clientId: string, contractorId: string): Promise<S
 
 export type ClientMutationResult<T> = ServiceResult<BaseServiceError, T>;
 
-export async function createClient(userId: string, data: ClientFormData): Promise<ClientMutationResult<Client>> {
+export async function createClient(userId: string, data: ClientFormData): Promise<SupabaseServiceResult<Client>> {
   logger.info({ userId }, "Creating client");
 
   const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
@@ -108,7 +108,7 @@ export async function createClient(userId: string, data: ClientFormData): Promis
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileErr, profile] = await getContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error(
       { userId, operation: "createClient", errorCode: profileErr.code },
@@ -140,7 +140,7 @@ export async function updateClient(
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileErr, profile] = await getContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error(
       { userId, operation: "updateClient", errorCode: profileErr.code },
@@ -177,7 +177,7 @@ export async function deleteClient(userId: string, clientId: string): Promise<Cl
     return [roleErr, null];
   }
 
-  const [profileErr, profile] = await getCachedContractorProfile({ contractorId: userId });
+  const [profileErr, profile] = await getContractorProfile({ contractorId: userId });
   if (profileErr) {
     logger.error(
       { userId, operation: "deleteClient", errorCode: profileErr.code },

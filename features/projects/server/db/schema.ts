@@ -1,8 +1,9 @@
-import { relations } from "drizzle-orm";
+import { type BuildQueryResult, relations } from "drizzle-orm";
 
 import { boolean, integer, pgEnum, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { clients } from "~/features/crm/server/db/schema";
+import { type TSchema } from "~/lib/supabase/types";
 
 export const projectStatusEnum = pgEnum("project_status", ["DRAFT", "ACTIVE", "COMPLETED", "ARCHIVED", "DELETED"]);
 
@@ -36,7 +37,8 @@ export const projectSteps = pgTable("project_steps", {
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
-export type Project = typeof projects.$inferSelect;
+export type ProjectRow = typeof projects.$inferSelect;
+export type Project = BuildQueryResult<TSchema, TSchema["projects"], { with: { client: true; steps: true } }>;
 export type ProjectStep = typeof projectSteps.$inferSelect;
 
 export type ProjectStatus = (typeof projectStatusEnum.enumValues)[number];

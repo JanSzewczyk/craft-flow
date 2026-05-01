@@ -167,4 +167,4 @@ export function categorizeSupabaseError(error: unknown, resourceName: string = "
 /**
  * Tuple type for Supabase service layer operations
  */
-export type SupabaseServiceResult<T> = ServiceResult<SupabaseServiceError, T>;
+export type SupabaseServiceResult<T> = ServiceResult<T, SupabaseServiceError>;

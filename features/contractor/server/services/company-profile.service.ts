@@ -8,7 +8,7 @@ import { getContractorProfile } from "~/features/contractor/server/db/contractor
 import { type ContractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { deleteAddress, insertAddress, updateAddress } from "~/features/shared/server/db/addresses";
 import { createLogger } from "~/lib/logger";
-import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
+import { type ServiceResult } from "~/lib/services/errors";
 import { withTransaction } from "~/lib/supabase/db";
 import { categorizeSupabaseError } from "~/lib/supabase/errors";
 
@@ -25,7 +25,7 @@ export type CompanyProfile = Pick<
 
 export const getCompanyProfile = cache(async function (
   userId: string
-): Promise<ServiceResult<BaseServiceError, CompanyProfile>> {
+): Promise<ServiceResult<CompanyProfile>> {
   logger.info({ userId }, "Loading company profile data");
 
   const [profileErr, profile] = await getContractorProfile({ contractorId: userId });
@@ -55,7 +55,7 @@ export const getCompanyProfile = cache(async function (
 export async function updateCompanyProfile(
   userId: string,
   data: CompanyDetailsFormData
-): Promise<ServiceResult<BaseServiceError, CompanyProfile>> {
+): Promise<ServiceResult<CompanyProfile>> {
   logger.info({ userId }, "Updating company profile");
 
   const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);

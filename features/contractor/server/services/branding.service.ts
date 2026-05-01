@@ -12,7 +12,7 @@ import { getEmailTemplateByType } from "~/features/contractor/server/db/email-te
 import { type EmailTemplate, EmailTemplateType } from "~/features/contractor/server/db/email-templates/schema";
 import { canEditBranding, canEditEmailTemplates } from "~/features/contractor/server/permissions";
 import { createLogger } from "~/lib/logger";
-import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
+import { type ServiceResult } from "~/lib/services/errors";
 
 const logger = createLogger({ module: "branding-service" });
 
@@ -24,7 +24,7 @@ export type BrandingData = Pick<ContractorProfile, "brandColor" | "logoUrl">;
 
 export const getBrandingData = cache(async function (
   userId: string
-): Promise<ServiceResult<BaseServiceError, BrandingData>> {
+): Promise<ServiceResult<BrandingData>> {
   logger.info({ userId }, "Loading branding data");
 
   const [profileErr, profile] = await getContractorProfile({ contractorId: userId });
@@ -45,7 +45,7 @@ export const getEmailTemplateData = cache(async function ({
   contractorId
 }: {
   contractorId: string;
-}): Promise<ServiceResult<BaseServiceError, EmailTemplateData | null>> {
+}): Promise<ServiceResult<EmailTemplateData | null>> {
   logger.info({ contractorId }, "Loading email template data");
 
   const [templateErr, template] = await getEmailTemplateByType({
@@ -73,7 +73,7 @@ export async function updateBranding({
 }: {
   contractorId: string;
   data: BrandingFormData;
-}): Promise<ServiceResult<BaseServiceError, BrandingData>> {
+}): Promise<ServiceResult<BrandingData>> {
   logger.info({ contractorId }, "Updating branding");
 
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
@@ -107,7 +107,7 @@ export async function saveEmailTemplate({
 }: {
   contractorId: string;
   data: EmailFormData;
-}): Promise<ServiceResult<BaseServiceError, EmailTemplate>> {
+}): Promise<ServiceResult<EmailTemplate>> {
   logger.info({ contractorId }, "Saving email template");
 
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);

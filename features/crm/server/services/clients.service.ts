@@ -1,16 +1,16 @@
-import { cache } from "react";
+import * as React from "react";
 
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
 import { type ClientFormData } from "~/features/crm/schemas/client-schema";
 import {
-  createClient as createClientDb,
+  createClientByContractorId,
   deleteClient as deleteClientDb,
   updateClient as updateClientDb
 } from "~/features/crm/server/db/mutations";
 import {
   getClientById,
-  getClientListByContractor,
+  getClientListByContractorId,
   type ClientListOptions,
   type ClientListResult
 } from "~/features/crm/server/db/queries";
@@ -26,25 +26,31 @@ const logger = createLogger({ module: "crm-service" });
 // Read service (cached for request deduplication during render)
 // ---------------------------------------------------------------------------
 
-export const getClientList = cache(async function ({
+export const getClientList = React.cache(async function ({
   contractorId,
   options
 }: {
   contractorId: string;
   options: ClientListOptions;
-}): Promise<SupabaseServiceResult<ClientListResult>> {
+}): Promise<ServiceResult<BaseServiceError, ClientListResult>> {
   logger.info({ contractorId, ...options }, "Loading client list");
 
-  return getClientListByContractor({ contractorId, options });
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
+  if (roleErr) {
+    logger.warn({ contractorId, operation: "createClient", errorCode: roleErr.code }, "Role check failed");
+    return [roleErr, null];
+  }
+
+  return getClientListByContractorId({ contractorId, options });
 });
 
-export const getClientDetail = cache(async function ({
+export const getContractorClient = React.cache(async function ({
   contractorId,
   clientId
 }: {
   contractorId: string;
   clientId: string;
-}): Promise<SupabaseServiceResult<Client>> {
+}): Promise<ServiceResult<BaseServiceError, Client>> {
   logger.info({ contractorId, clientId }, "Loading client detail");
 
   const [clientError, client] = await getClientById({ id: clientId });
@@ -90,15 +96,13 @@ async function checkOwnership(clientId: string, contractorId: string): Promise<S
 // Mutation service
 // ---------------------------------------------------------------------------
 
-export type ClientMutationResult<T> = ServiceResult<BaseServiceError, T>;
-
 export async function createClient({
   contractorId,
   data
 }: {
   contractorId: string;
   data: ClientFormData;
-}): Promise<ClientMutationResult<Client>> {
+}): Promise<ServiceResult<BaseServiceError, Client>> {
   logger.info({ contractorId }, "Creating client");
 
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
@@ -107,7 +111,9 @@ export async function createClient({
     return [roleErr, null];
   }
 
-  const [createErr, client] = await createClientDb({ contractorId, data });
+  //TODO add clerk check
+
+  const [createErr, client] = await createClientByContractorId({ contractorId, data: { clerkUserId: null, ...data } });
   if (createErr) {
     logger.error({ contractorId, operation: "createClient", errorCode: createErr.code }, "DB insert failed");
     return [createErr, null];
@@ -125,7 +131,7 @@ export async function updateClient({
   contractorId: string;
   clientId: string;
   data: ClientFormData;
-}): Promise<ClientMutationResult<Client>> {
+}): Promise<ServiceResult<BaseServiceError, Client>> {
   logger.info({ contractorId, clientId }, "Updating client");
 
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
@@ -162,7 +168,7 @@ export async function deleteClient({
 }: {
   contractorId: string;
   clientId: string;
-}): Promise<ClientMutationResult<{ id: string }>> {
+}): Promise<ServiceResult<BaseServiceError, { id: string }>> {
   logger.info({ contractorId, clientId }, "Deleting client");
 
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);

@@ -10,7 +10,7 @@ import { clients, type Client } from "./schema";
 
 const logger = createLogger({ module: "crm-db" });
 
-export async function getClientsByContractor({
+export async function getClientsByContractorId({
   contractorId,
   dbClient = db
 }: {
@@ -74,7 +74,7 @@ export type ClientListResult = {
   pagination: PaginationMeta;
 };
 
-export async function getClientListByContractor({
+export async function getClientListByContractorId({
   contractorId,
   options,
   dbClient = db
@@ -160,7 +160,7 @@ export async function getClientListByContractor({
   }
 }
 
-export async function getClientCountByContractor({
+export async function getClientCountByContractorId({
   contractorId,
   dbClient = db
 }: {
@@ -174,6 +174,34 @@ export async function getClientCountByContractor({
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Client");
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to count clients");
+    return [serviceError, null];
+  }
+}
+
+export async function getOptionalClientByContractorIdAndEmail({
+  contractorId,
+  email,
+  dbClient = db
+}: {
+  contractorId: string;
+  email: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Client | null>> {
+  try {
+    const [row] = await dbClient
+      .select()
+      .from(clients)
+      .where(and(eq(clients.contractorId, contractorId), eq(clients.email, email)));
+
+    if (!row) {
+      logger.warn({ contractorId, email }, "Client not found");
+      return [null, null];
+    }
+
+    return [null, row];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Client");
+    logger.error({ errorCode: serviceError.code, contractorId, email }, "Failed to get client");
     return [serviceError, null];
   }
 }

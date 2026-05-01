@@ -9,9 +9,9 @@ import { clients, type Client } from "./schema";
 const logger = createLogger({ module: "crm-db" });
 const RESOURCE_NAME = "Client";
 
-type ClientInput = Pick<Client, "name" | "email"> & Partial<Pick<Client, "phone" | "clerkUserId">>;
+type ClientInput = Pick<Client, "name" | "email" | "phone" | "clerkUserId">;
 
-export async function createClient({
+export async function createClientByContractorId({
   contractorId,
   data,
   dbClient = db

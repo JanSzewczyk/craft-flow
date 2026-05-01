@@ -8,30 +8,34 @@ import { type ProjectRow, projectSteps, projects, type ProjectStep } from "./sch
 
 const logger = createLogger({ module: "projects-db" });
 
-type ProjectInput = Pick<ProjectRow, "contractorId" | "clientId" | "name" | "publicToken"> &
-  Partial<Pick<ProjectRow, "status" | "description">>;
+type ProjectInput = Pick<ProjectRow, "clientId" | "name" | "publicToken" | "status" | "description">;
 
-export async function createProject({
+export async function createProjectByContractorId({
+  contractorId,
   data,
   dbClient = db
 }: {
+  contractorId: string;
   data: ProjectInput;
   dbClient?: DbClient;
 }): Promise<SupabaseServiceResult<ProjectRow>> {
   try {
-    const [row] = await dbClient.insert(projects).values(data).returning();
+    const [row] = await dbClient
+      .insert(projects)
+      .values({ contractorId, ...data })
+      .returning();
 
     if (!row) {
       const error = SupabaseServiceError.unknown("Failed to create project — no row returned");
-      logger.error({ contractorId: data.contractorId, errorCode: error.code }, "Insert returned no rows");
+      logger.error({ contractorId, errorCode: error.code }, "Insert returned no rows");
       return [error, null];
     }
 
-    logger.info({ contractorId: data.contractorId, projectId: row.id }, "Created project");
+    logger.info({ contractorId, projectId: row.id }, "Created project");
     return [null, row];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Project");
-    logger.error({ contractorId: data.contractorId, errorCode: serviceError.code }, "Failed to create project");
+    logger.error({ contractorId, errorCode: serviceError.code }, "Failed to create project");
     return [serviceError, null];
   }
 }

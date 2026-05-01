@@ -5,22 +5,21 @@ import { randomBytes } from "crypto";
 import { clerkClient } from "@clerk/nextjs/server";
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
-import { createClient } from "~/features/crm/server/db/mutations";
-import { getClientById, getClientsByContractor } from "~/features/crm/server/db/queries";
-import { type Client } from "~/features/crm/server/db/schema";
+import { createClientByContractorId } from "~/features/crm/server/db/mutations";
+import { getOptionalClientByContractorIdAndEmail } from "~/features/crm/server/db/queries";
 import { type ProjectFormData } from "~/features/projects/schemas/project-schema";
-import { createProject as createProjectDb, createProjectSteps } from "~/features/projects/server/db/mutations";
+import { createProjectByContractorId, createProjectSteps } from "~/features/projects/server/db/mutations";
 import { canCreateProject } from "~/features/projects/server/permissions";
 import { withTransaction } from "~/lib/supabase/db";
 import { getTemplateById } from "~/features/templates/server/db/queries";
 import { createLogger } from "~/lib/logger";
 import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
 import { categorizeSupabaseError, SupabaseServiceError } from "~/lib/supabase/errors";
+import { getContractorClient } from "~/features/crm/server/services/clients.service";
 
 const logger = createLogger({ module: "create-project-service" });
 
 type ProjectRow = { id: string };
-export type CreateProjectResult = ServiceResult<BaseServiceError, ProjectRow>;
 
 export async function createProject({
   contractorId,
@@ -28,7 +27,7 @@ export async function createProject({
 }: {
   contractorId: string;
   formData: ProjectFormData;
-}): Promise<CreateProjectResult> {
+}): Promise<ServiceResult<BaseServiceError, ProjectRow>> {
   logger.info({ contractorId }, "Creating project");
 
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
@@ -46,7 +45,7 @@ export async function createProject({
   let clientId: string;
 
   if (formData.clientId) {
-    const [clientErr, existingClient] = await getClientById({ id: formData.clientId });
+    const [clientErr] = await getContractorClient({ clientId: formData.clientId, contractorId });
     if (clientErr) {
       logger.error(
         { contractorId, operation: "createProject", clientId: formData.clientId, errorCode: clientErr.code },
@@ -55,35 +54,27 @@ export async function createProject({
       return [clientErr, null];
     }
 
-    if (existingClient.contractorId !== contractorId) {
-      const ownerErr = SupabaseServiceError.unauthorized();
-      logger.warn(
-        { contractorId, operation: "createProject", clientId: formData.clientId },
-        "Client belongs to another contractor"
-      );
-      return [ownerErr, null];
-    }
-
-    clientId = existingClient.id;
+    clientId = formData.clientId;
   } else {
     const { name, email, phone } = formData.newClient!;
 
-    const [listErr, existingClients] = await getClientsByContractor({ contractorId });
-    if (listErr) {
+    const [err, optionalClient] = await getOptionalClientByContractorIdAndEmail({ contractorId, email });
+    if (err) {
       logger.error(
-        { contractorId, operation: "createProject", errorCode: listErr.code },
-        "Failed to fetch client list for duplicate check"
+        { contractorId, operation: "createProject", errorCode: err.code },
+        "Failed to fetch optional client for duplicate check"
       );
-      return [listErr, null];
+      return [err, null];
     }
 
-    const duplicate = existingClients.find((c: Client) => c.email === email);
+    const duplicate = !!optionalClient;
     if (duplicate) {
       const dupErr = SupabaseServiceError.alreadyExists("Client");
       logger.warn({ contractorId, operation: "createProject", email }, "Client with this email already exists");
       return [dupErr, null];
     }
-
+    // TODO 78-104 Dodaj funkcje w serwisie client createClient
+    // TODO 78-92 Dodaj funkcje find optonal user by Email w feature/auth/api
     let clerkUserId: string | null = null;
     try {
       const clerk = await clerkClient();
@@ -100,11 +91,10 @@ export async function createProject({
       );
     }
 
-    const [createClientErr, newClient] = await createClient({
+    const [createClientErr, newClient] = await createClientByContractorId({
       contractorId,
-      data: { name, email, phone: phone ?? null, clerkUserId }
+      data: { name, email, phone, clerkUserId }
     });
-
     if (createClientErr) {
       logger.error(
         { contractorId, operation: "createProject", errorCode: createClientErr.code },
@@ -134,14 +124,14 @@ export async function createProject({
     return [ownerErr, null];
   }
 
-  let project: { id: string };
+  let project: ProjectRow;
   try {
     project = await withTransaction(async (tx) => {
       const publicToken = randomBytes(8).toString("hex");
 
-      const [projectErr, createdProject] = await createProjectDb({
+      const [projectErr, createdProject] = await createProjectByContractorId({
+        contractorId,
         data: {
-          contractorId,
           clientId,
           name: formData.name,
           description: formData.description,

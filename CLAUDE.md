@@ -227,7 +227,7 @@ Each layer imports only downward.
 | DB queries / mutations | `SupabaseServiceResult<T>` → `[SupabaseServiceError, null] \| [null, T]` |
 | Permissions | `SupabaseServiceResult<void>` |
 | Service reads | `SupabaseServiceResult<T>` — wrap with React `cache()` |
-| Service mutations | `ServiceResult<BaseServiceError, T>` |
+| Service mutations | `ServiceResult<T>` |
 | Actions | `ActionResponse<T>` or `RedirectAction` from `~/lib/action-types` |
 
 Import sources:

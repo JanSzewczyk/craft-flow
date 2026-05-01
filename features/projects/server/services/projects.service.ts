@@ -2,20 +2,18 @@ import "server-only";
 
 import { randomBytes } from "crypto";
 
-import { clerkClient } from "@clerk/nextjs/server";
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
-import { createClientByContractorId } from "~/features/crm/server/db/mutations";
 import { getOptionalClientByContractorIdAndEmail } from "~/features/crm/server/db/queries";
+import { createClient, getContractorClient } from "~/features/crm/server/services/clients.service";
 import { type ProjectFormData } from "~/features/projects/schemas/project-schema";
 import { createProjectByContractorId, createProjectSteps } from "~/features/projects/server/db/mutations";
 import { canCreateProject } from "~/features/projects/server/permissions";
-import { withTransaction } from "~/lib/supabase/db";
 import { getTemplateById } from "~/features/templates/server/db/queries";
 import { createLogger } from "~/lib/logger";
-import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
+import { type ServiceResult } from "~/lib/services/errors";
+import { withTransaction } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError } from "~/lib/supabase/errors";
-import { getContractorClient } from "~/features/crm/server/services/clients.service";
 
 const logger = createLogger({ module: "create-project-service" });
 
@@ -27,7 +25,7 @@ export async function createProject({
 }: {
   contractorId: string;
   formData: ProjectFormData;
-}): Promise<ServiceResult<BaseServiceError, ProjectRow>> {
+}): Promise<ServiceResult<ProjectRow>> {
   logger.info({ contractorId }, "Creating project");
 
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
@@ -73,27 +71,9 @@ export async function createProject({
       logger.warn({ contractorId, operation: "createProject", email }, "Client with this email already exists");
       return [dupErr, null];
     }
-    // TODO 78-104 Dodaj funkcje w serwisie client createClient
-    // TODO 78-92 Dodaj funkcje find optonal user by Email w feature/auth/api
-    let clerkUserId: string | null = null;
-    try {
-      const clerk = await clerkClient();
-      const users = await clerk.users.getUserList({ emailAddress: [email] });
-      const foundUser = users.data[0];
-      if (foundUser) {
-        clerkUserId = foundUser.id;
-        logger.info({ contractorId, operation: "createProject", email }, "Found existing Clerk user for new client");
-      }
-    } catch (_clerkErr) {
-      logger.warn(
-        { contractorId, operation: "createProject", email },
-        "Clerk lookup failed — creating client without clerkUserId"
-      );
-    }
-
-    const [createClientErr, newClient] = await createClientByContractorId({
+    const [createClientErr, newClient] = await createClient({
       contractorId,
-      data: { name, email, phone, clerkUserId }
+      data: { name, email, phone }
     });
     if (createClientErr) {
       logger.error(
@@ -124,9 +104,8 @@ export async function createProject({
     return [ownerErr, null];
   }
 
-  let project: ProjectRow;
   try {
-    project = await withTransaction(async (tx) => {
+    const project = await withTransaction(async (tx) => {
       const publicToken = randomBytes(8).toString("hex");
 
       const [projectErr, createdProject] = await createProjectByContractorId({
@@ -153,6 +132,9 @@ export async function createProject({
 
       return createdProject;
     });
+
+    logger.info({ contractorId, projectId: project.id }, "Project created successfully");
+    return [null, project];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Project");
     logger.error(
@@ -162,6 +144,4 @@ export async function createProject({
     return [serviceError, null];
   }
 
-  logger.info({ contractorId, projectId: project.id }, "Project created successfully");
-  return [null, project];
 }

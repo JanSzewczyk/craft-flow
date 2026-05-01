@@ -51,4 +51,4 @@ export abstract class BaseServiceError extends Error {
  * Tuple type for service layer operations
  * [error, data] - if error is null, data is valid, and vice versa
  */
-export type ServiceResult<E extends BaseServiceError, T> = [E, null] | [null, T];
+export type ServiceResult<T, E extends BaseServiceError = BaseServiceError> = [E, null] | [null, T];

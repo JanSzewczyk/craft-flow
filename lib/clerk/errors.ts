@@ -203,4 +203,4 @@ export function categorizeClerkError(error: unknown, resourceName?: string): Cle
 /**
  * Tuple type for Clerk service layer operations
  */
-export type ClerkServiceResult<T> = ServiceResult<ClerkServiceError, T>;
+export type ClerkServiceResult<T> = ServiceResult<T, ClerkServiceError>;

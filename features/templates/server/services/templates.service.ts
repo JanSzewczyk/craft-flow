@@ -18,7 +18,7 @@ import {
 } from "~/features/templates/server/db/queries";
 import { canAddTemplate } from "~/features/templates/server/permissions";
 import { createLogger } from "~/lib/logger";
-import { type BaseServiceError, type ServiceResult } from "~/lib/services/errors";
+import { type ServiceResult } from "~/lib/services/errors";
 import { SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 import { type Template } from "../db/schema";
@@ -92,7 +92,7 @@ async function checkOwnership(templateId: string, contractorId: string): Promise
 // Mutation service
 // ---------------------------------------------------------------------------
 
-export type TemplateMutationResult<T> = ServiceResult<BaseServiceError, T>;
+export type TemplateMutationResult<T> = ServiceResult<T>;
 
 export async function createTemplate({
   contractorId,

@@ -21,7 +21,7 @@ vi.mock("~/features/crm/server/db/mutations", () => ({
 import {
   createClient,
   deleteClient,
-  getClientDetail,
+  getContractorClient,
   getClientList,
   updateClient
 } from "~/features/crm/server/services/clients.service";
@@ -68,15 +68,15 @@ describe("clients.service", () => {
   });
 
   // ---------------------------------------------------------------------------
-  // getClientDetail
+  // getContractorClient
   // ---------------------------------------------------------------------------
 
-  describe("getClientDetail", () => {
+  describe("getContractorClient", () => {
     test("returns error when getClientById fails", async () => {
       const notFoundError = { code: "not_found", message: "Client not found" };
       mocks.getClientById.mockResolvedValue([notFoundError, null]);
 
-      const [err, result] = await getClientDetail({ contractorId, clientId });
+      const [err, result] = await getContractorClient({ contractorId, clientId });
 
       expect(err).toBe(notFoundError);
       expect(result).toBeNull();
@@ -88,7 +88,7 @@ describe("clients.service", () => {
       });
       mocks.getClientById.mockResolvedValue([null, otherContractorClient]);
 
-      const [err, result] = await getClientDetail({ contractorId, clientId });
+      const [err, result] = await getContractorClient({ contractorId, clientId });
 
       expect(err).not.toBeNull();
       expect(err?.code).toBe("unauthorized");
@@ -99,7 +99,7 @@ describe("clients.service", () => {
       const client = clientBuilder.one({ overrides: { contractorId, id: clientId } });
       mocks.getClientById.mockResolvedValue([null, client]);
 
-      const [err, result] = await getClientDetail({ contractorId, clientId });
+      const [err, result] = await getContractorClient({ contractorId, clientId });
 
       expect(err).toBeNull();
       expect(result).toBe(client);

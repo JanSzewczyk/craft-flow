@@ -23,9 +23,7 @@ export type CompanyProfile = Pick<
   "companyName" | "industry" | "phone" | "nip" | "regon" | "email" | "address"
 >;
 
-export const getCompanyProfile = cache(async function (
-  userId: string
-): Promise<ServiceResult<CompanyProfile>> {
+export const getCompanyProfile = cache(async function (userId: string): Promise<ServiceResult<CompanyProfile>> {
   logger.info({ userId }, "Loading company profile data");
 
   const [profileErr, profile] = await getContractorProfile({ contractorId: userId });

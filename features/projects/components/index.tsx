@@ -1,5 +1,5 @@
 export { ClientCombobox } from "./client-combobox";
-export { CreateProjectForm } from "./create-project-form";
+export { CreateProjectForm } from "./forms/create-project-form";
 export { ProjectProgressBar } from "./project-progress-bar";
 export { ProjectsPagination } from "./projects-pagination";
 export { ProjectsTable } from "./projects-table";

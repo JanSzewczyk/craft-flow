@@ -23,9 +23,8 @@ import { type Client } from "~/features/crm/server/db/schema";
 import { type Template } from "~/features/templates/server/db/schema";
 import { type RedirectAction } from "~/lib/action-types";
 
-import { projectSchema, type ProjectFormData } from "../schemas/project-schema";
-
-import { ClientCombobox } from "./client-combobox";
+import { projectSchema, type ProjectFormData } from "../../schemas/project-schema";
+import { ClientCombobox } from "../client-combobox";
 
 type CreateProjectFormProps = {
   clients: Client[];
@@ -72,7 +71,6 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="flex flex-col gap-8">
-      {/* Sekcja 1: Szczegóły projektu */}
       <div className="container-xl w-full space-y-6">
         <div>
           <h2 className="text-heading-h3">Szczegóły projektu</h2>

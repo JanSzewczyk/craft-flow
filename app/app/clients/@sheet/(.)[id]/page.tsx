@@ -7,9 +7,7 @@ import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "client-sheet-page" });
 
-export default async function ClientDetailInterceptedPage({ params }: PageProps<"/app/clients/[id]">) {
-  const { id } = await params;
-
+async function loadData({ id }: { id: string }) {
   const { isAuthenticated, userId } = await auth();
   if (!isAuthenticated) {
     logger.error("User not authenticated");
@@ -17,7 +15,18 @@ export default async function ClientDetailInterceptedPage({ params }: PageProps<
   }
 
   const [error, client] = await getContractorClient({ contractorId: userId, clientId: id });
-  if (error || !client) notFound();
+  if (error) {
+    logger.error({ userId, clientId: id, errorCode: error.code }, "Failed to load client detail");
+    notFound();
+  }
+
+  logger.info({ userId, clientId: id }, "Successfully loaded client detail");
+  return { client };
+}
+
+export default async function ClientDetailInterceptedPage({ params }: PageProps<"/app/clients/[id]">) {
+  const { id } = await params;
+  const { client } = await loadData({ id });
 
   return <ClientDetailsSheet client={client} onUpdateAction={updateClientAction} />;
 }

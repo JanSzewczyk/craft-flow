@@ -1,5 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import { type Metadata } from "next";
+
+import { auth } from "@clerk/nextjs/server";
 import {
   Breadcrumb,
   BreadcrumbItem,

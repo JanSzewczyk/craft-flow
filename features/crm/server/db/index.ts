@@ -1,9 +1,9 @@
 export { clients, type Client } from "./schema";
-export { createClient, updateClient, deleteClient } from "./mutations";
+export { createClientByContractorId, updateClient, deleteClient } from "./mutations";
 export {
-  getClientsByContractor,
+  getClientsByContractorId,
   getClientById,
-  getClientListByContractor,
-  getClientCountByContractor
+  getClientListByContractorId,
+  getClientCountByContractorId
 } from "./queries";
 export type { ClientListItem, ClientListOptions, ClientListResult } from "./queries";

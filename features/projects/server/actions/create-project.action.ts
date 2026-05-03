@@ -3,7 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { projectSchema, type ProjectFormData } from "~/features/projects/schemas/project-schema";
+import { type ProjectFormData } from "~/features/projects/schemas/project-schema";
 import { createProject } from "~/features/projects/server/services/projects.service";
 import { type RedirectAction } from "~/lib/action-types";
 import { setToastCookie } from "~/lib/toast/server/toast.cookie";
@@ -18,16 +18,7 @@ export async function createProjectAction(data: ProjectFormData): RedirectAction
     return { success: false, error: "Nie jesteś zalogowany" };
   }
 
-  const parsed = projectSchema.safeParse(data);
-  if (!parsed.success) {
-    return {
-      success: false,
-      error: "Dane formularza są nieprawidłowe",
-      fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>
-    };
-  }
-
-  const [error, project] = await createProject({ contractorId: userId, formData: parsed.data });
+  const [error, project] = await createProject({ contractorId: userId, formData: data });
   if (error) return mapProjectServiceError(error);
 
   revalidatePath("/app/projects");

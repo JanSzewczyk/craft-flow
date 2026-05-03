@@ -5,7 +5,7 @@ import { PaginationNav } from "./pagination-nav";
 import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
-  title: "UI/Pagination Nav",
+  title: "Components/UI/Pagination Nav",
   component: PaginationNav,
   parameters: {
     layout: "padded",

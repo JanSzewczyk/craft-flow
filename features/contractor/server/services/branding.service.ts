@@ -22,9 +22,7 @@ const logger = createLogger({ module: "branding-service" });
 
 export type BrandingData = Pick<ContractorProfile, "brandColor" | "logoUrl">;
 
-export const getBrandingData = cache(async function (
-  userId: string
-): Promise<ServiceResult<BrandingData>> {
+export const getBrandingData = cache(async function (userId: string): Promise<ServiceResult<BrandingData>> {
   logger.info({ userId }, "Loading branding data");
 
   const [profileErr, profile] = await getContractorProfile({ contractorId: userId });

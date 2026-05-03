@@ -11,8 +11,8 @@ import {
 } from "@szum-tech/design-system";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getClientsByContractor } from "~/features/crm/server/db";
-import { CreateProjectForm } from "~/features/projects/components/create-project-form";
+import { getClientsByContractorId } from "~/features/crm/server/db";
+import { CreateProjectForm } from "~/features/projects/components/forms/create-project-form";
 import { createProjectAction } from "~/features/projects/server/actions/create-project.action";
 import { getTemplatesByContractor } from "~/features/templates/server/db";
 import { createLogger } from "~/lib/logger";
@@ -32,7 +32,7 @@ async function loadData() {
 
   const [[templatesError, templates], [clientsError, clients]] = await Promise.all([
     getTemplatesByContractor({ contractorId: userId }),
-    getClientsByContractor({ contractorId: userId })
+    getClientsByContractorId({ contractorId: userId })
   ]);
 
   if (templatesError) {

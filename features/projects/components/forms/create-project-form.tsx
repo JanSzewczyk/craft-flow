@@ -7,6 +7,12 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
   Field,
   FieldDescription,
   FieldError,
@@ -27,7 +33,6 @@ import { type Template } from "~/features/templates/server/db/schema";
 import { type RedirectAction } from "~/lib/action-types";
 
 import { projectSchema, type ProjectFormData } from "../../schemas/project-schema";
-import { ClientCombobox } from "../client-combobox";
 
 type CreateProjectFormProps = {
   clients: Array<Client>;
@@ -37,7 +42,6 @@ type CreateProjectFormProps = {
 
 export function CreateProjectForm({ clients, templates, onCreateAction }: CreateProjectFormProps) {
   const router = useRouter();
-  const [clientDisplayName, setClientDisplayName] = React.useState("");
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
@@ -48,14 +52,9 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
     }
   });
 
-  const clientMode = form.watch("client.mode");
-
-  const watch = useWatch({ control: form.ontrol, name: "client.mode" });
-
-  console.log("clientMode", watch);
+  const clientMode = useWatch({ control: form.control, name: "client.mode" });
 
   function switchToNew() {
-    console.log("zmiana na new");
     form.setValue("client", { mode: "new" });
   }
 
@@ -71,7 +70,7 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
   }
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="">
+    <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
       <FieldGroup>
         <FieldSet>
           <FieldLegend>Szczegóły projektu</FieldLegend>
@@ -100,7 +99,7 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
                 placeholder="Krótki opis zakresu prac..."
                 rows={3}
                 invalid={!!form.formState.errors.description}
-                {...form.register("description")}
+                {...form.register("description", { setValueAs: (val: string) => val || null })}
               />
               <FieldError errors={[form.formState.errors.description]} />
             </Field>
@@ -167,18 +166,44 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
               <Controller
                 name="client.clientId"
                 control={form.control}
-                render={({ field, fieldState }) => (
-                  <ClientCombobox
-                    clients={clients}
-                    value={field.value ?? null}
-                    displayName={clientDisplayName}
-                    onChange={(clientId, name) => {
-                      field.onChange(clientId ?? "");
-                      setClientDisplayName(name);
-                    }}
-                    error={fieldState.error?.message}
-                  />
-                )}
+                render={({ field, fieldState }) => {
+                  const selectedClient = clients.find((c) => c.id === field.value) ?? null;
+                  return (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="client-combobox">Klient</FieldLabel>
+                      <Combobox
+                        items={clients}
+                        value={selectedClient}
+                        onValueChange={(client) => field.onChange(client.id)}
+                        itemToStringLabel={(client) => client.name}
+                        isItemEqualToValue={(a, b) => a.id === b.id}
+                        filter={(client, query) => {
+                          const q = query.toLowerCase();
+                          return client.name.toLowerCase().includes(q) || client.email.toLowerCase().includes(q);
+                        }}
+                      >
+                        <ComboboxInput
+                          id="client-combobox"
+                          placeholder="Wyszukaj klienta..."
+                          showClear
+                          aria-invalid={fieldState.invalid}
+                        />
+                        <ComboboxContent>
+                          <ComboboxEmpty>Brak pasujących klientów</ComboboxEmpty>
+                          <ComboboxList>
+                            {(client) => (
+                              <ComboboxItem key={client.id} value={client}>
+                                {client.name}
+                                <span className="text-mute">{client.email}</span>
+                              </ComboboxItem>
+                            )}
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
+                      <FieldError errors={[fieldState.error]} />
+                    </Field>
+                  );
+                }}
               />
             ) : (
               <React.Fragment>
@@ -214,7 +239,7 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
                     type="tel"
                     placeholder="+48 ..."
                     invalid={!!form.formState.errors.client?.phone}
-                    {...form.register("client.phone")}
+                    {...form.register("client.phone", { setValueAs: (val: string) => val || null })}
                   />
                   <FieldError errors={[form.formState.errors.client?.phone]} />
                 </Field>
@@ -229,7 +254,7 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
           Anuluj
         </Button>
         <Button type="submit" loading={form.formState.isSubmitting}>
-          UtwBrz szkic projektu
+          Utwórz szkic projektu
         </Button>
       </div>
     </form>

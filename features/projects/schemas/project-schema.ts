@@ -3,14 +3,18 @@ import { z } from "zod";
 import { clientSchema } from "~/features/crm/schemas/client-schema";
 
 export const projectClientSchema = z.discriminatedUnion("mode", [
-  z.object({
-    mode: z.literal("existing"),
-    clientId: z.string().min(1, "Klient jest wymagany")
-  }),
-  z.object({
-    mode: z.literal("new"),
-    ...clientSchema.shape
-  })
+  z
+    .object({
+      mode: z.literal("existing"),
+      clientId: z.string().min(1, "Klient jest wymagany")
+    })
+    .extend(clientSchema.partial().shape),
+  z
+    .object({
+      mode: z.literal("new"),
+      clientId: z.string().optional()
+    })
+    .extend(clientSchema.shape)
 ]);
 
 export const projectSchema = z.object({

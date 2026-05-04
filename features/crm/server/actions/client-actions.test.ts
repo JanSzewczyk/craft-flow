@@ -70,7 +70,7 @@ describe("createClientAction", () => {
   test("calls service with correct userId and data", async () => {
     mocks.createClient.mockResolvedValue([null, mockClient]);
     await createClientAction(clientData);
-    expect(mocks.createClient).toHaveBeenCalledWith("user-1", clientData);
+    expect(mocks.createClient).toHaveBeenCalledWith({ contractorId: "user-1", data: clientData });
   });
 });
 
@@ -115,7 +115,7 @@ describe("updateClientAction", () => {
   test("calls service with correct userId, id and data", async () => {
     mocks.updateClient.mockResolvedValue([null, mockClient]);
     await updateClientAction("client-1", clientData);
-    expect(mocks.updateClient).toHaveBeenCalledWith("user-1", "client-1", clientData);
+    expect(mocks.updateClient).toHaveBeenCalledWith({ contractorId: "user-1", clientId: "client-1", data: clientData });
   });
 });
 
@@ -161,6 +161,6 @@ describe("deleteClientAction", () => {
   test("calls service with correct userId and id", async () => {
     mocks.deleteClient.mockResolvedValue([null, { id: "client-1" }]);
     await deleteClientAction("client-1");
-    expect(mocks.deleteClient).toHaveBeenCalledWith("user-1", "client-1");
+    expect(mocks.deleteClient).toHaveBeenCalledWith({ contractorId: "user-1", clientId: "client-1" });
   });
 });

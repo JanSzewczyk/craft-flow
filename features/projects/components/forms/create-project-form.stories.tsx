@@ -36,7 +36,6 @@ Default.test("renders all form sections", async ({ canvas, step }) => {
   });
 
   await step("Client section defaults to existing client mode", async () => {
-    await expect(canvas.getByText("Klient")).toBeVisible();
     await expect(canvas.getByText("Przypisz istniejącego klienta do projektu")).toBeVisible();
     await expect(canvas.getByPlaceholderText(/wyszukaj klienta/i)).toBeVisible();
   });

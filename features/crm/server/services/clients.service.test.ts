@@ -1,19 +1,23 @@
 const mocks = vi.hoisted(() => ({
   requireRole: vi.fn(),
+  findOptionalUserByEmail: vi.fn(),
   getClientById: vi.fn(),
-  getClientListByContractor: vi.fn(),
-  createClient: vi.fn(),
+  getClientListByContractorId: vi.fn(),
+  createClientByContractorId: vi.fn(),
   updateClient: vi.fn(),
   deleteClient: vi.fn()
 }));
 
 vi.mock("~/features/auth/server/api/require-role", () => ({ requireRole: mocks.requireRole }));
+vi.mock("~/features/auth/server/api/find-optional-user-by-email", () => ({
+  findOptionalUserByEmail: mocks.findOptionalUserByEmail
+}));
 vi.mock("~/features/crm/server/db/queries", () => ({
   getClientById: mocks.getClientById,
-  getClientListByContractor: mocks.getClientListByContractor
+  getClientListByContractorId: mocks.getClientListByContractorId
 }));
 vi.mock("~/features/crm/server/db/mutations", () => ({
-  createClient: mocks.createClient,
+  createClientByContractorId: mocks.createClientByContractorId,
   updateClient: mocks.updateClient,
   deleteClient: mocks.deleteClient
 }));
@@ -46,6 +50,7 @@ function setupRole() {
 describe("clients.service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.findOptionalUserByEmail.mockResolvedValue([null, null]);
   });
 
   // ---------------------------------------------------------------------------
@@ -55,15 +60,16 @@ describe("clients.service", () => {
   describe("getClientList", () => {
     const options = { page: 1, perPage: 10 };
 
-    test("delegates to getClientListByContractor with contractorId and options", async () => {
+    test("delegates to getClientListByContractorId with contractorId and options", async () => {
+      setupRole();
       const listResult = { items: [], pagination: {} };
-      mocks.getClientListByContractor.mockResolvedValue([null, listResult]);
+      mocks.getClientListByContractorId.mockResolvedValue([null, listResult]);
 
       const [err, result] = await getClientList({ contractorId, options });
 
       expect(err).toBeNull();
       expect(result).toBe(listResult);
-      expect(mocks.getClientListByContractor).toHaveBeenCalledWith({ contractorId, options });
+      expect(mocks.getClientListByContractorId).toHaveBeenCalledWith({ contractorId, options });
     });
   });
 
@@ -120,12 +126,12 @@ describe("clients.service", () => {
 
       expect(err).toBe(roleError);
       expect(result).toBeNull();
-      expect(mocks.createClient).not.toHaveBeenCalled();
+      expect(mocks.createClientByContractorId).not.toHaveBeenCalled();
     });
 
     test("returns error when createClient DB call fails", async () => {
       setupRole();
-      mocks.createClient.mockResolvedValue([dbError, null]);
+      mocks.createClientByContractorId.mockResolvedValue([dbError, null]);
 
       const [err, result] = await createClient({ contractorId, data: formData });
 
@@ -136,7 +142,7 @@ describe("clients.service", () => {
     test("returns the created client on success", async () => {
       setupRole();
       const client = clientBuilder.one({ overrides: { contractorId } });
-      mocks.createClient.mockResolvedValue([null, client]);
+      mocks.createClientByContractorId.mockResolvedValue([null, client]);
 
       const [err, result] = await createClient({ contractorId, data: formData });
 
@@ -144,14 +150,17 @@ describe("clients.service", () => {
       expect(result).toBe(client);
     });
 
-    test("calls createClient DB with contractorId and form data", async () => {
+    test("calls createClientByContractorId DB with contractorId and form data plus clerkUserId", async () => {
       setupRole();
       const client = clientBuilder.one({ overrides: { contractorId } });
-      mocks.createClient.mockResolvedValue([null, client]);
+      mocks.createClientByContractorId.mockResolvedValue([null, client]);
 
       await createClient({ contractorId, data: formData });
 
-      expect(mocks.createClient).toHaveBeenCalledWith({ contractorId, data: formData });
+      expect(mocks.createClientByContractorId).toHaveBeenCalledWith({
+        contractorId,
+        data: { ...formData, clerkUserId: null }
+      });
     });
   });
 

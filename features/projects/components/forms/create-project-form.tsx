@@ -55,11 +55,11 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
   const clientMode = useWatch({ control: form.control, name: "client.mode" });
 
   function switchToNew() {
-    form.setValue("client", { mode: "new" });
+    form.setValue("client", { mode: "new", email: "", name: "", phone: null });
   }
 
   function switchToExisting() {
-    form.setValue("client", { mode: "existing" });
+    form.setValue("client", { mode: "existing", clientId: "" });
   }
 
   async function handleSubmit(data: ProjectFormData) {
@@ -174,7 +174,7 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
                       <Combobox
                         items={clients}
                         value={selectedClient}
-                        onValueChange={(client) => field.onChange(client.id)}
+                        onValueChange={(client) => field.onChange(client?.id ?? null)}
                         itemToStringLabel={(client) => client.name}
                         isItemEqualToValue={(a, b) => a.id === b.id}
                         filter={(client, query) => {

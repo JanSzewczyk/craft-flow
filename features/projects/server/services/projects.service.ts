@@ -42,19 +42,19 @@ export async function createProject({
 
   let clientId: string;
 
-  if (formData.clientId) {
-    const [clientErr] = await getContractorClient({ clientId: formData.clientId, contractorId });
+  if (formData.client.mode === "existing") {
+    const [clientErr] = await getContractorClient({ clientId: formData.client.clientId, contractorId });
     if (clientErr) {
       logger.error(
-        { contractorId, operation: "createProject", clientId: formData.clientId, errorCode: clientErr.code },
+        { contractorId, operation: "createProject", clientId: formData.client.clientId, errorCode: clientErr.code },
         "Failed to fetch client"
       );
       return [clientErr, null];
     }
 
-    clientId = formData.clientId;
+    clientId = formData.client.clientId;
   } else {
-    const { name, email, phone } = formData.newClient!;
+    const { name, email, phone } = formData.client;
 
     const [err, optionalClient] = await getOptionalClientByContractorIdAndEmail({ contractorId, email });
     if (err) {

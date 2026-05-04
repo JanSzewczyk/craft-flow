@@ -15,7 +15,7 @@ import { type ServiceResult } from "~/lib/services/errors";
 import { withTransaction } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError } from "~/lib/supabase/errors";
 
-const logger = createLogger({ module: "create-project-service" });
+const logger = createLogger({ module: "project-service" });
 
 type ProjectRow = { id: string };
 

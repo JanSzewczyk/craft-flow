@@ -1,11 +1,11 @@
 import { expect, fn, waitFor } from "storybook/test";
-
 import { clientBuilder } from "~/features/crm/test/builders";
 import { templateBuilder } from "~/features/templates/test/builders/template.builder";
 import { type RedirectAction } from "~/lib/action-types";
-import preview from "~/.storybook/preview";
 
 import { CreateProjectForm } from "./create-project-form";
+
+import preview from "~/.storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Projects/Forms/Create Project Form",
@@ -35,17 +35,26 @@ Default.test("renders all form sections", async ({ canvas, step }) => {
     await expect(canvas.getByText("Wybierz szablon, który zdefiniuje etapy projektu")).toBeVisible();
   });
 
-  await step("Client section defaults to new client mode", async () => {
+  await step("Client section defaults to existing client mode", async () => {
     await expect(canvas.getByText("Klient")).toBeVisible();
-    await expect(canvas.getByText("Utwórz nowego klienta i przypisz go do projektu")).toBeVisible();
-    await expect(canvas.getByLabelText(/imię i nazwisko/i)).toBeVisible();
-    await expect(canvas.getByLabelText(/e-mail/i)).toBeVisible();
-    await expect(canvas.getByLabelText(/telefon/i)).toBeVisible();
+    await expect(canvas.getByText("Przypisz istniejącego klienta do projektu")).toBeVisible();
+    await expect(canvas.getByPlaceholderText(/wyszukaj klienta/i)).toBeVisible();
   });
 
   await step("Action buttons are visible", async () => {
     await expect(canvas.getByRole("button", { name: /anuluj/i })).toBeVisible();
     await expect(canvas.getByRole("button", { name: /utwórz szkic projektu/i })).toBeVisible();
+  });
+});
+
+Default.test("switches to new client mode", async ({ canvas, userEvent }) => {
+  await userEvent.click(canvas.getByRole("button", { name: /\+ nowy klient/i }));
+
+  await waitFor(async () => {
+    await expect(canvas.getByText("Utwórz nowego klienta i przypisz go do projektu")).toBeVisible();
+    await expect(canvas.getByLabelText(/imię i nazwisko/i)).toBeVisible();
+    await expect(canvas.getByLabelText(/e-mail/i)).toBeVisible();
+    await expect(canvas.getByLabelText(/telefon/i)).toBeVisible();
   });
 });
 

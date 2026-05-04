@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -37,19 +37,25 @@ type CreateProjectFormProps = {
 
 export function CreateProjectForm({ clients, templates, onCreateAction }: CreateProjectFormProps) {
   const router = useRouter();
+  const [clientDisplayName, setClientDisplayName] = React.useState("");
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       client: {
-        mode: "new"
+        mode: "existing"
       }
     }
   });
 
   const clientMode = form.watch("client.mode");
 
+  const watch = useWatch({ control: form.ontrol, name: "client.mode" });
+
+  console.log("clientMode", watch);
+
   function switchToNew() {
+    console.log("zmiana na new");
     form.setValue("client", { mode: "new" });
   }
 
@@ -69,12 +75,17 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
       <FieldGroup>
         <FieldSet>
           <FieldLegend>Szczegóły projektu</FieldLegend>
-          <FieldDescription>Podaj nazwę i opis nowego projektu</FieldDescription>
+          <FieldDescription>Podaj nazwię i opis nowego projektu</FieldDescription>
 
           <FieldGroup>
             <Field data-invalid={!!form.formState.errors.name}>
               <FieldLabel htmlFor="project-name">Nazwa projektu</FieldLabel>
-              <Input id="project-name" placeholder="np. Remont łazienki" {...form.register("name")} />
+              <Input
+                id="project-name"
+                placeholder="np. Remont łazienki"
+                invalid={!!form.formState.errors.name}
+                {...form.register("name")}
+              />
               <FieldError errors={[form.formState.errors.name]} />
             </Field>
           </FieldGroup>
@@ -88,6 +99,7 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
                 id="project-description"
                 placeholder="Krótki opis zakresu prac..."
                 rows={3}
+                invalid={!!form.formState.errors.description}
                 {...form.register("description")}
               />
               <FieldError errors={[form.formState.errors.description]} />
@@ -171,8 +183,13 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
             ) : (
               <React.Fragment>
                 <Field data-invalid={!!form.formState.errors.client?.name}>
-                  <FieldLabel htmlFor="new-client-name">Imię i nazwisko</FieldLabel>
-                  <Input id="new-client-name" placeholder="Jan Kowalski" {...form.register("client.name")} />
+                  <FieldLabel htmlFor="new-client-name">imię i nazwisko</FieldLabel>
+                  <Input
+                    id="new-client-name"
+                    placeholder="Jan Kowalski"
+                    {...form.register("client.name")}
+                    invalid={!!form.formState.errors.client?.name}
+                  />
                   <FieldError errors={[form.formState.errors.client?.name]} />
                 </Field>
 
@@ -182,6 +199,7 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
                     id="new-client-email"
                     type="email"
                     placeholder="jan@example.com"
+                    invalid={!!form.formState.errors.client?.email}
                     {...form.register("client.email")}
                   />
                   <FieldError errors={[form.formState.errors.client?.email]} />
@@ -191,7 +209,13 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
                   <FieldLabel htmlFor="new-client-phone">
                     Telefon <span className="text-mute">(Opcjonalne)</span>
                   </FieldLabel>
-                  <Input id="new-client-phone" type="tel" placeholder="+48 ..." {...form.register("client.phone")} />
+                  <Input
+                    id="new-client-phone"
+                    type="tel"
+                    placeholder="+48 ..."
+                    invalid={!!form.formState.errors.client?.phone}
+                    {...form.register("client.phone")}
+                  />
                   <FieldError errors={[form.formState.errors.client?.phone]} />
                 </Field>
               </React.Fragment>
@@ -205,7 +229,7 @@ export function CreateProjectForm({ clients, templates, onCreateAction }: Create
           Anuluj
         </Button>
         <Button type="submit" loading={form.formState.isSubmitting}>
-          Utwórz szkic projektu
+          UtwBrz szkic projektu
         </Button>
       </div>
     </form>

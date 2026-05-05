@@ -4,11 +4,20 @@ import { randomBytes } from "crypto";
 
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
+import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
 import { getOptionalClientByContractorIdAndEmail } from "~/features/crm/server/db/queries";
 import { createClient, getContractorClient } from "~/features/crm/server/services/clients.service";
 import { type ProjectFormData } from "~/features/projects/schemas/project-schema";
-import { createProjectByContractorId, createProjectSteps } from "~/features/projects/server/db/mutations";
+import {
+  updateProject,
+  createProjectByContractorId,
+  createProjectSteps,
+  updateProjectStepCompletion
+} from "~/features/projects/server/db/mutations";
+import { getCachedProjectById } from "~/features/projects/server/db/queries";
+import { type ProjectStatus } from "~/features/projects/server/db/schema";
 import { canCreateProject } from "~/features/projects/server/permissions";
+import { emailService } from "~/features/projects/server/services/email.service";
 import { getTemplateById } from "~/features/templates/server/db/queries";
 import { createLogger } from "~/lib/logger";
 import { type ServiceResult } from "~/lib/services/errors";
@@ -143,4 +152,137 @@ export async function createProject({
     );
     return [serviceError, null];
   }
+}
+
+const VALID_STATUS_TRANSITIONS: Partial<Record<ProjectStatus, ProjectStatus>> = {
+  DRAFT: "ACTIVE",
+  ACTIVE: "COMPLETED"
+};
+
+export async function updateProjectStatus({
+  contractorId,
+  projectId,
+  newStatus
+}: {
+  contractorId: string;
+  projectId: string;
+  newStatus: "ACTIVE" | "COMPLETED";
+}): Promise<ServiceResult<void>> {
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
+  if (roleErr) return [roleErr, null];
+
+  const [profileErr, profile] = await getContractorProfile({ contractorId });
+  if (profileErr) return [profileErr, null];
+
+  const [projectErr, project] = await getCachedProjectById({ id: projectId });
+  if (projectErr) return [projectErr, null];
+
+  if (project.contractorId !== contractorId) {
+    logger.warn({ contractorId, operation: "updateProjectStatus", projectId }, "Ownership check failed");
+    return [SupabaseServiceError.unauthorized(), null];
+  }
+
+  if (VALID_STATUS_TRANSITIONS[project.status] !== newStatus) {
+    logger.warn(
+      { contractorId, operation: "updateProjectStatus", projectId, from: project.status, to: newStatus },
+      "Invalid status transition"
+    );
+    return [SupabaseServiceError.validation(`Niedozwolone przejście statusu: ${project.status} → ${newStatus}`), null];
+  }
+
+  const [updateErr] = await updateProject({ id: projectId, data: { status: newStatus } });
+  if (updateErr) {
+    logger.error(
+      { contractorId, operation: "updateProjectStatus", projectId, errorCode: updateErr.code },
+      "Failed to update project status"
+    );
+    return [updateErr, null];
+  }
+
+  if (newStatus === "ACTIVE") {
+    await emailService.sendProjectActivationEmail({
+      contractorName: profile.companyName,
+      clientEmail: project.client.email,
+      clientName: project.client.name,
+      projectName: project.name,
+      projectPublicToken: project.publicToken
+    });
+  }
+
+  logger.info({ contractorId, projectId, newStatus }, "Project status updated");
+  return [null, undefined];
+}
+
+export async function updateStepCompletion({
+  contractorId,
+  stepId,
+  projectId,
+  isCompleted
+}: {
+  contractorId: string;
+  stepId: string;
+  projectId: string;
+  isCompleted: boolean;
+}): Promise<ServiceResult<void>> {
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
+  if (roleErr) return [roleErr, null];
+
+  const [projectErr, project] = await getCachedProjectById({ id: projectId });
+  if (projectErr) return [projectErr, null];
+
+  if (project.contractorId !== contractorId) {
+    logger.warn({ contractorId, operation: "updateStepCompletion", projectId }, "Ownership check failed");
+    return [SupabaseServiceError.unauthorized(), null];
+  }
+
+  if (project.status === "COMPLETED") {
+    return [SupabaseServiceError.validation("Nie można edytować zakończonego projektu"), null];
+  }
+
+  const [stepErr] = await updateProjectStepCompletion({ stepId, completed: isCompleted });
+  if (stepErr) {
+    logger.error(
+      { contractorId, operation: "updateStepCompletion", stepId, errorCode: stepErr.code },
+      "Failed to update step completion"
+    );
+    return [stepErr, null];
+  }
+
+  logger.info({ contractorId, projectId, stepId, isCompleted }, "Step completion updated");
+  return [null, undefined];
+}
+
+export async function softDeleteProject({
+  contractorId,
+  projectId
+}: {
+  contractorId: string;
+  projectId: string;
+}): Promise<ServiceResult<void>> {
+  const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
+  if (roleErr) return [roleErr, null];
+
+  const [projectErr, project] = await getCachedProjectById({ id: projectId });
+  if (projectErr) return [projectErr, null];
+
+  if (project.contractorId !== contractorId) {
+    logger.warn({ contractorId, operation: "softDeleteProject", projectId }, "Ownership check failed");
+    return [SupabaseServiceError.unauthorized(), null];
+  }
+
+  if (project.status !== "DRAFT") {
+    return [SupabaseServiceError.validation("Usunąć można tylko projekt w stanie szkicu"), null];
+  }
+
+  const [updateErr] = await updateProject({ id: projectId, data: { status: "DELETED" } });
+  if (updateErr) {
+    logger.error(
+      { contractorId, operation: "softDeleteProject", projectId, errorCode: updateErr.code },
+      "Failed to soft-delete project"
+    );
+    return [updateErr, null];
+  }
+
+  logger.info({ contractorId, projectId }, "Project soft-deleted");
+  return [null, undefined];
 }

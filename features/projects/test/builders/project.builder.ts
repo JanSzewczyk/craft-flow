@@ -2,7 +2,7 @@ import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
 import { type Client } from "~/features/crm/server/db/schema";
-import { type Project } from "~/features/projects/server/db/schema";
+import { type Project, type ProjectStep } from "~/features/projects/server/db/schema";
 import { type Template } from "~/features/templates/server/db/schema";
 
 export const projectBuilder = build<Project>({
@@ -46,6 +46,22 @@ export const templateBuilder = build<Template>({
         ]
       }
     }
+  }
+});
+
+export const projectStepBuilder = build<ProjectStep>({
+  fields: {
+    id: () => faker.string.uuid(),
+    projectId: () => faker.string.uuid(),
+    title: () => faker.lorem.words(3),
+    isCompleted: () => false,
+    completedAt: () => null,
+    orderIndex: () => faker.number.int({ min: 0, max: 10 }),
+    createdAt: () => faker.date.past(),
+    updatedAt: () => faker.date.recent()
+  },
+  traits: {
+    completed: { overrides: { isCompleted: true, completedAt: () => faker.date.recent() } }
   }
 });
 

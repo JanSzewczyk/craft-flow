@@ -1,4 +1,4 @@
-import { cache } from "react";
+import React, { cache } from "react";
 
 import { and, count, desc, eq, gte, ilike, ne, or, sql } from "drizzle-orm";
 
@@ -30,34 +30,32 @@ export async function getProjectsByContractor({
   }
 }
 
-export async function getProjectById({
-  id,
+export const getProjectById = React.cache(async function ({
+  projectId,
   dbClient = db
 }: {
-  id: string;
+  projectId: string;
   dbClient?: DbClient;
 }): Promise<SupabaseServiceResult<Project>> {
   try {
     const row = await dbClient.query.projects.findFirst({
-      where: eq(projects.id, id),
+      where: eq(projects.id, projectId),
       with: { client: true, steps: true }
     });
 
     if (!row) {
       const error = SupabaseServiceError.notFound("Project");
-      logger.error({ id, errorCode: error.code }, "Project not found");
+      logger.error({ projectId, errorCode: error.code }, "Project not found");
       return [error, null];
     }
 
     return [null, row];
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Project");
-    logger.error({ id, errorCode: serviceError.code }, "Failed to get project");
+    logger.error({ projectId, errorCode: serviceError.code }, "Failed to get project");
     return [serviceError, null];
   }
-}
-
-export const getCachedProjectById = cache(getProjectById);
+});
 
 export async function getProjectSteps({
   projectId,

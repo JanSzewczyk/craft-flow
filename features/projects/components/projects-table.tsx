@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow
 } from "@szum-tech/design-system";
+import Link from "next/link";
 import { type ProjectListItem } from "~/features/projects/server/db";
 import { formatRelativeTime } from "~/utils/date";
 import { getInitials } from "~/utils/users";
@@ -54,8 +55,12 @@ export function ProjectsTable({ items }: ProjectsTableProps) {
       </TableHeader>
       <TableBody>
         {items.map((item) => (
-          <TableRow key={item.id}>
-            <TableCell className="font-medium">{item.name}</TableCell>
+          <TableRow key={item.id} className="relative cursor-pointer">
+            <TableCell className="font-medium">
+              <Link href={`/app/projects/${item.id}`} className="after:absolute after:inset-0">
+                {item.name}
+              </Link>
+            </TableCell>
             <TableCell className="flex items-center gap-2">
               <Avatar className="size-6">
                 <AvatarFallback>{getInitials(item.clientName)}</AvatarFallback>

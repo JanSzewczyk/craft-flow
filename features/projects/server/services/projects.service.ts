@@ -14,7 +14,7 @@ import {
   createProjectSteps,
   updateProjectStepCompletion
 } from "~/features/projects/server/db/mutations";
-import { getCachedProjectById } from "~/features/projects/server/db/queries";
+import { getProjectById } from "~/features/projects/server/db/queries";
 import { type ProjectStatus } from "~/features/projects/server/db/schema";
 import { canCreateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
@@ -174,7 +174,7 @@ export async function updateProjectStatus({
   const [profileErr, profile] = await getContractorProfile({ contractorId });
   if (profileErr) return [profileErr, null];
 
-  const [projectErr, project] = await getCachedProjectById({ id: projectId });
+  const [projectErr, project] = await getProjectById({ projectId });
   if (projectErr) return [projectErr, null];
 
   if (project.contractorId !== contractorId) {
@@ -227,7 +227,7 @@ export async function updateStepCompletion({
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) return [roleErr, null];
 
-  const [projectErr, project] = await getCachedProjectById({ id: projectId });
+  const [projectErr, project] = await getProjectById({ projectId });
   if (projectErr) return [projectErr, null];
 
   if (project.contractorId !== contractorId) {
@@ -262,7 +262,7 @@ export async function softDeleteProject({
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) return [roleErr, null];
 
-  const [projectErr, project] = await getCachedProjectById({ id: projectId });
+  const [projectErr, project] = await getProjectById({ projectId });
   if (projectErr) return [projectErr, null];
 
   if (project.contractorId !== contractorId) {

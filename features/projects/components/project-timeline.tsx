@@ -3,8 +3,10 @@
 import { useOptimistic, useTransition } from "react";
 
 import { CheckIcon } from "lucide-react";
+
 import { updateStepCompletionAction } from "~/features/projects/server/actions/update-project-step.action";
 import { type ProjectStep, type ProjectStatus } from "~/features/projects/server/db/schema";
+import { formatDate } from "~/utils/date";
 
 type ProjectTimelineProps = {
   steps: ProjectStep[];
@@ -84,11 +86,9 @@ export function ProjectTimeline({ steps, projectId, projectStatus }: ProjectTime
                 {isCompleted && step.completedAt && (
                   <p className="text-muted-foreground mt-0.5 text-xs">
                     Ukończono:{" "}
-                    {step.completedAt.toLocaleDateString("pl-PL", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric"
-                    })}
+                    {
+                      formatDate(step.completedAt)
+                    }
                   </p>
                 )}
               </div>

@@ -14,7 +14,7 @@ export function ProjectProgressBar({ totalSteps, completedSteps }: ProjectProgre
 
   return (
     <div className="flex items-center gap-2">
-      <Progress value={percentage} className="w-20" />
+      <Progress value={percentage} className="w-full" />
       <span className="text-small font-medium">
         {completedSteps}/{totalSteps}
       </span>

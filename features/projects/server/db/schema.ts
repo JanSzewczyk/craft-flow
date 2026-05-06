@@ -59,3 +59,10 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   }),
   steps: many(projectSteps)
 }));
+
+export const projectStepsRelations = relations(projectSteps, ({ one }) => ({
+  project: one(projects, {
+    fields: [projectSteps.projectId],
+    references: [projects.id]
+  })
+}));

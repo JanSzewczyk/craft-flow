@@ -16,3 +16,23 @@ export function formatRelativeTime(date: Date): string {
   if (diffDays < 7) return `${diffDays} dn. temu`;
   return new Date(date).toLocaleDateString("pl-PL", { day: "numeric", month: "short" });
 }
+
+
+export function formatDate(date: Date): string {
+  return date.toLocaleDateString("pl-PL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+
+  });
+}
+
+export function formatDateTime(date: Date): string {
+  return date.toLocaleDateString("pl-PL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}

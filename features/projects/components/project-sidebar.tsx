@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 
 import { CheckIcon, CopyIcon, LinkIcon, Loader2Icon, PlayIcon, Trash2Icon } from "lucide-react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
+  Avatar,
+  AvatarFallback,
   Button,
   Card,
   CardContent,
@@ -23,6 +26,8 @@ import {
 import { deleteProjectAction } from "~/features/projects/server/actions/delete-project.action";
 import { updateProjectStatusAction } from "~/features/projects/server/actions/update-project-status.action";
 import { type Project, type ProjectStatus } from "~/features/projects/server/db/schema";
+import { formatRelativeTime } from "~/utils/date";
+import { getInitials } from "~/utils/users";
 
 import { ProjectProgressBar } from "./project-progress-bar";
 import { ProjectStatusBadge } from "./project-status-badge";
@@ -33,22 +38,7 @@ type ProjectSidebarProps = {
 
 function formatDate(date: Date | null): string {
   if (!date) return "Nigdy";
-  return date.toLocaleDateString("pl-PL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0] ?? "")
-    .join("")
-    .toUpperCase();
+  return formatRelativeTime(date);
 }
 
 function ProjectSidebarActions({ project }: { project: Project }) {
@@ -180,16 +170,17 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
   const completedSteps = steps.filter((s) => s.isCompleted).length;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">Klient</CardTitle>
+          <CardTitle>Klient</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+        <CardContent>
           <div className="flex items-center gap-3">
-            <div className="bg-primary text-primary-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold">
-              {getInitials(client.name)}
-            </div>
+            <Avatar className="size-10">
+              <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
+            </Avatar>
+
             <div className="min-w-0">
               <p className="text-foreground truncate font-medium">{client.name}</p>
               <p className="text-muted-foreground truncate text-sm">{client.email}</p>
@@ -206,30 +197,21 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-              Status projektu
-            </CardTitle>
+          <CardTitle className="inline-flex items-center justify-between gap-2">
+            Status projektu
             <ProjectStatusBadge status={project.status} />
-          </div>
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <ProjectProgressBar totalSteps={steps.length} completedSteps={completedSteps} />
 
-          <p className="text-muted-foreground text-xs">
-            Utworzono:{" "}
-            {project.createdAt.toLocaleDateString("pl-PL", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric"
-            })}
-          </p>
+          <p className="text-small">Utworzono: {formatDate(project.createdAt)}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">Akcje</CardTitle>
+          <CardTitle>Akcje</CardTitle>
         </CardHeader>
         <CardContent>
           <ProjectSidebarActions project={project} />

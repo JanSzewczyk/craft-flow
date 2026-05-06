@@ -1,14 +1,17 @@
 "use client";
 
+import * as React from "react";
+
+import { Tabs, TabsList, TabsTrigger } from "@szum-tech/design-system";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger } from "@szum-tech/design-system";
 
 type ProjectDetailTabsNavProps = {
   projectId: string;
+  children: React.ReactNode;
 };
 
-export function ProjectDetailTabsNav({ projectId }: ProjectDetailTabsNavProps) {
+export function ProjectDetailTabsNav({ projectId, children }: ProjectDetailTabsNavProps) {
   const pathname = usePathname();
   const timelinePath = `/app/projects/${projectId}`;
   const filesPath = `/app/projects/${projectId}/files`;
@@ -27,20 +30,8 @@ export function ProjectDetailTabsNav({ projectId }: ProjectDetailTabsNavProps) {
           </Link>
         </TabsTrigger>
       </TabsList>
+
+      {children}
     </Tabs>
-    // <div className="border-border flex border-b">
-    //   {tabs.map((tab) => (
-    //     <Link
-    //       key={tab.href}
-    //       href={tab.href}
-    //       className={[
-    //         "px-6 py-3 text-sm font-medium transition-colors",
-    //         tab.active ? "border-primary text-primary border-b-2" : "text-muted-foreground hover:text-foreground"
-    //       ].join(" ")}
-    //     >
-    //       {tab.label}
-    //     </Link>
-    //   ))}
-    // </div>
   );
 }

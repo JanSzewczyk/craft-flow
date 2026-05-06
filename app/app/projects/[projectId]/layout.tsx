@@ -12,6 +12,8 @@ import {
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ProjectDetailTabsNav, ProjectSidebar } from "~/features/projects/components";
+import { deleteProjectAction } from "~/features/projects/server/actions/delete-project.action";
+import { updateProjectStatusAction } from "~/features/projects/server/actions/update-project-status.action";
 import { getContractorProject } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 
@@ -65,13 +67,15 @@ export default async function ProjectDetailLayout({ children, params }: LayoutPr
           {project.description ? <p className="text-lead">{project.description}</p> : null}
         </div>
 
-        <ProjectDetailTabsNav projectId={projectId} />
-
-        {children}
+        <ProjectDetailTabsNav projectId={projectId}>{children}</ProjectDetailTabsNav>
       </div>
       <aside className="lg:col-span-4">
         <div className="sticky top-24">
-          <ProjectSidebar project={project} />
+          <ProjectSidebar
+            project={project}
+            onUpdateStatusAction={updateProjectStatusAction}
+            onDeleteAction={deleteProjectAction}
+          />
         </div>
       </aside>
     </div>

@@ -1,8 +1,21 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
-import { CheckIcon, CopyIcon, LinkIcon, Loader2Icon, PlayIcon, Trash2Icon } from "lucide-react";
+import {
+  CalendarIcon,
+  CheckIcon,
+  CopyIcon,
+  EyeIcon,
+  LinkIcon,
+  Loader2Icon,
+  MailIcon,
+  MoreHorizontalIcon,
+  PhoneIcon,
+  PlayIcon,
+  RefreshCwIcon,
+  Trash2Icon
+} from "lucide-react";
 
 import {
   AlertDialog,
@@ -21,19 +34,27 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   Separator
 } from "@szum-tech/design-system";
-import { deleteProjectAction } from "~/features/projects/server/actions/delete-project.action";
-import { updateProjectStatusAction } from "~/features/projects/server/actions/update-project-status.action";
-import { type Project, type ProjectStatus } from "~/features/projects/server/db/schema";
+import { type Project, ProjectStatus } from "~/features/projects/server/db/schema";
+import { type ActionResponse, type RedirectAction } from "~/lib/action-types";
 import { formatRelativeTime } from "~/utils/date";
 import { getInitials } from "~/utils/users";
 
 import { ProjectProgressBar } from "./project-progress-bar";
 import { ProjectStatusBadge } from "./project-status-badge";
 
-type ProjectSidebarProps = {
+export type ProjectSidebarProps = {
   project: Project;
+  onUpdateStatusAction(
+    projectId: string,
+    newStatus: typeof ProjectStatus.ACTIVE | typeof ProjectStatus.COMPLETED
+  ): ActionResponse<void>;
+  onDeleteAction(projectId: string): RedirectAction;
 };
 
 function formatDate(date: Date | null): string {
@@ -41,13 +62,18 @@ function formatDate(date: Date | null): string {
   return formatRelativeTime(date);
 }
 
-function ProjectSidebarActions({ project }: { project: Project }) {
+export function ProjectSidebar({ project, onUpdateStatusAction, onDeleteAction }: ProjectSidebarProps) {
   const [isPending, startTransition] = useTransition();
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const status = project.status as ProjectStatus;
-  const isDraft = status === "DRAFT";
-  const isActive = status === "ACTIVE";
-  const hasPublicLink = isActive || status === "COMPLETED";
+  const { client, steps } = project;
+  const completedSteps = steps.filter((s) => s.isCompleted).length;
+
+  const status = project.status;
+  const isDraft = status === ProjectStatus.DRAFT;
+  const isActive = status === ProjectStatus.ACTIVE;
+  const isCompleted = status === ProjectStatus.COMPLETED;
+  const showActions = isDraft || isActive || isCompleted;
 
   function handleCopyLink() {
     const url = `${window.location.origin}/status/${project.publicToken}`;
@@ -56,118 +82,21 @@ function ProjectSidebarActions({ project }: { project: Project }) {
 
   function handleActivate() {
     startTransition(async () => {
-      await updateProjectStatusAction(project.id, "ACTIVE");
+      await onUpdateStatusAction(project.id, ProjectStatus.ACTIVE);
     });
   }
 
   function handleComplete() {
     startTransition(async () => {
-      await updateProjectStatusAction(project.id, "COMPLETED");
+      await onUpdateStatusAction(project.id, ProjectStatus.COMPLETED);
     });
   }
 
   function handleDelete() {
     startTransition(async () => {
-      await deleteProjectAction(project.id);
+      await onDeleteAction(project.id);
     });
   }
-
-  return (
-    <div className="flex flex-col gap-2">
-      {isDraft && (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              className="w-full"
-              startIcon={isPending ? <Loader2Icon className="animate-spin" /> : <PlayIcon />}
-              disabled={isPending}
-            >
-              Aktywuj projekt
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Aktywować projekt?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Klient otrzyma powiadomienie e-mail z linkiem do projektu. Po aktywacji nie będzie można usunąć
-                projektu.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Anuluj</AlertDialogCancel>
-              <AlertDialogAction onClick={handleActivate}>Aktywuj</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-
-      {isActive && (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              className="w-full"
-              variant="secondary"
-              startIcon={isPending ? <Loader2Icon className="animate-spin" /> : <CheckIcon />}
-              disabled={isPending}
-            >
-              Zakończ projekt
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Zakończyć projekt?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Projekt zostanie oznaczony jako zakończony. Etapy będą zablokowane przed dalszą edycją.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Anuluj</AlertDialogCancel>
-              <AlertDialogAction onClick={handleComplete}>Zakończ</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
-
-      {hasPublicLink && (
-        <Button className="w-full" variant="outline" startIcon={<LinkIcon />} onClick={handleCopyLink}>
-          <span className="flex items-center gap-2">
-            <CopyIcon className="h-3.5 w-3.5" />
-            Kopiuj link dla klienta
-          </span>
-        </Button>
-      )}
-
-      {isDraft && (
-        <>
-          <Separator />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button className="w-full" variant="error" startIcon={<Trash2Icon />} disabled={isPending}>
-                Usuń projekt
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Usunąć projekt?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Tej operacji nie można cofnąć. Wszystkie dane projektu zostaną trwale usunięte.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Anuluj</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Usuń</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </>
-      )}
-    </div>
-  );
-}
-
-export function ProjectSidebar({ project }: ProjectSidebarProps) {
-  const { client, steps } = project;
-  const completedSteps = steps.filter((s) => s.isCompleted).length;
 
   return (
     <div className="space-y-4">
@@ -175,22 +104,38 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
         <CardHeader>
           <CardTitle>Klient</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-3">
-            <Avatar className="size-10">
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex items-start gap-3">
+            <Avatar className="size-10 shrink-0">
               <AvatarFallback>{getInitials(client.name)}</AvatarFallback>
             </Avatar>
-
-            <div className="min-w-0">
-              <p className="text-foreground truncate font-medium">{client.name}</p>
-              <p className="text-muted-foreground truncate text-sm">{client.email}</p>
-              {client.phone && <p className="text-muted-foreground truncate text-sm">{client.phone}</p>}
+            <div className="min-w-0 flex-1 space-y-1">
+              <p className="truncate font-medium">{client.name}</p>
+              <a
+                href={`mailto:${client.email}`}
+                className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 truncate text-sm transition-colors"
+              >
+                <MailIcon className="size-3.5 shrink-0" />
+                {client.email}
+              </a>
+              {client.phone ? (
+                <a
+                  href={`tel:${client.phone}`}
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
+                >
+                  <PhoneIcon className="size-3.5 shrink-0" />
+                  {client.phone}
+                </a>
+              ) : null}
             </div>
           </div>
 
-          <div className="bg-muted flex items-center gap-2 rounded-lg px-3 py-2 text-sm">
-            <span className="text-muted-foreground">Ostatnio oglądał:</span>
-            <span className="font-medium">{formatDate(project.lastClientViewAt)}</span>
+          <Separator />
+
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <EyeIcon className="size-3.5 shrink-0" />
+            <span>Ostatnio oglądał:</span>
+            <span className="text-foreground font-medium">{formatDate(project.lastClientViewAt)}</span>
           </div>
         </CardContent>
       </Card>
@@ -205,18 +150,144 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
         <CardContent className="flex flex-col gap-4">
           <ProjectProgressBar totalSteps={steps.length} completedSteps={completedSteps} />
 
-          <p className="text-small">Utworzono: {formatDate(project.createdAt)}</p>
+          <Separator />
+
+          <div className="text-muted-foreground flex flex-col gap-2 text-sm">
+            <div className="flex items-center gap-2">
+              <CalendarIcon className="size-3.5 shrink-0" />
+              <span>Utworzono:</span>
+              <span className="text-foreground font-medium">{formatDate(project.createdAt)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <RefreshCwIcon className="size-3.5 shrink-0" />
+              <span>Zaktualizowano:</span>
+              <span className="text-foreground font-medium">{formatDate(project.updatedAt)}</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Akcje</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ProjectSidebarActions project={project} />
-        </CardContent>
-      </Card>
+      {showActions ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Akcje</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isDraft ? (
+              <div className="flex gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      className="flex-1"
+                      startIcon={isPending ? <Loader2Icon className="animate-spin" /> : <PlayIcon />}
+                      disabled={isPending}
+                    >
+                      Aktywuj projekt
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Aktywować projekt?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Klient otrzyma powiadomienie e-mail z linkiem do projektu. Po aktywacji nie będzie można usunąć
+                        projektu.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleActivate}>Aktywuj</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" aria-label="Więcej opcji" disabled={isPending}>
+                      <MoreHorizontalIcon />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      variant="error"
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        setIsDeleteOpen(true);
+                      }}
+                    >
+                      <Trash2Icon />
+                      Usuń projekt
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Usunąć projekt?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tej operacji nie można cofnąć. Wszystkie dane projektu zostaną trwale usunięte.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>Usuń</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            ) : null}
+
+            {isActive ? (
+              <div className="flex gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      className="flex-1"
+                      variant="default"
+                      startIcon={isPending ? <Loader2Icon className="animate-spin" /> : <CheckIcon />}
+                      disabled={isPending}
+                    >
+                      Zakończ projekt
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Zakończyć projekt?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Projekt zostanie oznaczony jako zakończony. Etapy będą zablokowane przed dalszą edycją.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleComplete}>Zakończ</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" aria-label="Więcej opcji" disabled={isPending}>
+                      <MoreHorizontalIcon />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleCopyLink}>
+                      <CopyIcon />
+                      Kopiuj link dla klienta
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : null}
+
+            {isCompleted ? (
+              <Button className="w-full" variant="outline" startIcon={<LinkIcon />} onClick={handleCopyLink}>
+                Kopiuj link dla klienta
+              </Button>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

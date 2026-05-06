@@ -10,19 +10,33 @@ import {
   BreadcrumbSeparator
 } from "@szum-tech/design-system";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ProjectDetailTabsNav, ProjectSidebar } from "~/features/projects/components";
-import { getProjectById } from "~/features/projects/server/db";
+import { getContractorProject } from "~/features/projects/server/services/projects.service";
+import { createLogger } from "~/lib/logger";
 
-export default async function ProjectDetailLayout({ children, params }: LayoutProps<"/app/projects/[projectId]">) {
-  const { userId } = await auth();
-  const { projectId } = await params;
+const logger = createLogger({ module: "project-detail-layout" });
 
-  const [error, project] = await getProjectById({ projectId });
+async function loadData({ projectId }: { projectId: string }) {
+  const { isAuthenticated, userId } = await auth();
+  if (!isAuthenticated) {
+    logger.error("User not authenticated");
+    redirect("/sign-in");
+  }
 
+  const [error, project] = await getContractorProject({ contractorId: userId, projectId });
   if (error) {
+    logger.error({ userId, projectId, errorCode: error.code }, "Failed to load project layout");
     notFound();
   }
+
+  logger.info({ userId, projectId }, "Successfully loaded project layout");
+  return { project };
+}
+
+export default async function ProjectDetailLayout({ children, params }: LayoutProps<"/app/projects/[projectId]">) {
+  const { projectId } = await params;
+  const { project } = await loadData({ projectId });
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">

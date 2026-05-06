@@ -1,9 +1,12 @@
+import { InfoIcon } from "lucide-react";
 import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
+import { Alert, AlertDescription, AlertTitle } from "@szum-tech/design-system";
 import { notFound, redirect } from "next/navigation";
 import { ProjectTimeline } from "~/features/projects/components";
 import { updateStepCompletionAction } from "~/features/projects/server/actions/update-project-step.action";
+import { ProjectStatus } from "~/features/projects/server/db";
 import { getContractorProject } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 
@@ -41,13 +44,21 @@ export default async function ProjectDetailPage({ params }: PageProps<"/app/proj
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="bg-card flex flex-col gap-6 rounded-xl border p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-heading-h3">Postęp projektu</h2>
-        </div>
-
-        <ProjectTimeline project={project} onUpdateStepAction={updateStepCompletionAction} />
+      <div className="flex items-center justify-between">
+        <h2 className="text-heading-h3">Postęp projektu</h2>
       </div>
+
+      {project.status === ProjectStatus.DRAFT ? (
+        <Alert>
+          <InfoIcon className="size-4" />
+          <AlertTitle>Projekt nie został jeszcze aktywowany</AlertTitle>
+          <AlertDescription>
+            Po kliknięciu przycisku &quot;Aktywuj projekt&quot; pierwszy etap zostanie automatycznie uruchomiony.
+          </AlertDescription>
+        </Alert>
+      ) : null}
+
+      <ProjectTimeline project={project} onUpdateStepAction={updateStepCompletionAction} />
     </div>
   );
 }

@@ -79,6 +79,13 @@ export default defineMain({
               __dirname,
               "../__mocks__/features/contractor/server/actions/company/update-company-profile.action.ts"
             )
+          },
+          {
+            find: "~/features/projects/server/actions/update-project-step.action",
+            replacement: path.resolve(
+              __dirname,
+              "../__mocks__/features/projects/server/actions/update-project-step.action.ts"
+            )
           }
         ]
       }

@@ -3,6 +3,7 @@ import { type Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import { ProjectTimeline } from "~/features/projects/components";
+import { updateStepCompletionAction } from "~/features/projects/server/actions/update-project-step.action";
 import { getContractorProject } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 
@@ -45,7 +46,7 @@ export default async function ProjectDetailPage({ params }: PageProps<"/app/proj
           <h2 className="text-heading-h3">Postęp projektu</h2>
         </div>
 
-        <ProjectTimeline steps={project.steps} projectId={project.id} projectStatus={project.status} />
+        <ProjectTimeline project={project} onUpdateStepAction={updateStepCompletionAction} />
       </div>
     </div>
   );

@@ -2,6 +2,24 @@
 
 Conventions for writing code in this project.
 
+## Array types in TypeScript
+
+Always use the generic form `Array<Type>` instead of the shorthand notation `Type[]`.
+
+```typescript
+// ✓
+Array<string>
+Array<ProjectStep>
+Array<{ id: string; name: string }>
+
+// ✗
+string[]
+ProjectStep[]
+{ id: string; name: string }[]
+```
+
+Applies to all contexts: component props, function signatures, variable types, return types.
+
 ## Conditional rendering
 
 Always use the ternary operator for conditional rendering. Never use `&&` short-circuit.
@@ -22,7 +40,7 @@ This applies to all conditional expressions in JSX — single elements, fragment
 // ✓
 {items.length > 0 ? <List items={items} /> : null}
 {error ? <p className="text-error">{error}</p> : null}
-{isActive ? "Aktywny" : null}
+{isActive ? "Active" : null}
 
 // ✗
 {items.length > 0 && <List items={items} />}

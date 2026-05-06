@@ -100,7 +100,7 @@ export async function createProjectStep({
   data,
   dbClient = db
 }: {
-  data: Pick<ProjectStep, "projectId" | "title" | "orderIndex">;
+  data: Pick<ProjectStep, "projectId" | "title" | "description" | "orderIndex">;
   dbClient?: DbClient;
 }): Promise<SupabaseServiceResult<ProjectStep>> {
   try {
@@ -194,13 +194,13 @@ export async function createProjectSteps({
   dbClient = db
 }: {
   projectId: string;
-  steps: Array<Pick<ProjectStep, "title" | "orderIndex">>;
+  steps: Array<Pick<ProjectStep, "title" | "description" | "orderIndex">>;
   dbClient?: DbClient;
 }): Promise<SupabaseServiceResult<ProjectStep[]>> {
   try {
     const rows = await dbClient
       .insert(projectSteps)
-      .values(steps.map((s) => ({ projectId, title: s.title, orderIndex: s.orderIndex })))
+      .values(steps.map((s) => ({ projectId, title: s.title, description: s.description, orderIndex: s.orderIndex })))
       .returning();
 
     logger.info({ projectId, stepCount: rows.length }, "Created project steps");

@@ -30,6 +30,7 @@ export const projectSteps = pgTable("project_steps", {
     .notNull()
     .references(() => projects.id, { onDelete: "cascade" }),
   title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
   isCompleted: boolean("is_completed").default(false).notNull(),
   completedAt: timestamp("completed_at"),
   orderIndex: integer("order_index").notNull(),

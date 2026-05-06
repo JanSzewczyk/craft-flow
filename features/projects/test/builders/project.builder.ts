@@ -54,6 +54,7 @@ export const projectStepBuilder = build<ProjectStep>({
     id: () => faker.string.uuid(),
     projectId: () => faker.string.uuid(),
     title: () => faker.lorem.words(3),
+    description: () => null,
     isCompleted: () => false,
     completedAt: () => null,
     orderIndex: () => faker.number.int({ min: 0, max: 10 }),

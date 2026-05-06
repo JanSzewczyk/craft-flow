@@ -167,7 +167,7 @@ export async function createProject({
       if (template.steps.length > 0) {
         const [stepsErr] = await createProjectSteps({
           projectId: createdProject.id,
-          steps: template.steps.map((s) => ({ title: s.title, orderIndex: s.orderIndex })),
+          steps: template.steps.map((s) => ({ title: s.title, description: s.description, orderIndex: s.orderIndex })),
           dbClient: tx
         });
         if (stepsErr) throw stepsErr;

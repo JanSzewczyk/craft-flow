@@ -38,10 +38,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  Separator
+  Separator,
+  toast
 } from "@szum-tech/design-system";
 import { type Project, ProjectStatus } from "~/features/projects/server/db/schema";
-import { type ActionResponse, type RedirectAction } from "~/lib/action-types";
+import { type ActionResponse, type RedirectAction, isActionSuccess } from "~/lib/action-types";
 import { formatRelativeTime } from "~/utils/date";
 import { getInitials } from "~/utils/users";
 
@@ -50,10 +51,7 @@ import { ProjectStatusBadge } from "./project-status-badge";
 
 export type ProjectSidebarProps = {
   project: Project;
-  onUpdateStatusAction(
-    projectId: string,
-    newStatus: typeof ProjectStatus.ACTIVE | typeof ProjectStatus.COMPLETED
-  ): ActionResponse<void>;
+  onUpdateStatusAction(projectId: string, newStatus: ProjectStatus): ActionResponse<void>;
   onDeleteAction(projectId: string): RedirectAction;
 };
 
@@ -77,24 +75,37 @@ export function ProjectSidebar({ project, onUpdateStatusAction, onDeleteAction }
 
   function handleCopyLink() {
     const url = `${window.location.origin}/status/${project.publicToken}`;
-    void navigator.clipboard.writeText(url);
+    void navigator.clipboard.writeText(url).then(() => {
+      toast.success("Link skopiowany do schowka");
+    });
   }
 
   function handleActivate() {
     startTransition(async () => {
-      await onUpdateStatusAction(project.id, ProjectStatus.ACTIVE);
+      const result = await onUpdateStatusAction(project.id, ProjectStatus.ACTIVE);
+      if (isActionSuccess(result)) {
+        toast.success(result.message ?? "Projekt został aktywowany");
+      } else {
+        toast.error("Nie udało się aktywować projektu", { description: result.error });
+      }
     });
   }
 
   function handleComplete() {
     startTransition(async () => {
-      await onUpdateStatusAction(project.id, ProjectStatus.COMPLETED);
+      const result = await onUpdateStatusAction(project.id, ProjectStatus.COMPLETED);
+      if (isActionSuccess(result)) {
+        toast.success(result.message ?? "Projekt został zakończony");
+      } else {
+        toast.error("Nie udało się zakończyć projektu", { description: result.error });
+      }
     });
   }
 
   function handleDelete() {
     startTransition(async () => {
-      await onDeleteAction(project.id);
+      const result = await onDeleteAction(project.id);
+      toast.error("Nie udało się usunąć projektu", { description: result.error });
     });
   }
 

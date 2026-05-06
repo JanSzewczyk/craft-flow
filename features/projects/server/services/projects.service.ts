@@ -2,6 +2,8 @@ import "server-only";
 
 import { randomBytes } from "crypto";
 
+import * as React from "react";
+
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
 import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
@@ -15,16 +17,48 @@ import {
   updateProjectStepCompletion
 } from "~/features/projects/server/db/mutations";
 import { getProjectById } from "~/features/projects/server/db/queries";
-import { type ProjectStatus } from "~/features/projects/server/db/schema";
+import { type Project, type ProjectStatus } from "~/features/projects/server/db/schema";
 import { canCreateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
 import { getTemplateById } from "~/features/templates/server/db/queries";
 import { createLogger } from "~/lib/logger";
 import { type ServiceResult } from "~/lib/services/errors";
 import { withTransaction } from "~/lib/supabase/db";
-import { categorizeSupabaseError, SupabaseServiceError } from "~/lib/supabase/errors";
+import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
 const logger = createLogger({ module: "project-service" });
+
+// ---------------------------------------------------------------------------
+// Read service (cached for request deduplication during render)
+// ---------------------------------------------------------------------------
+
+export const getContractorProject = React.cache(async function ({
+  contractorId,
+  projectId
+}: {
+  contractorId: string;
+  projectId: string;
+}): Promise<SupabaseServiceResult<Project>> {
+  logger.info({ contractorId, projectId }, "Loading project detail");
+
+  const [projectError, project] = await getProjectById({ projectId });
+  if (projectError) {
+    logger.error({ contractorId, projectId, errorCode: projectError.code }, "Failed to fetch project");
+    return [projectError, null];
+  }
+
+  if (project.contractorId !== contractorId) {
+    logger.warn(
+      { contractorId, projectId, operation: "getProjectDetail" },
+      "Ownership check failed: project belongs to another contractor"
+    );
+    return [SupabaseServiceError.unauthorized(), null];
+  }
+
+  return [null, project];
+});
+
+// ---------------------------------------------------------------------------
 
 type ProjectRow = { id: string };
 

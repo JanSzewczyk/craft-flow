@@ -1,37 +1,42 @@
 import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator
-} from "@szum-tech/design-system";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ProjectDetailTabsNav, ProjectProgressBar, ProjectTimeline } from "~/features/projects/components";
-import { getProjectById } from "~/features/projects/server/db";
+import { notFound, redirect } from "next/navigation";
+import { ProjectTimeline } from "~/features/projects/components";
+import { getContractorProject } from "~/features/projects/server/services/projects.service";
+import { createLogger } from "~/lib/logger";
+
+const logger = createLogger({ module: "project-detail-page" });
+
+async function loadData({ projectId }: { projectId: string }) {
+  const { isAuthenticated, userId } = await auth();
+  if (!isAuthenticated) {
+    logger.error("User not authenticated");
+    redirect("/sign-in");
+  }
+
+  const [error, project] = await getContractorProject({ contractorId: userId, projectId });
+  if (error) {
+    logger.error({ userId, projectId, errorCode: error.code }, "Failed to load project detail");
+    notFound();
+  }
+
+  logger.info({ userId, projectId }, "Successfully loaded project detail");
+  return { project };
+}
 
 export async function generateMetadata({ params }: PageProps<"/app/projects/[projectId]">): Promise<Metadata> {
   const { projectId } = await params;
-  const [, project] = await getProjectById({ projectId });
+  const { userId } = await auth();
+  if (!userId) return { title: "Projekt" };
+
+  const [, project] = await getContractorProject({ contractorId: userId, projectId });
   return { title: project?.name ?? "Projekt" };
 }
 
 export default async function ProjectDetailPage({ params }: PageProps<"/app/projects/[projectId]">) {
-  const { userId } = await auth();
   const { projectId } = await params;
-
-  const [error, project] = await getProjectById({ projectId });
-
-  if (error) {
-    notFound();
-  }
-
-  const sortedSteps = [...project.steps].sort((a, b) => a.orderIndex - b.orderIndex);
-  const completedSteps = sortedSteps.filter((s) => s.isCompleted).length;
+  const { project } = await loadData({ projectId });
 
   return (
     <div className="flex flex-col gap-6">

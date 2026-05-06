@@ -84,12 +84,7 @@ export function ProjectTimeline({ steps, projectId, projectStatus }: ProjectTime
                   {index + 1}. {step.title}
                 </p>
                 {isCompleted && step.completedAt && (
-                  <p className="text-muted-foreground mt-0.5 text-xs">
-                    Ukończono:{" "}
-                    {
-                      formatDate(step.completedAt)
-                    }
-                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">Ukończono: {formatDate(step.completedAt)}</p>
                 )}
               </div>
             </li>

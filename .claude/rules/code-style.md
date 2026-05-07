@@ -93,3 +93,23 @@ This applies to all conditional expressions in JSX — single elements, fragment
 {items.length > 0 && <List items={items} />}
 {error && <p className="text-error">{error}</p>}
 ```
+
+## Enum const objects
+
+When a domain defines a paired `type` + `const` enum object (e.g. `ProjectStatus`), always use the const object's properties for values and `Extract<EnumType, ...>` for narrowed parameter types. Never use raw string literals.
+
+```typescript
+// ✓
+status: ProjectStatus.DRAFT
+if (status === ProjectStatus.ACTIVE) { ... }
+const TRANSITIONS: Partial<Record<ProjectStatus, ProjectStatus>> = {
+  [ProjectStatus.DRAFT]: ProjectStatus.ACTIVE,
+};
+newStatus: Extract<ProjectStatus, "ACTIVE" | "COMPLETED">
+
+// ✗
+status: "DRAFT"
+if (status === "ACTIVE") { ... }
+const TRANSITIONS = { DRAFT: "ACTIVE" };
+newStatus: "ACTIVE" | "COMPLETED"
+```

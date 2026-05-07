@@ -17,7 +17,7 @@ import {
   updateProjectStepCompletion
 } from "~/features/projects/server/db/mutations";
 import { getProjectById } from "~/features/projects/server/db/queries";
-import { type Project, type ProjectStatus } from "~/features/projects/server/db/schema";
+import { ProjectStatus, type Project } from "~/features/projects/server/db/schema";
 import { canCreateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
 import { getTemplateById } from "~/features/templates/server/db/queries";
@@ -158,7 +158,7 @@ export async function createProject({
           name: formData.name,
           description: formData.description,
           publicToken,
-          status: "DRAFT"
+          status: ProjectStatus.DRAFT
         },
         dbClient: tx
       });
@@ -189,8 +189,8 @@ export async function createProject({
 }
 
 const VALID_STATUS_TRANSITIONS: Partial<Record<ProjectStatus, ProjectStatus>> = {
-  DRAFT: "ACTIVE",
-  ACTIVE: "COMPLETED"
+  [ProjectStatus.DRAFT]: ProjectStatus.ACTIVE,
+  [ProjectStatus.ACTIVE]: ProjectStatus.COMPLETED
 };
 
 export async function updateProjectStatus({
@@ -200,7 +200,7 @@ export async function updateProjectStatus({
 }: {
   contractorId: string;
   projectId: string;
-  newStatus: "ACTIVE" | "COMPLETED";
+  newStatus: Extract<ProjectStatus, "ACTIVE" | "COMPLETED">;
 }): Promise<ServiceResult<void>> {
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) return [roleErr, null];
@@ -208,13 +208,8 @@ export async function updateProjectStatus({
   const [profileErr, profile] = await getContractorProfile({ contractorId });
   if (profileErr) return [profileErr, null];
 
-  const [projectErr, project] = await getProjectById({ projectId });
+  const [projectErr, project] = await getContractorProject({ contractorId, projectId });
   if (projectErr) return [projectErr, null];
-
-  if (project.contractorId !== contractorId) {
-    logger.warn({ contractorId, operation: "updateProjectStatus", projectId }, "Ownership check failed");
-    return [SupabaseServiceError.unauthorized(), null];
-  }
 
   if (VALID_STATUS_TRANSITIONS[project.status] !== newStatus) {
     logger.warn(
@@ -233,7 +228,7 @@ export async function updateProjectStatus({
     return [updateErr, null];
   }
 
-  if (newStatus === "ACTIVE") {
+  if (newStatus === ProjectStatus.ACTIVE) {
     await emailService.sendProjectActivationEmail({
       contractorName: profile.companyName,
       clientEmail: project.client.email,
@@ -261,15 +256,10 @@ export async function updateStepCompletion({
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) return [roleErr, null];
 
-  const [projectErr, project] = await getProjectById({ projectId });
+  const [projectErr, project] = await getContractorProject({ contractorId, projectId });
   if (projectErr) return [projectErr, null];
 
-  if (project.contractorId !== contractorId) {
-    logger.warn({ contractorId, operation: "updateStepCompletion", projectId }, "Ownership check failed");
-    return [SupabaseServiceError.unauthorized(), null];
-  }
-
-  if (project.status === "COMPLETED") {
+  if (project.status === ProjectStatus.COMPLETED) {
     return [SupabaseServiceError.validation("Nie można edytować zakończonego projektu"), null];
   }
 
@@ -296,19 +286,14 @@ export async function softDeleteProject({
   const [roleErr] = await requireRole(contractorId, [Role.CONTRACTOR]);
   if (roleErr) return [roleErr, null];
 
-  const [projectErr, project] = await getProjectById({ projectId });
+  const [projectErr, project] = await getContractorProject({ contractorId, projectId });
   if (projectErr) return [projectErr, null];
 
-  if (project.contractorId !== contractorId) {
-    logger.warn({ contractorId, operation: "softDeleteProject", projectId }, "Ownership check failed");
-    return [SupabaseServiceError.unauthorized(), null];
-  }
-
-  if (project.status !== "DRAFT") {
+  if (project.status !== ProjectStatus.DRAFT) {
     return [SupabaseServiceError.validation("Usunąć można tylko projekt w stanie szkicu"), null];
   }
 
-  const [updateErr] = await updateProject({ id: projectId, data: { status: "DELETED" } });
+  const [updateErr] = await updateProject({ id: projectId, data: { status: ProjectStatus.DELETED } });
   if (updateErr) {
     logger.error(
       { contractorId, operation: "softDeleteProject", projectId, errorCode: updateErr.code },

@@ -1,10 +1,32 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import { type Client } from "~/features/crm/server/db/schema";
-import { type Project, type ProjectStep } from "~/features/projects/server/db/schema";
-import { type Template } from "~/features/templates/server/db/schema";
+import { clientBuilder } from "~/features/crm/test/builders";
+import { type Project } from "~/features/projects/server/db/schema";
 
+import { projectStepBuilder } from "./project-step.builder";
+
+/**
+ * Builder for Project test data.
+ *
+ * Default: DRAFT status, no steps, random client.
+ *
+ * @example
+ * const project = projectBuilder.one();
+ *
+ * @example
+ * const project = projectBuilder.one({ traits: "activeWithSteps" });
+ *
+ * @example
+ * // Active project with a client that has no phone number
+ * const project = projectBuilder.one({
+ *   traits: "activeWithSteps",
+ *   overrides: { client: clientBuilder.one({ traits: "noPhone" }) }
+ * });
+ *
+ * @example
+ * const projects = projectBuilder.many(3, { traits: "activeWithMixedSteps" });
+ */
 export const projectBuilder = build<Project>({
   fields: {
     id: () => faker.string.uuid(),
@@ -21,64 +43,45 @@ export const projectBuilder = build<Project>({
     steps: () => []
   },
   traits: {
-    active: { overrides: { status: "ACTIVE" } },
-    completed: { overrides: { status: "COMPLETED" } }
-  }
-});
-
-export const templateBuilder = build<Template>({
-  fields: {
-    id: () => faker.string.uuid(),
-    contractorId: () => faker.string.uuid(),
-    name: () => faker.lorem.words(3),
-    description: () => faker.lorem.sentence(),
-    steps: () => [],
-    createdAt: () => faker.date.past(),
-    updatedAt: () => faker.date.recent()
-  },
-  traits: {
-    noDescription: { overrides: { description: null } },
-    withSteps: {
+    active: {
+      overrides: { status: "ACTIVE" }
+    },
+    completed: {
+      overrides: { status: "COMPLETED" }
+    },
+    draftWithSteps: {
       overrides: {
-        steps: () => [
-          { title: faker.lorem.words(2), description: null, orderIndex: 0 },
-          { title: faker.lorem.words(2), description: null, orderIndex: 1 }
-        ]
+        status: "DRAFT",
+        steps: () => projectStepBuilder.many(3)
+      }
+    },
+    activeWithSteps: {
+      overrides: {
+        status: "ACTIVE",
+        steps: () => projectStepBuilder.many(3)
+      }
+    },
+    activeWithMixedSteps: {
+      overrides: {
+        status: "ACTIVE",
+        steps: () => [...projectStepBuilder.many(2, { traits: "completed" }), ...projectStepBuilder.many(2)]
+      }
+    },
+    activeAllDone: {
+      overrides: {
+        status: "ACTIVE",
+        steps: () => projectStepBuilder.many(3, { traits: "completed" })
+      }
+    },
+    completedWithSteps: {
+      overrides: {
+        status: "COMPLETED",
+        steps: () => projectStepBuilder.many(3, { traits: "completed" })
       }
     }
-  }
-});
-
-export const projectStepBuilder = build<ProjectStep>({
-  fields: {
-    id: () => faker.string.uuid(),
-    projectId: () => faker.string.uuid(),
-    title: () => faker.lorem.words(3),
-    description: () => null,
-    isCompleted: () => false,
-    completedAt: () => null,
-    orderIndex: () => faker.number.int({ min: 0, max: 10 }),
-    createdAt: () => faker.date.past(),
-    updatedAt: () => faker.date.recent()
   },
-  traits: {
-    completed: { overrides: { isCompleted: true, completedAt: () => faker.date.recent() } }
-  }
-});
-
-export const clientBuilder = build<Client>({
-  fields: {
-    id: () => faker.string.uuid(),
-    contractorId: () => faker.string.uuid(),
-    name: () => faker.person.fullName(),
-    email: () => faker.internet.email(),
-    phone: () => faker.phone.number(),
-    clerkUserId: () => null,
-    createdAt: () => faker.date.past(),
-    updatedAt: () => faker.date.recent()
-  },
-  traits: {
-    noPhone: { overrides: { phone: null } },
-    registered: { overrides: { clerkUserId: () => faker.string.alphanumeric(24) } }
-  }
+  postBuild: (project) => ({
+    ...project,
+    steps: project.steps.map((step, i) => ({ ...step, orderIndex: i }))
+  })
 });

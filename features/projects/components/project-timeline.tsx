@@ -27,7 +27,7 @@ type StepStatus = "completed" | "active" | "pending";
 
 type ProjectTimelineProps = {
   project: Project;
-  onUpdateStepAction(stepId: string, projectId: string, isCompleted: boolean): ActionResponse<void>;
+  onUpdateStepAction(stepId: string, projectId: string, isCompleted: boolean): ActionResponse;
 };
 
 function getStepStatus(index: number, activeIndex: number): StepStatus {
@@ -59,9 +59,14 @@ export function ProjectTimeline({ project, onUpdateStepAction }: ProjectTimeline
 
   const [, startTransition] = useTransition();
 
+  // undefined = draft (no active step yet); -1 = all steps completed; ≥0 = index of first incomplete step
   const activeStepIndex = isDraft ? undefined : optimisticSteps.findIndex((s) => !s.isCompleted);
   const activeStep =
     activeStepIndex !== undefined && activeStepIndex >= 0 ? (optimisticSteps[activeStepIndex] ?? null) : null;
+
+  // When all steps are completed (activeStepIndex === -1), pass length so Timeline renders all dots as "completed"
+  const timelineActiveIndex =
+    activeStepIndex === undefined ? undefined : activeStepIndex >= 0 ? activeStepIndex : optimisticSteps.length;
 
   function handleComplete(step: ProjectStep) {
     startTransition(async () => {
@@ -90,7 +95,7 @@ export function ProjectTimeline({ project, onUpdateStepAction }: ProjectTimeline
     activeStepIndex !== undefined && activeStepIndex >= 0 ? activeStepIndex : optimisticSteps.length;
 
   return (
-    <Timeline activeIndex={activeStepIndex !== undefined && activeStepIndex >= 0 ? activeStepIndex : undefined}>
+    <Timeline activeIndex={timelineActiveIndex}>
       {optimisticSteps.map((step, index) => {
         const stepStatus = getStepStatus(index, resolvedActiveIndex);
         const isActive = step.id === activeStep?.id;

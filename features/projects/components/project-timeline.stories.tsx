@@ -1,6 +1,6 @@
 import { expect, fn } from "storybook/test";
-import { type Project, ProjectStatus } from "~/features/projects/server/db/schema";
-import { clientBuilder, projectBuilder, projectStepBuilder } from "~/features/projects/test/builders";
+import { type Project } from "~/features/projects/server/db/schema";
+import { projectBuilder } from "~/features/projects/test/builders";
 
 import { ProjectTimeline } from "./project-timeline";
 
@@ -22,41 +22,29 @@ const meta = preview.meta({
   ]
 });
 
-const emptyProject = projectBuilder.one({
-  overrides: { status: ProjectStatus.ACTIVE, steps: [], client: clientBuilder.one() }
-}) as Project;
-
-const incompleteSteps = projectStepBuilder.many(3);
-const activeProject = projectBuilder.one({
-  overrides: { status: ProjectStatus.ACTIVE, steps: incompleteSteps, client: clientBuilder.one() }
-}) as Project;
-
-const mixedSteps = [
-  ...projectStepBuilder.many(2, { overrides: { isCompleted: true, completedAt: new Date("2024-01-10") } }),
-  ...projectStepBuilder.many(2)
-];
-const mixedProject = projectBuilder.one({
-  overrides: { status: ProjectStatus.ACTIVE, steps: mixedSteps, client: clientBuilder.one() }
-}) as Project;
-
-const completedProject = projectBuilder.one({
-  overrides: {
-    status: ProjectStatus.COMPLETED,
-    steps: projectStepBuilder.many(3, { overrides: { isCompleted: true, completedAt: new Date("2024-01-10") } }),
-    client: clientBuilder.one()
-  }
-}) as Project;
-
 export const EmptyTimeline = meta.story({
-  args: { project: emptyProject }
+  args: { project: projectBuilder.one({ traits: "active" }) as Project }
 });
 
 EmptyTimeline.test("Shows empty state message when no steps", async ({ canvas }) => {
-  await expect(canvas.getByText("Brak etapów w tym projekcie")).toBeVisible();
+  await expect(canvas.getByText("Brak etapów")).toBeVisible();
+});
+
+export const DraftTimeline = meta.story({
+  args: { project: projectBuilder.one({ traits: "draftWithSteps" }) as Project }
+});
+
+DraftTimeline.test("Shows info alert for draft project", async ({ canvas }) => {
+  await expect(canvas.getByText("Projekt nie został jeszcze aktywowany")).toBeVisible();
+});
+
+DraftTimeline.test("No status badges shown for draft project", async ({ canvas }) => {
+  await expect(canvas.queryByText("W trakcie")).not.toBeInTheDocument();
+  await expect(canvas.queryByText("Ukończono")).not.toBeInTheDocument();
 });
 
 export const ActiveTimeline = meta.story({
-  args: { project: activeProject }
+  args: { project: projectBuilder.one({ traits: "activeWithSteps" }) as Project }
 });
 
 ActiveTimeline.test("Renders all steps in the timeline", async ({ canvas, args }) => {
@@ -70,7 +58,7 @@ ActiveTimeline.test("First step is active and shows complete button", async ({ c
 });
 
 export const MixedTimeline = meta.story({
-  args: { project: mixedProject }
+  args: { project: projectBuilder.one({ traits: "activeWithMixedSteps" }) as Project }
 });
 
 MixedTimeline.test("Completed steps show success badge", async ({ canvas }) => {
@@ -86,11 +74,27 @@ MixedTimeline.test("Active step shows complete button", async ({ canvas }) => {
   await expect(canvas.getByRole("button", { name: "Oznacz jako ukończone" })).toBeVisible();
 });
 
+export const AllStepsCompletedActiveProject = meta.story({
+  args: { project: projectBuilder.one({ traits: "activeAllDone" }) as Project }
+});
+
+AllStepsCompletedActiveProject.test("All steps show completed badge", async ({ canvas, args }) => {
+  const completedBadges = canvas.getAllByText("Ukończono");
+  await expect(completedBadges).toHaveLength(args.project.steps.length);
+});
+
+AllStepsCompletedActiveProject.test("No active badge is shown", async ({ canvas }) => {
+  await expect(canvas.queryByText("W trakcie")).not.toBeInTheDocument();
+});
+
+AllStepsCompletedActiveProject.test("Complete button is not shown when all steps are done", async ({ canvas }) => {
+  await expect(canvas.queryByRole("button", { name: "Oznacz jako ukończone" })).not.toBeInTheDocument();
+});
+
 export const LockedTimeline = meta.story({
-  args: { project: completedProject }
+  args: { project: projectBuilder.one({ traits: "completedWithSteps" }) as Project }
 });
 
 LockedTimeline.test("Complete button is not shown when project is completed", async ({ canvas }) => {
-  const completeButton = canvas.queryByRole("button", { name: "Oznacz jako ukończone" });
-  await expect(completeButton).not.toBeInTheDocument();
+  await expect(canvas.queryByRole("button", { name: "Oznacz jako ukończone" })).not.toBeInTheDocument();
 });

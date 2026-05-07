@@ -254,7 +254,7 @@ export function ProjectSidebar({ project, onUpdateStatusAction, onDeleteAction }
                   <AlertDialogTrigger asChild>
                     <Button
                       className="flex-1"
-                      variant="default"
+                      variant={completedSteps === steps.length ? "default" : "secondary"}
                       startIcon={isPending ? <Loader2Icon className="animate-spin" /> : <CheckIcon />}
                       disabled={isPending}
                     >
@@ -265,7 +265,9 @@ export function ProjectSidebar({ project, onUpdateStatusAction, onDeleteAction }
                     <AlertDialogHeader>
                       <AlertDialogTitle>Zakończyć projekt?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Projekt zostanie oznaczony jako zakończony. Etapy będą zablokowane przed dalszą edycją.
+                        {completedSteps < steps.length
+                          ? "Nie wszystkie etapy zostały ukończone. Czy na pewno chcesz zakończyć projekt? Wszystkie pozostałe etapy zostaną automatycznie oznaczone jako ukończone."
+                          : "Projekt zostanie oznaczony jako zakończony. Etapy będą zablokowane przed dalszą edycją."}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

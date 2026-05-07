@@ -1,6 +1,7 @@
 import { expect, fn, screen } from "storybook/test";
-import { type Project, ProjectStatus } from "~/features/projects/server/db/schema";
-import { clientBuilder, projectBuilder, projectStepBuilder } from "~/features/projects/test/builders";
+import { clientBuilder } from "~/features/crm/test/builders";
+import { type Project } from "~/features/projects/server/db/schema";
+import { projectBuilder } from "~/features/projects/test/builders";
 
 import { ProjectSidebar } from "./project-sidebar";
 
@@ -23,41 +24,14 @@ const meta = preview.meta({
   ]
 });
 
-const steps = projectStepBuilder.many(4);
-const stepsWithSomeCompleted = [
-  ...projectStepBuilder.many(2, { overrides: { isCompleted: true, completedAt: new Date() } }),
-  ...projectStepBuilder.many(2)
-];
-
-const draftProject = projectBuilder.one({
-  overrides: { status: ProjectStatus.DRAFT, steps, client: clientBuilder.one() }
-}) as Project;
-
-const activeProject = projectBuilder.one({
-  overrides: { status: ProjectStatus.ACTIVE, steps: stepsWithSomeCompleted, client: clientBuilder.one() }
-}) as Project;
-
-const completedProject = projectBuilder.one({
-  overrides: {
-    status: ProjectStatus.COMPLETED,
-    steps: projectStepBuilder.many(3, { overrides: { isCompleted: true, completedAt: new Date() } }),
-    client: clientBuilder.one()
-  }
-}) as Project;
-
-const clientNoPhone = clientBuilder.one({ overrides: { phone: null } });
-const activeProjectNoPhone = projectBuilder.one({
-  overrides: { status: ProjectStatus.ACTIVE, steps, client: clientNoPhone }
-}) as Project;
-
 export const DraftProject = meta.story({
-  args: { project: draftProject }
+  args: { project: projectBuilder.one({ traits: "draftWithSteps" }) as Project }
 });
 
-DraftProject.test("Renders client info section", async ({ canvas }) => {
+DraftProject.test("Renders client info section", async ({ canvas, args }) => {
   await expect(canvas.getByText("Klient")).toBeVisible();
-  await expect(canvas.getByText(draftProject.client.name)).toBeVisible();
-  await expect(canvas.getByText(draftProject.client.email)).toBeVisible();
+  await expect(canvas.getByText(args.project.client.name)).toBeVisible();
+  await expect(canvas.getByText(args.project.client.email)).toBeVisible();
 });
 
 DraftProject.test("Renders project status card", async ({ canvas }) => {
@@ -86,7 +60,7 @@ DraftProject.test("Opens delete confirmation via dropdown menu", async ({ canvas
 });
 
 export const ActiveProject = meta.story({
-  args: { project: activeProject }
+  args: { project: projectBuilder.one({ traits: "activeWithMixedSteps" }) as Project }
 });
 
 ActiveProject.test("Shows active status badge", async ({ canvas }) => {
@@ -113,7 +87,7 @@ ActiveProject.test("Shows copy link option in dropdown for active project", asyn
 });
 
 export const CompletedProject = meta.story({
-  args: { project: completedProject }
+  args: { project: projectBuilder.one({ traits: "completedWithSteps" }) as Project }
 });
 
 CompletedProject.test("Shows completed status badge", async ({ canvas }) => {
@@ -125,13 +99,18 @@ CompletedProject.test("Shows copy link button for completed project", async ({ c
 });
 
 export const ProjectWithoutPhone = meta.story({
-  args: { project: activeProjectNoPhone }
+  args: {
+    project: projectBuilder.one({
+      traits: "activeWithSteps",
+      overrides: { client: clientBuilder.one({ traits: "noPhone" }) }
+    }) as Project
+  }
 });
 
-ProjectWithoutPhone.test("Does not render phone link when client has no phone", async ({ canvas }) => {
-  await expect(canvas.getByText(activeProjectNoPhone.client.email)).toBeVisible();
-  const phoneIcon = canvas.queryByText(
+ProjectWithoutPhone.test("Does not render phone link when client has no phone", async ({ canvas, args }) => {
+  await expect(canvas.getByText(args.project.client.email)).toBeVisible();
+  const phoneLink = canvas.queryByText(
     (_, element) => element?.tagName === "A" && !!element.getAttribute("href")?.startsWith("tel:")
   );
-  await expect(phoneIcon).not.toBeInTheDocument();
+  await expect(phoneLink).not.toBeInTheDocument();
 });

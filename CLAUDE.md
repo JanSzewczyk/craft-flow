@@ -331,6 +331,8 @@ export const Default = meta.story({ args: { ... } });
 Default.test("renders correctly", async ({ canvas }) => { ... });
 ```
 
+> **Always invoke the `testing:storybook-testing` skill** before creating, modifying, or extending Storybook stories or interaction tests. The skill encodes the canonical CSF Next patterns, builder usage, and `.test()` conventions for this project.
+
 **Test data builders** use `mimicry-js` + `faker`. One builder per entity, exported from `test/builders/index.ts`. All story `args` must use builders — no hardcoded test data.
 
 ```ts
@@ -396,6 +398,16 @@ Uses `next-themes` for dark/light/system switching. `ThemeProvider` in `app/layo
 | React Hook Form child components | Read `form.formState.errors` from prop directly | Use `useFormState({ control: form.control })` in child — React Compiler memoizes children, blocking re-renders when parent form state changes |
 | Storybook test queries | `getByText("Wybierz branżę")` when Select placeholder matches error text | `getByText("...", { selector: '[data-slot="field-error"]' })` to target the error element specifically |
 | Nullable form fields | Omit nullable fields from `defaultValues` | Always include nullable fields as `null` — Zod `z.nullable()` rejects `undefined` |
+
+## Before Implementing a New Page
+
+Before writing any `page.tsx`:
+
+1. **Find the most similar existing page** in the same route group or with the same data-fetching needs. Read it in full — not just the structure, but the error handling, logging calls, and how data is passed to components.
+2. **Understand the data fetching pattern**: does the page use a `loadData()` helper? How are errors and `notFound()` called? What does the logger receive on success vs. failure?
+3. **Check the route group layout** (`layout.tsx` if present): what chrome (header, footer, providers) is already provided so you don't duplicate it inline in the page.
+4. **Verify component placement before writing**: new components belong in `features/{domain}/components/`, not in the route folder. Confirm the barrel `index.tsx` will export them.
+5. **Run type-check and lint before reporting done** — never mark a task complete without a clean `npm run type-check`.
 
 ## New Feature Checklist
 

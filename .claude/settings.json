@@ -26,6 +26,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && output=$(npm run type-check 2>&1); code=$?; if [ $code -ne 0 ]; then echo \"$output\" | grep -E '(error TS|\\([0-9]+,[0-9]+\\))' | head -15 >&2; exit 2; fi"
+          }
+        ]
+      }
     ]
   }
 }

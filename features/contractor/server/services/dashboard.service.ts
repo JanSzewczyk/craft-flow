@@ -35,6 +35,7 @@ export type DashboardData = {
     planName: string;
     activeProjectsCount: number;
     projectLimit: number | null;
+    periodResetDate: Date;
   };
   recentActivity: RecentActivityItem[];
 };
@@ -51,6 +52,8 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
   }
 
   const periodStart = await getBillingPeriodStart(userId);
+  const periodResetDate = new Date(periodStart);
+  periodResetDate.setUTCMonth(periodResetDate.getUTCMonth() + 1);
 
   const [planId, projectsCountResult, recentActivityResult] = await Promise.all([
     detectClerkPlan(),
@@ -87,7 +90,8 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
         planId,
         planName: plan?.name ?? "Brak planu",
         activeProjectsCount: projectsCount ?? 0,
-        projectLimit
+        projectLimit,
+        periodResetDate
       },
       recentActivity: recentActivity ?? []
     }

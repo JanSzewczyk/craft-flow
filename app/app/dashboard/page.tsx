@@ -63,8 +63,10 @@ async function loadData() {
 }
 
 export default async function DashboardPage() {
-  const { data, kpiCards } = await loadData();
-  const { header, planLimit, recentActivity } = data;
+  const {
+    data: { header, planLimit, recentActivity },
+    kpiCards
+  } = await loadData();
 
   return (
     <div className="space-y-6">
@@ -86,11 +88,8 @@ export default async function DashboardPage() {
           <h1 className="text-heading-h1">Panel sterowania</h1>
           <p className="text-lead">Witaj, {header.contractor.companyName}</p>
         </div>
-        <Button asChild>
-          <Link href="/app/projects/new">
-            <HardHatIcon className="mr-2 size-4" aria-hidden="true" />
-            Nowy projekt
-          </Link>
+        <Button startIcon={<HardHatIcon />} asChild>
+          <Link href="/app/projects/new">Nowy projekt</Link>
         </Button>
       </div>
 
@@ -107,6 +106,7 @@ export default async function DashboardPage() {
           planName={planLimit.planName}
           activeProjectsCount={planLimit.activeProjectsCount}
           projectLimit={planLimit.projectLimit}
+          periodResetDate={planLimit.periodResetDate}
         />
       </div>
     </div>

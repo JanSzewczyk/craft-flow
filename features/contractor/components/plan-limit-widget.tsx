@@ -9,9 +9,16 @@ type PlanLimitWidgetProps = {
   planName: string;
   activeProjectsCount: number;
   projectLimit: number | null;
+  periodResetDate: Date;
 };
 
-export function PlanLimitWidget({ planId, planName, activeProjectsCount, projectLimit }: PlanLimitWidgetProps) {
+export function PlanLimitWidget({
+  planId,
+  planName,
+  activeProjectsCount,
+  projectLimit,
+  periodResetDate
+}: PlanLimitWidgetProps) {
   const isUnlimited = projectLimit === null;
   const usagePercent = isUnlimited ? 0 : Math.min(Math.round((activeProjectsCount / projectLimit) * 100), 100);
   const isNearLimit = !isUnlimited && usagePercent >= 80;
@@ -38,6 +45,11 @@ export function PlanLimitWidget({ planId, planName, activeProjectsCount, project
           </div>
 
           {!isUnlimited && <Progress value={usagePercent} className={isNearLimit ? "[&>div]:bg-warning" : undefined} />}
+
+          <p className="text-muted-foreground text-body-sm">
+            Licznik zresetuje się{" "}
+            {periodResetDate.toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" })}
+          </p>
 
           {isNearLimit && (
             <p className="text-small">

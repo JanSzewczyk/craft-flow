@@ -23,7 +23,8 @@ export const BasicPlanLowUsage = meta.story({
     planId: PlanId.BASIC,
     planName: "Basic",
     activeProjectsCount: 2,
-    projectLimit: 5
+    projectLimit: 5,
+    periodResetDate: new Date("2025-06-01")
   }
 });
 
@@ -47,7 +48,8 @@ export const StandardPlanNearLimit = meta.story({
     planId: PlanId.STANDARD,
     planName: "Standard",
     activeProjectsCount: 17,
-    projectLimit: 20
+    projectLimit: 20,
+    periodResetDate: new Date("2025-06-01")
   }
 });
 
@@ -69,7 +71,8 @@ export const PremiumPlanUnlimited = meta.story({
     planId: PlanId.PREMIUM,
     planName: "Premium",
     activeProjectsCount: 42,
-    projectLimit: null
+    projectLimit: null,
+    periodResetDate: new Date("2025-06-01")
   }
 });
 

@@ -1,12 +1,13 @@
 import * as React from "react";
 
-import { auth } from "@clerk/nextjs/server";
 import { type Metadata } from "next";
+
+import { auth } from "@clerk/nextjs/server";
 import { createLogger } from "~/lib/logger";
 
 export const metadata: Metadata = { title: "Moje projekty | CraftFlow" };
 
-const logger = createLogger({ module: "client-portal-page" });
+const logger = createLogger({ module: "client-page" });
 
 async function loadData() {
   const { userId } = await auth();

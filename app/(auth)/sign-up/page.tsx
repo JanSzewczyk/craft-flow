@@ -17,7 +17,7 @@ export default async function SignUpPage({ searchParams }: PageProps<"/sign-up">
     return (
       <SignUpCard
         onCompleteSignUpAction={completeClientSignUpAction}
-        redirectTo="/client-portal"
+        redirectTo="/client"
         variant="client"
         defaultEmail={rawEmail}
       />

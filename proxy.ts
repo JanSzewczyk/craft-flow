@@ -35,7 +35,7 @@ const isStatusRoute = createRouteMatcher(["/status(.*)"]);
 
 const isAccountIssuePage = createRouteMatcher(["/account-issue(.*)"]);
 
-const isClientPortalRoute = createRouteMatcher(["/client-portal(.*)"]);
+const isClientPortalRoute = createRouteMatcher(["/client(.*)"]);
 const isAppRoute = createRouteMatcher(["/app(.*)"]);
 const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
 const isOnboardingSuccessRoute = createRouteMatcher(["/onboarding/success(.*)"]);
@@ -102,11 +102,8 @@ export const proxy = clerkMiddleware(async (auth, request) => {
         return NextResponse.redirect(new URL(destination, request.url));
       }
       if (roles.includes(Role.CLIENT)) {
-        requestLogger.info(
-          { userId, destination: "/client-portal" },
-          "Redirecting authenticated client from entrance route"
-        );
-        return NextResponse.redirect(new URL("/client-portal", request.url));
+        requestLogger.info({ userId, destination: "/client" }, "Redirecting authenticated client from entrance route");
+        return NextResponse.redirect(new URL("/client", request.url));
       }
     }
   }
@@ -139,11 +136,11 @@ export const proxy = clerkMiddleware(async (auth, request) => {
       if (roles.includes(Role.CLIENT) && !roles.includes(Role.CONTRACTOR)) {
         if (isAppRoute(request) || isOnboardingRoute(request)) {
           requestLogger.warn({ userId }, "CLIENT user attempted to access contractor route, redirecting");
-          return NextResponse.redirect(new URL("/client-portal", request.url));
+          return NextResponse.redirect(new URL("/client", request.url));
         }
       }
 
-      // Ochrona client-portal: blokuj nie-klientów
+      // Ochrona client: blokuj nie-klientów
       if (isClientPortalRoute(request) && !roles.includes(Role.CLIENT)) {
         const destination = roles.includes(Role.CONTRACTOR)
           ? onboardingComplete

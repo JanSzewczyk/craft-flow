@@ -80,6 +80,8 @@ export type ProjectListItem = {
   status: string;
   clientName: string;
   lastClientViewAt: Date | null;
+  startedAt: Date | null;
+  completedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   totalSteps: number;
@@ -142,6 +144,8 @@ export async function getProjectListByContractor({
           status: projects.status,
           clientName: clients.name,
           lastClientViewAt: projects.lastClientViewAt,
+          startedAt: projects.startedAt,
+          completedAt: projects.completedAt,
           createdAt: projects.createdAt,
           updatedAt: projects.updatedAt,
           totalSteps: sql<number>`coalesce(${stepCountSubquery.totalSteps}, 0)`,

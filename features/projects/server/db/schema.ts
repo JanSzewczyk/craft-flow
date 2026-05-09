@@ -21,7 +21,7 @@ export const projects = pgTable("projects", {
   publicToken: varchar("public_token", { length: 50 }).notNull().unique(),
   lastClientViewAt: timestamp("last_client_view_at"),
   startedAt: timestamp("started_at"),
-  finishedAt: timestamp("finished_at"),
+  completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });

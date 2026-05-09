@@ -49,8 +49,10 @@ export function ProjectsTable({ items }: ProjectsTableProps) {
           <TableHead>Nazwa projektu</TableHead>
           <TableHead>Klient</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Postęp</TableHead>
+          <TableHead className="w-30">Postęp</TableHead>
           <TableHead>Data utworzenia</TableHead>
+          <TableHead>Uruchomiono</TableHead>
+          <TableHead>Zakończono</TableHead>
           <TableHead className="text-right">Aktualizacja</TableHead>
         </TableRow>
       </TableHeader>
@@ -75,6 +77,10 @@ export function ProjectsTable({ items }: ProjectsTableProps) {
               <ProjectProgressBar totalSteps={item.totalSteps} completedSteps={item.completedSteps} />
             </TableCell>
             <TableCell className="text-muted-foreground">{formatDate(item.createdAt)}</TableCell>
+            <TableCell className="text-muted-foreground">{item.startedAt ? formatDate(item.startedAt) : "—"}</TableCell>
+            <TableCell className="text-muted-foreground">
+              {item.completedAt ? formatDate(item.completedAt) : "—"}
+            </TableCell>
             <TableCell className="text-mute text-right">{formatRelativeTime(item.updatedAt)}</TableCell>
           </TableRow>
         ))}

@@ -38,7 +38,7 @@ export const projectBuilder = build<Project>({
     publicToken: () => faker.string.alphanumeric(16),
     lastClientViewAt: () => null,
     startedAt: () => null,
-    finishedAt: () => null,
+    completedAt: () => null,
     createdAt: () => faker.date.past(),
     updatedAt: () => faker.date.recent(),
     client: () => clientBuilder.one(),
@@ -46,10 +46,14 @@ export const projectBuilder = build<Project>({
   },
   traits: {
     active: {
-      overrides: { status: ProjectStatus.ACTIVE }
+      overrides: { status: ProjectStatus.ACTIVE, startedAt: () => faker.date.past() }
     },
     completed: {
-      overrides: { status: ProjectStatus.COMPLETED }
+      overrides: {
+        status: ProjectStatus.COMPLETED,
+        startedAt: () => faker.date.past(),
+        completedAt: () => faker.date.recent()
+      }
     },
     draftWithSteps: {
       overrides: {
@@ -60,24 +64,29 @@ export const projectBuilder = build<Project>({
     activeWithSteps: {
       overrides: {
         status: ProjectStatus.ACTIVE,
+        startedAt: () => faker.date.past(),
         steps: () => projectStepBuilder.many(3)
       }
     },
     activeWithMixedSteps: {
       overrides: {
         status: ProjectStatus.ACTIVE,
+        startedAt: () => faker.date.past(),
         steps: () => [...projectStepBuilder.many(2, { traits: "completed" }), ...projectStepBuilder.many(2)]
       }
     },
     activeAllDone: {
       overrides: {
         status: ProjectStatus.ACTIVE,
+        startedAt: () => faker.date.past(),
         steps: () => projectStepBuilder.many(3, { traits: "completed" })
       }
     },
     completedWithSteps: {
       overrides: {
         status: ProjectStatus.COMPLETED,
+        startedAt: () => faker.date.past(),
+        completedAt: () => faker.date.recent(),
         steps: () => projectStepBuilder.many(3, { traits: "completed" })
       }
     }

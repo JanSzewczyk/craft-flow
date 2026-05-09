@@ -178,6 +178,20 @@ export function ProjectSidebar({
               <span>Utworzono:</span>
               <span className="text-foreground font-medium">{formatDate(project.createdAt)}</span>
             </div>
+            {project.startedAt ? (
+              <div className="flex items-center gap-2">
+                <PlayIcon className="size-3.5 shrink-0" />
+                <span>Uruchomiono:</span>
+                <span className="text-foreground font-medium">{formatDate(project.startedAt)}</span>
+              </div>
+            ) : null}
+            {project.completedAt ? (
+              <div className="flex items-center gap-2">
+                <CheckIcon className="size-3.5 shrink-0" />
+                <span>Zakończono:</span>
+                <span className="text-foreground font-medium">{formatDate(project.completedAt)}</span>
+              </div>
+            ) : null}
             <div className="flex items-center gap-2">
               <RefreshCwIcon className="size-3.5 shrink-0" />
               <span>Zaktualizowano:</span>

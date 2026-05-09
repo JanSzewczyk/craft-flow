@@ -46,7 +46,7 @@ export async function updateProject({
   dbClient = db
 }: {
   id: string;
-  data: Partial<Pick<ProjectRow, "name" | "status" | "startedAt" | "finishedAt">>;
+  data: Partial<Pick<ProjectRow, "name" | "status" | "startedAt" | "completedAt">>;
   dbClient?: DbClient;
 }): Promise<SupabaseServiceResult<ProjectRow>> {
   try {

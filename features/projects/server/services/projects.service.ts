@@ -25,7 +25,7 @@ import {
   getProjectCountStartedSince,
   getProjectLastClientViewAt
 } from "~/features/projects/server/db/queries";
-import { ProjectStatus, type Project, ProjectRow } from "~/features/projects/server/db/schema";
+import { ProjectStatus, type Project, type ProjectRow } from "~/features/projects/server/db/schema";
 import { canActivateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
 import { getTemplateById } from "~/features/templates/server/db/queries";
@@ -325,7 +325,7 @@ export async function updateProjectStatus({
   const statusData =
     newStatus === ProjectStatus.ACTIVE
       ? { status: newStatus, startedAt: new Date() }
-      : { status: newStatus, finishedAt: new Date() };
+      : { status: newStatus, completedAt: new Date() };
 
   const [updateErr] = await updateProject({ id: projectId, data: statusData });
   if (updateErr) {

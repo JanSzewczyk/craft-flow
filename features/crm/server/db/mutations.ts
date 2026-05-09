@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
@@ -69,6 +69,32 @@ export async function updateClient({
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
     logger.error({ id, errorCode: serviceError.code }, "Failed to update client");
+    return [serviceError, null];
+  }
+}
+
+export async function linkClientsByEmail({
+  email,
+  clerkUserId,
+  dbClient = db
+}: {
+  email: string;
+  clerkUserId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<{ linkedCount: number }>> {
+  try {
+    const rows = await dbClient
+      .update(clients)
+      .set({ clerkUserId, updatedAt: new Date() })
+      .where(and(eq(clients.email, email), isNull(clients.clerkUserId)))
+      .returning({ id: clients.id });
+
+    const linkedCount = rows.length;
+    logger.info({ email, linkedCount }, "Linked clients by email");
+    return [null, { linkedCount }];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, RESOURCE_NAME);
+    logger.error({ email, errorCode: serviceError.code }, "Failed to link clients by email");
     return [serviceError, null];
   }
 }

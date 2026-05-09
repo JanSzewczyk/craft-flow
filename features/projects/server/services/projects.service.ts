@@ -36,6 +36,11 @@ import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResu
 
 export type PublicProjectView = {
   id: string;
+  client: {
+    id: string;
+    name: string;
+    email: string;
+  };
   name: string;
   status: Extract<ProjectStatus, "ACTIVE" | "COMPLETED">;
   clientName: string;
@@ -88,6 +93,11 @@ export const getPublicProjectView = React.cache(async function ({
 
   const view: PublicProjectView = {
     id: project.id,
+    client: {
+      id: project.clientId,
+      name: project.client.name,
+      email: project.client.email
+    },
     name: project.name,
     status: project.status as Extract<ProjectStatus, "ACTIVE" | "COMPLETED">,
     clientName: project.client.name,

@@ -17,3 +17,4 @@ export { Role } from "./constants/roles";
 
 // Server actions
 export { completeSignUp } from "./server/actions/complete-sign-up";
+export { completeClientSignUp } from "./server/actions/complete-client-sign-up";

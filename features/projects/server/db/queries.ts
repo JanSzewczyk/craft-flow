@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 
 import { and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql } from "drizzle-orm";
 

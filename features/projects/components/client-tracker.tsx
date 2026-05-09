@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import * as React from "react";
 
 type ClientTrackerProps = {
-  projectId: string;
-  onTrackAction(projectId: string): Promise<void>;
+  token: string;
+  onTrackAction(token: string): Promise<void>;
 };
 
-export function ClientTracker({ projectId, onTrackAction }: ClientTrackerProps) {
-  useEffect(() => {
-    void onTrackAction(projectId);
-    const interval = setInterval(() => void onTrackAction(projectId), 5 * 60 * 1000);
+export function ClientTracker({ token, onTrackAction }: ClientTrackerProps) {
+  React.useEffect(() => {
+    void onTrackAction(token);
+    const interval = setInterval(() => void onTrackAction(token), 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [projectId, onTrackAction]);
+  }, [token, onTrackAction]);
 
   return null;
 }

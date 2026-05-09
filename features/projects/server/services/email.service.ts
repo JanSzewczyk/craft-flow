@@ -16,5 +16,6 @@ export const emailService = {
   async sendProjectActivationEmail(params: ProjectActivationEmailParams): Promise<void> {
     logger.info(params, "Wysyłanie emaila aktywacji projektu (mock)");
     // TODO: Integracja z Resend + React Email
+    // W zależności od pricingu branding email
   }
 };

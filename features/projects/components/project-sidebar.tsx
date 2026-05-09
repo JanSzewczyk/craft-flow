@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import * as React from "react";
 
 import {
   CalendarIcon,
@@ -70,8 +70,8 @@ export function ProjectSidebar({
   onUpdateStatusAction,
   onDeleteAction
 }: ProjectSidebarProps) {
-  const [isPending, startTransition] = useTransition();
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isPending, startTransition] = React.useTransition();
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
 
   const { client, steps } = project;
   const completedSteps = steps.filter((s) => s.isCompleted).length;
@@ -114,7 +114,9 @@ export function ProjectSidebar({
   function handleDelete() {
     startTransition(async () => {
       const result = await onDeleteAction(project.id);
-      toast.error("Nie udało się usunąć projektu", { description: result.error });
+      if (!result.success) {
+        toast.error("Nie udało się usunąć projektu", { description: result.error });
+      }
     });
   }
 

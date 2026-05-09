@@ -422,7 +422,9 @@ export async function isProjectActivationAtLimit(contractorId: string): Promise<
   if (max === null) return false;
 
   const periodStart = await getBillingPeriodStart(contractorId);
-  const [, count] = await getProjectCountStartedSince({ contractorId, since: periodStart });
+  const [err, count] = await getProjectCountStartedSince({ contractorId, since: periodStart });
+
+  if (err) return true;
 
   return (count ?? 0) >= max;
 }

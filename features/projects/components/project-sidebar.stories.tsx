@@ -1,4 +1,4 @@
-import { expect, fn, screen } from "storybook/test";
+import { expect, fn, screen, waitFor } from "storybook/test";
 import { clientBuilder } from "~/features/crm/test/builders";
 import { type Project } from "~/features/projects/server/db/schema";
 import { projectBuilder } from "~/features/projects/test/builders";
@@ -49,14 +49,21 @@ DraftProject.test("Shows more options menu button for draft project", async ({ c
 
 DraftProject.test("Opens activate confirmation dialog on button click", async ({ canvas, userEvent }) => {
   await userEvent.click(canvas.getByRole("button", { name: "Aktywuj projekt" }));
-  await expect(screen.getByRole("alertdialog")).toBeVisible();
-  await expect(screen.getByText("Aktywować projekt?")).toBeVisible();
+  await waitFor(async () => {
+    await expect(screen.getByRole("alertdialog")).toBeVisible();
+    await expect(screen.getByText("Aktywować projekt?")).toBeVisible();
+  });
 });
 
 DraftProject.test("Opens delete confirmation via dropdown menu", async ({ canvas, userEvent }) => {
   await userEvent.click(canvas.getByRole("button", { name: "Więcej opcji" }));
+  await waitFor(async () => {
+    await expect(screen.getByText("Usuń projekt")).toBeVisible();
+  });
   await userEvent.click(screen.getByText("Usuń projekt"));
-  await expect(screen.getByText("Usunąć projekt?")).toBeVisible();
+  await waitFor(async () => {
+    await expect(screen.getByText("Usunąć projekt?")).toBeVisible();
+  });
 });
 
 export const ActiveProject = meta.story({
@@ -77,13 +84,17 @@ ActiveProject.test("Shows more options menu for active project", async ({ canvas
 
 ActiveProject.test("Opens complete confirmation dialog on button click", async ({ canvas, userEvent }) => {
   await userEvent.click(canvas.getByRole("button", { name: "Zakończ projekt" }));
-  await expect(screen.getByRole("alertdialog")).toBeVisible();
-  await expect(screen.getByText("Zakończyć projekt?")).toBeVisible();
+  await waitFor(async () => {
+    await expect(screen.getByRole("alertdialog")).toBeVisible();
+    await expect(screen.getByText("Zakończyć projekt?")).toBeVisible();
+  });
 });
 
 ActiveProject.test("Shows copy link option in dropdown for active project", async ({ canvas, userEvent }) => {
   await userEvent.click(canvas.getByRole("button", { name: "Więcej opcji" }));
-  await expect(screen.getByText("Kopiuj link dla klienta")).toBeVisible();
+  await waitFor(async () => {
+    await expect(screen.getByText("Kopiuj link dla klienta")).toBeVisible();
+  });
 });
 
 export const CompletedProject = meta.story({

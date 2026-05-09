@@ -4,10 +4,6 @@ paths:
   - "features/**/*.tsx"
 ---
 
-# Feature Module Architecture
-
-Full reference: `docs/ARCHITECTURE.md`
-
 ## Directory structure
 
 ```
@@ -25,7 +21,7 @@ features/{domain}/
 │   ├── actions/
 │   │   ├── {verb}-{domain}.action.ts
 │   │   ├── logger.ts               # createLogger({ module: "domain-actions" })
-│   │   ├── map-service-error.ts    # error code → Polish user message
+│   │   ├── map-service-error.ts    # error code → Map user message
 │   │   └── {domain}-actions.test.ts
 │   ├── db/
 │   │   ├── schema.ts               # Drizzle tables + inferred types

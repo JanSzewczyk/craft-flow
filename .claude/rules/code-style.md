@@ -49,6 +49,24 @@ type ProjectSidebarProps = {
 };
 ```
 
+## React import
+
+Always import React as a namespace: `import * as React from "react"`. Access all React exports through the namespace (e.g. `React.cache`, `React.useState`, `React.useEffect`). Never use default import and never import React members as named imports.
+
+```typescript
+// ✓
+import * as React from "react";
+
+React.cache(fn);
+React.useState(0);
+React.useEffect(() => { ... }, []);
+
+// ✗
+import React from "react";
+import React, { cache, useState } from "react";
+import { cache } from "react";
+```
+
 ## Array types in TypeScript
 
 Always use the generic form `Array<Type>` instead of the shorthand notation `Type[]`.

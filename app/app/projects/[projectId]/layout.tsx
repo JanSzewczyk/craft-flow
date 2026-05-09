@@ -14,7 +14,8 @@ import { notFound, redirect } from "next/navigation";
 import { ProjectDetailTabsNav, ProjectSidebar } from "~/features/projects/components";
 import { deleteProjectAction } from "~/features/projects/server/actions/delete-project.action";
 import { updateProjectStatusAction } from "~/features/projects/server/actions/update-project-status.action";
-import { getContractorProject } from "~/features/projects/server/services/projects.service";
+import { ProjectStatus } from "~/features/projects/server/db";
+import { getContractorProject, isProjectActivationAtLimit } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "project-detail-layout" });
@@ -32,13 +33,15 @@ async function loadData({ projectId }: { projectId: string }) {
     notFound();
   }
 
+  const atLimit = project.status === ProjectStatus.DRAFT ? await isProjectActivationAtLimit(userId) : false;
+
   logger.info({ userId, projectId }, "Successfully loaded project layout");
-  return { project };
+  return { project, atLimit };
 }
 
 export default async function ProjectDetailLayout({ children, params }: LayoutProps<"/app/projects/[projectId]">) {
   const { projectId } = await params;
-  const { project } = await loadData({ projectId });
+  const { project, atLimit } = await loadData({ projectId });
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -73,6 +76,7 @@ export default async function ProjectDetailLayout({ children, params }: LayoutPr
         <div className="sticky top-24">
           <ProjectSidebar
             project={project}
+            atLimit={atLimit}
             onUpdateStatusAction={updateProjectStatusAction}
             onDeleteAction={deleteProjectAction}
           />

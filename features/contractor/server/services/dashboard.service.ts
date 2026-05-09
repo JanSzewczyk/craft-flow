@@ -12,7 +12,7 @@ import {
   getCachedRecentActivity,
   type RecentActivityItem
 } from "~/features/contractor/server/db/dashboard";
-import { getProjectCountCreatedSince } from "~/features/projects/server/db";
+import { getProjectCountStartedSince } from "~/features/projects/server/db";
 import { createLogger } from "~/lib/logger";
 import { type SupabaseServiceResult } from "~/lib/supabase/errors";
 
@@ -57,7 +57,7 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
 
   const [planId, projectsCountResult, recentActivityResult] = await Promise.all([
     detectClerkPlan(),
-    getProjectCountCreatedSince({ contractorId: userId, since: periodStart }),
+    getProjectCountStartedSince({ contractorId: userId, since: periodStart }),
     getCachedRecentActivity({ contractorId: userId })
   ]);
 

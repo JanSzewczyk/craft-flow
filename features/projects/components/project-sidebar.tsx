@@ -39,7 +39,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Separator,
-  toast
+  toast,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
 } from "@szum-tech/design-system";
 import { type Project, ProjectStatus } from "~/features/projects/server/db/schema";
 import { type ActionResponse, type RedirectAction, isActionSuccess } from "~/lib/action-types";
@@ -51,6 +54,7 @@ import { ProjectStatusBadge } from "./project-status-badge";
 
 export type ProjectSidebarProps = {
   project: Project;
+  atLimit?: boolean;
   onUpdateStatusAction(projectId: string, newStatus: ProjectStatus): ActionResponse<void>;
   onDeleteAction(projectId: string): RedirectAction;
 };
@@ -60,7 +64,12 @@ function formatDate(date: Date | null): string {
   return formatRelativeTime(date);
 }
 
-export function ProjectSidebar({ project, onUpdateStatusAction, onDeleteAction }: ProjectSidebarProps) {
+export function ProjectSidebar({
+  project,
+  atLimit = false,
+  onUpdateStatusAction,
+  onDeleteAction
+}: ProjectSidebarProps) {
   const [isPending, startTransition] = useTransition();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
@@ -186,30 +195,45 @@ export function ProjectSidebar({ project, onUpdateStatusAction, onDeleteAction }
           <CardContent>
             {isDraft ? (
               <div className="flex gap-2">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      className="flex-1"
-                      startIcon={isPending ? <Loader2Icon className="animate-spin" /> : <PlayIcon />}
-                      disabled={isPending}
-                    >
-                      Aktywuj projekt
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Aktywować projekt?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Klient otrzyma powiadomienie e-mail z linkiem do projektu. Po aktywacji nie będzie można usunąć
-                        projektu.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Anuluj</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleActivate}>Aktywuj</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                {atLimit ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="flex-1">
+                        <Button className="w-full" startIcon={<PlayIcon />} disabled>
+                          Aktywuj projekt
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Osiągnięto limit projektów w tym okresie. Aktywacja możliwa w nowym okresie rozliczeniowym.
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        className="flex-1"
+                        startIcon={isPending ? <Loader2Icon className="animate-spin" /> : <PlayIcon />}
+                        disabled={isPending}
+                      >
+                        Aktywuj projekt
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Aktywować projekt?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Klient otrzyma powiadomienie e-mail z linkiem do projektu. Po aktywacji nie będzie można
+                          usunąć projektu.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleActivate}>Aktywuj</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

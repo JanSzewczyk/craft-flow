@@ -37,6 +37,8 @@ export const projectBuilder = build<Project>({
     status: ProjectStatus.DRAFT,
     publicToken: () => faker.string.alphanumeric(16),
     lastClientViewAt: () => null,
+    startedAt: () => null,
+    finishedAt: () => null,
     createdAt: () => faker.date.past(),
     updatedAt: () => faker.date.recent(),
     client: () => clientBuilder.one(),

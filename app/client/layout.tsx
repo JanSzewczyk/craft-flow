@@ -8,7 +8,7 @@ import { Role } from "~/features/auth/constants/roles";
 import { BrandLogo } from "~/features/marketing/components/brand-logo";
 import { createLogger } from "~/lib/logger";
 
-const logger = createLogger({ module: "client-portal-layout" });
+const logger = createLogger({ module: "client-layout" });
 
 async function loadData() {
   const { isAuthenticated, userId, sessionClaims } = await auth();

@@ -15,7 +15,7 @@ import { type SignUpFormData } from "~/features/auth/schemas/sign-up-schema";
 import { type ActionResponse } from "~/lib/action-types";
 
 type SignUpCardProps = {
-  onCompleteSignUpAction(userIs: string): ActionResponse<true>;
+  onCompleteSignUpAction(userId: string): ActionResponse<true>;
   redirectTo?: string;
   variant?: "contractor" | "client";
   defaultEmail?: string;
@@ -42,6 +42,19 @@ export function SignUpCard({
     });
 
     if (error) return { error: error.message };
+
+    if (signUp.status === "complete") {
+      const { error: finalizeError } = await signUp.finalize();
+      if (finalizeError) return { error: finalizeError.message };
+
+      if (signUp.createdUserId) {
+        await onCompleteSignUpAction(signUp.createdUserId);
+        await getToken({ skipCache: true });
+      }
+
+      router.push(redirectTo ?? "/onboarding");
+      return {};
+    }
 
     const { error: codeError } = await signUp.verifications.sendEmailCode();
     if (codeError) return { error: codeError.message };

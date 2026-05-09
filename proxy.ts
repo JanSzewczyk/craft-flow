@@ -20,7 +20,8 @@ const isPublicRoute = createRouteMatcher([
   "/health",
   "/ping",
   "/icon(.*)",
-  "/favicon(.*)"
+  "/favicon(.*)",
+  "/status(.*)"
 ]);
 
 const isAuthFlowRoute = createRouteMatcher([
@@ -29,6 +30,8 @@ const isAuthFlowRoute = createRouteMatcher([
   "/forgot-password(.*)",
   "/sso-callback(.*)"
 ]);
+
+const isStatusRoute = createRouteMatcher(["/status(.*)"]);
 
 const isAccountIssuePage = createRouteMatcher(["/account-issue(.*)"]);
 
@@ -101,7 +104,8 @@ export const proxy = clerkMiddleware(async (auth, request) => {
   }
 
   // Check roles and onboarding state for authenticated users
-  if (!isAuthFlowRoute(request)) {
+  // Status routes are fully public — skip all role/onboarding checks for them
+  if (!isAuthFlowRoute(request) && !isStatusRoute(request)) {
     const { userId, sessionClaims } = await auth();
 
     if (userId && !hasRoles(sessionClaims) && !isOnboardingRoute(request)) {

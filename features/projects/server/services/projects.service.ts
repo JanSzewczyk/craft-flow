@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
+import { getContractorBrandingEnabled } from "~/features/billing/server/api/get-contractor-branding-enabled";
 import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
 import { getOptionalClientByContractorIdAndEmail } from "~/features/crm/server/db/queries";
 import { createClient, getContractorClient } from "~/features/crm/server/services/clients.service";
@@ -14,9 +15,14 @@ import {
   updateProject,
   createProjectByContractorId,
   createProjectSteps,
-  updateProjectStepCompletion
+  updateProjectStepCompletion,
+  updateProjectLastClientViewAt
 } from "~/features/projects/server/db/mutations";
-import { getProjectById } from "~/features/projects/server/db/queries";
+import {
+  getProjectById,
+  getProjectByPublicToken,
+  getProjectLastClientViewAt
+} from "~/features/projects/server/db/queries";
 import { ProjectStatus, type Project } from "~/features/projects/server/db/schema";
 import { canCreateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
@@ -26,7 +32,99 @@ import { type ServiceResult } from "~/lib/services/errors";
 import { withTransaction } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
+export type PublicProjectView = {
+  id: string;
+  name: string;
+  status: Extract<ProjectStatus, "ACTIVE" | "COMPLETED">;
+  clientName: string;
+  steps: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+    isCompleted: boolean;
+    completedAt: Date | null;
+    createdAt: Date;
+    orderIndex: number;
+  }>;
+  contractor: {
+    companyName: string;
+    brandColor: string | null;
+    logoUrl: string | null;
+  };
+};
+
 const logger = createLogger({ module: "project-service" });
+
+const TRACK_CLIENT_VIEW_THROTTLE_MS = 5 * 60 * 1000;
+
+// ---------------------------------------------------------------------------
+// Public project view (unauthenticated)
+// ---------------------------------------------------------------------------
+
+export const getPublicProjectView = React.cache(async function ({
+  token
+}: {
+  token: string;
+}): Promise<SupabaseServiceResult<PublicProjectView>> {
+  const [projectErr, project] = await getProjectByPublicToken({ token });
+  if (projectErr) return [projectErr, null];
+
+  const contractorId = project.contractorId;
+
+  const [[profileErr, profile], hasBranding] = await Promise.all([
+    getContractorProfile({ contractorId }),
+    getContractorBrandingEnabled(contractorId)
+  ]);
+
+  if (profileErr) {
+    logger.error(
+      { token, contractorId, errorCode: profileErr.code },
+      "Failed to get contractor profile for public project view"
+    );
+    return [profileErr, null];
+  }
+
+  const view: PublicProjectView = {
+    id: project.id,
+    name: project.name,
+    status: project.status as Extract<ProjectStatus, "ACTIVE" | "COMPLETED">,
+    clientName: project.client.name,
+    steps: project.steps.map((step) => ({
+      id: step.id,
+      title: step.title,
+      description: step.description,
+      isCompleted: step.isCompleted,
+      completedAt: step.completedAt,
+      createdAt: step.createdAt,
+      orderIndex: step.orderIndex
+    })),
+    contractor: {
+      companyName: profile.companyName,
+      brandColor: hasBranding ? profile.brandColor : null,
+      logoUrl: hasBranding ? profile.logoUrl : null
+    }
+  };
+
+  return [null, view];
+});
+
+export async function trackClientView({ projectId }: { projectId: string }): Promise<ServiceResult<void>> {
+  const [fetchErr, lastViewAt] = await getProjectLastClientViewAt({ projectId });
+  if (fetchErr) return [fetchErr, null];
+
+  const now = Date.now();
+  if (lastViewAt && now - lastViewAt.getTime() < TRACK_CLIENT_VIEW_THROTTLE_MS) {
+    return [null, undefined];
+  }
+
+  const [updateErr] = await updateProjectLastClientViewAt({ id: projectId });
+  if (updateErr) {
+    logger.error({ projectId, operation: "trackClientView", errorCode: updateErr.code }, "Failed to track client view");
+    return [updateErr, null];
+  }
+
+  return [null, undefined];
+}
 
 // ---------------------------------------------------------------------------
 // Read service (cached for request deduplication during render)

@@ -4,14 +4,14 @@ import * as React from "react";
 
 import { Tabs, TabsList, TabsTrigger } from "@szum-tech/design-system";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { type ProjectStatusFilter } from "~/features/projects/types/project-filter";
+import { ProjectStatusFilter } from "~/features/projects/types/project-filter";
 
 export const PROJECT_STATUS_FILTER_TABS: Array<{ value: ProjectStatusFilter; label: string }> = [
-  { value: "ALL", label: "Wszystkie" },
-  { value: "DRAFT", label: "Szkice" },
-  { value: "ACTIVE", label: "Aktywne" },
-  { value: "COMPLETED", label: "Zakończone" },
-  { value: "ARCHIVED", label: "Archiwum" }
+  { value: ProjectStatusFilter.ALL, label: "Wszystkie" },
+  { value: ProjectStatusFilter.DRAFT, label: "Szkice" },
+  { value: ProjectStatusFilter.ACTIVE, label: "Aktywne" },
+  { value: ProjectStatusFilter.COMPLETED, label: "Zakończone" },
+  { value: ProjectStatusFilter.ARCHIVED, label: "Archiwum" }
 ];
 
 type ProjectsTabsNavProps = {
@@ -27,7 +27,7 @@ export function ProjectsTabsNav({ activeTab, countBadges }: ProjectsTabsNavProps
   const handleTabChange = React.useCallback(
     (value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (value === "ALL") {
+      if (value === ProjectStatusFilter.ALL) {
         params.delete("status");
       } else {
         params.set("status", value);

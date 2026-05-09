@@ -1,4 +1,5 @@
 import { expect } from "storybook/test";
+import { ProjectStatus } from "~/features/projects/server/db/schema";
 
 import { ProjectsTable } from "./projects-table";
 
@@ -9,7 +10,7 @@ const mockItems = [
     id: "1",
     name: "Remont łazienki",
     clientName: "Jan Kowalski",
-    status: "ACTIVE",
+    status: ProjectStatus.ACTIVE,
     totalSteps: 5,
     completedSteps: 2,
     lastClientViewAt: null,
@@ -19,7 +20,7 @@ const mockItems = [
     id: "2",
     name: "Malowanie salonu",
     clientName: "Anna Nowak",
-    status: "DRAFT",
+    status: ProjectStatus.DRAFT,
     totalSteps: 0,
     completedSteps: 0,
     lastClientViewAt: null,
@@ -29,7 +30,7 @@ const mockItems = [
     id: "3",
     name: "Wymiana okien",
     clientName: "Piotr Wiśniewski",
-    status: "COMPLETED",
+    status: ProjectStatus.COMPLETED,
     totalSteps: 8,
     completedSteps: 8,
     lastClientViewAt: null,

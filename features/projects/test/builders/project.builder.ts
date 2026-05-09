@@ -2,7 +2,7 @@ import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
 import { clientBuilder } from "~/features/crm/test/builders";
-import { type Project } from "~/features/projects/server/db/schema";
+import { ProjectStatus, type Project } from "~/features/projects/server/db/schema";
 
 import { projectStepBuilder } from "./project-step.builder";
 
@@ -34,7 +34,7 @@ export const projectBuilder = build<Project>({
     clientId: () => faker.string.uuid(),
     name: () => faker.lorem.words(3),
     description: () => null,
-    status: "DRAFT",
+    status: ProjectStatus.DRAFT,
     publicToken: () => faker.string.alphanumeric(16),
     lastClientViewAt: () => null,
     createdAt: () => faker.date.past(),
@@ -44,38 +44,38 @@ export const projectBuilder = build<Project>({
   },
   traits: {
     active: {
-      overrides: { status: "ACTIVE" }
+      overrides: { status: ProjectStatus.ACTIVE }
     },
     completed: {
-      overrides: { status: "COMPLETED" }
+      overrides: { status: ProjectStatus.COMPLETED }
     },
     draftWithSteps: {
       overrides: {
-        status: "DRAFT",
+        status: ProjectStatus.DRAFT,
         steps: () => projectStepBuilder.many(3)
       }
     },
     activeWithSteps: {
       overrides: {
-        status: "ACTIVE",
+        status: ProjectStatus.ACTIVE,
         steps: () => projectStepBuilder.many(3)
       }
     },
     activeWithMixedSteps: {
       overrides: {
-        status: "ACTIVE",
+        status: ProjectStatus.ACTIVE,
         steps: () => [...projectStepBuilder.many(2, { traits: "completed" }), ...projectStepBuilder.many(2)]
       }
     },
     activeAllDone: {
       overrides: {
-        status: "ACTIVE",
+        status: ProjectStatus.ACTIVE,
         steps: () => projectStepBuilder.many(3, { traits: "completed" })
       }
     },
     completedWithSteps: {
       overrides: {
-        status: "COMPLETED",
+        status: ProjectStatus.COMPLETED,
         steps: () => projectStepBuilder.many(3, { traits: "completed" })
       }
     }

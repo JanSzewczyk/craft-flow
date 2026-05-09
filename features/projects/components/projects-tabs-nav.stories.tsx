@@ -1,5 +1,6 @@
 import { Badge } from "@szum-tech/design-system";
 import { expect } from "storybook/test";
+import { ProjectStatusFilter } from "~/features/projects/types/project-filter";
 
 import { ProjectsTabsNav } from "./projects-tabs-nav";
 
@@ -20,7 +21,7 @@ const meta = preview.meta({
 
 export const AllTab = meta.story({
   args: {
-    activeTab: "ALL",
+    activeTab: ProjectStatusFilter.ALL,
     countBadges: {}
   }
 });
@@ -37,7 +38,7 @@ AllTab.test("Renders all tab labels", async ({ canvas, step }) => {
 
 export const DraftTab = meta.story({
   args: {
-    activeTab: "DRAFT",
+    activeTab: ProjectStatusFilter.DRAFT,
     countBadges: {}
   }
 });
@@ -49,7 +50,7 @@ DraftTab.test("Renders with DRAFT tab active", async ({ canvas }) => {
 
 export const WithCountBadges = meta.story({
   args: {
-    activeTab: "ALL",
+    activeTab: ProjectStatusFilter.ALL,
     countBadges: {
       ALL: <Badge variant="secondary">12</Badge>,
       ACTIVE: <Badge variant="secondary">5</Badge>,

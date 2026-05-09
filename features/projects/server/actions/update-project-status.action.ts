@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { ProjectStatus } from "~/features/projects/server/db/schema";
 import { updateProjectStatus } from "~/features/projects/server/services/projects.service";
 import { type ActionResponse } from "~/lib/action-types";
 
@@ -10,7 +11,7 @@ import { mapProjectServiceError } from "./map-service-error";
 
 export async function updateProjectStatusAction(
   projectId: string,
-  newStatus: "ACTIVE" | "COMPLETED"
+  newStatus: Extract<ProjectStatus, "ACTIVE" | "COMPLETED">
 ): ActionResponse<void> {
   const { isAuthenticated, userId } = await auth();
   if (!isAuthenticated) {
@@ -24,9 +25,9 @@ export async function updateProjectStatusAction(
   revalidatePath(`/app/projects/${projectId}`);
   revalidatePath("/app/projects");
 
-  const messages: Record<"ACTIVE" | "COMPLETED", string> = {
-    ACTIVE: "Projekt został aktywowany",
-    COMPLETED: "Projekt został zakończony"
+  const messages: Record<Extract<ProjectStatus, "ACTIVE" | "COMPLETED">, string> = {
+    [ProjectStatus.ACTIVE]: "Projekt został aktywowany",
+    [ProjectStatus.COMPLETED]: "Projekt został zakończony"
   };
 
   return { success: true, data: undefined, message: messages[newStatus] };

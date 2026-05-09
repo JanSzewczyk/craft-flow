@@ -188,6 +188,24 @@ export async function reorderProjectSteps({
   }
 }
 
+export async function updateProjectLastClientViewAt({
+  id,
+  dbClient = db
+}: {
+  id: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<void>> {
+  try {
+    await dbClient.update(projects).set({ lastClientViewAt: new Date() }).where(eq(projects.id, id));
+    logger.info({ id }, "Updated project lastClientViewAt");
+    return [null, undefined];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Project");
+    logger.error({ id, errorCode: serviceError.code }, "Failed to update project lastClientViewAt");
+    return [serviceError, null];
+  }
+}
+
 export async function createProjectSteps({
   projectId,
   steps,

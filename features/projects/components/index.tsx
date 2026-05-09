@@ -1,4 +1,6 @@
+export { ClientTracker } from "./client-tracker";
 export { CreateProjectForm } from "./forms/create-project-form";
+export { GuestTimeline } from "./guest-timeline";
 export { ProjectDetailTabsNav } from "./project-detail-tabs-nav";
 export { ProjectProgressBar } from "./project-progress-bar";
 export { ProjectSidebar } from "./project-sidebar";

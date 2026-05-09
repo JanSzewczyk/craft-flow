@@ -1,4 +1,5 @@
 import { expect } from "storybook/test";
+import { ProjectStatus } from "~/features/projects/server/db/schema";
 
 import { ProjectStatusBadge } from "./project-status-badge";
 
@@ -11,7 +12,7 @@ const meta = preview.meta({
 });
 
 export const Draft = meta.story({
-  args: { status: "DRAFT" }
+  args: { status: ProjectStatus.DRAFT }
 });
 
 Draft.test("Renders draft label", async ({ canvas }) => {
@@ -19,7 +20,7 @@ Draft.test("Renders draft label", async ({ canvas }) => {
 });
 
 export const Active = meta.story({
-  args: { status: "ACTIVE" }
+  args: { status: ProjectStatus.ACTIVE }
 });
 
 Active.test("Renders active label", async ({ canvas }) => {
@@ -27,7 +28,7 @@ Active.test("Renders active label", async ({ canvas }) => {
 });
 
 export const Completed = meta.story({
-  args: { status: "COMPLETED" }
+  args: { status: ProjectStatus.COMPLETED }
 });
 
 Completed.test("Renders completed label", async ({ canvas }) => {
@@ -35,7 +36,7 @@ Completed.test("Renders completed label", async ({ canvas }) => {
 });
 
 export const Archived = meta.story({
-  args: { status: "ARCHIVED" }
+  args: { status: ProjectStatus.ARCHIVED }
 });
 
 Archived.test("Renders archived label", async ({ canvas }) => {

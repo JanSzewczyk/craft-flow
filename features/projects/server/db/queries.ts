@@ -1,6 +1,6 @@
-import React, { cache } from "react";
+import React from "react";
 
-import { and, count, desc, eq, gte, ilike, ne, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql } from "drizzle-orm";
 
 import { clients } from "~/features/crm/server/db/schema";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
@@ -9,7 +9,7 @@ import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { type PaginationMeta } from "~/types/pagination";
 
-import { projectSteps, projects, type ProjectStep, type ProjectStatus, type Project, type ProjectRow } from "./schema";
+import { projectSteps, projects, ProjectStatus, type ProjectStep, type Project, type ProjectRow } from "./schema";
 
 const logger = createLogger({ module: "projects-db" });
 
@@ -120,7 +120,7 @@ export async function getProjectListByContractor({
       .groupBy(projectSteps.projectId)
       .as("step_counts");
 
-    const conditions = [eq(projects.contractorId, contractorId), ne(projects.status, "DELETED")];
+    const conditions = [eq(projects.contractorId, contractorId), ne(projects.status, ProjectStatus.DELETED)];
 
     if (status) {
       conditions.push(eq(projects.status, status));
@@ -199,7 +199,7 @@ export async function getProjectCountsByStatus({
         count: count()
       })
       .from(projects)
-      .where(and(eq(projects.contractorId, contractorId), ne(projects.status, "DELETED")))
+      .where(and(eq(projects.contractorId, contractorId), ne(projects.status, ProjectStatus.DELETED)))
       .groupBy(projects.status);
 
     let all = 0;
@@ -240,7 +240,11 @@ export async function getProjectCountCreatedSince({
       .select({ value: count() })
       .from(projects)
       .where(
-        and(eq(projects.contractorId, contractorId), gte(projects.createdAt, since), ne(projects.status, "DELETED"))
+        and(
+          eq(projects.contractorId, contractorId),
+          gte(projects.createdAt, since),
+          ne(projects.status, ProjectStatus.DELETED)
+        )
       );
 
     const value = row?.value ?? 0;
@@ -248,6 +252,68 @@ export async function getProjectCountCreatedSince({
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Project");
     logger.error({ contractorId, errorCode: serviceError.code }, "Failed to count projects created since date");
+    return [serviceError, null];
+  }
+}
+
+export const getProjectByPublicToken = React.cache(async function ({
+  token,
+  dbClient = db
+}: {
+  token: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Project>> {
+  try {
+    const row = await dbClient.query.projects.findFirst({
+      where: and(
+        eq(projects.publicToken, token),
+        inArray(projects.status, [ProjectStatus.ACTIVE, ProjectStatus.COMPLETED])
+      ),
+      with: {
+        client: true,
+        steps: {
+          orderBy: asc(projectSteps.orderIndex)
+        }
+      }
+    });
+
+    if (!row) {
+      const error = SupabaseServiceError.notFound("Project");
+      logger.error({ token, errorCode: error.code }, "Project not found by public token");
+      return [error, null];
+    }
+
+    return [null, row];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Project");
+    logger.error({ token, errorCode: serviceError.code }, "Failed to get project by public token");
+    return [serviceError, null];
+  }
+});
+
+export async function getProjectLastClientViewAt({
+  projectId,
+  dbClient = db
+}: {
+  projectId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Date | null>> {
+  try {
+    const row = await dbClient.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+      columns: { lastClientViewAt: true }
+    });
+
+    if (!row) {
+      const error = SupabaseServiceError.notFound("Project");
+      logger.error({ projectId, errorCode: error.code }, "Project not found for lastClientViewAt check");
+      return [error, null];
+    }
+
+    return [null, row.lastClientViewAt ?? null];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Project");
+    logger.error({ projectId, errorCode: serviceError.code }, "Failed to get project lastClientViewAt");
     return [serviceError, null];
   }
 }

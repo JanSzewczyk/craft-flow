@@ -23,7 +23,7 @@ import {
   getProjectByPublicToken,
   getProjectLastClientViewAt
 } from "~/features/projects/server/db/queries";
-import { ProjectStatus, type Project } from "~/features/projects/server/db/schema";
+import { ProjectStatus, type Project, ProjectRow } from "~/features/projects/server/db/schema";
 import { canCreateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
 import { getTemplateById } from "~/features/templates/server/db/queries";
@@ -157,8 +157,6 @@ export const getContractorProject = React.cache(async function ({
 });
 
 // ---------------------------------------------------------------------------
-
-type ProjectRow = { id: string };
 
 export async function createProject({
   contractorId,

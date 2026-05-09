@@ -17,5 +17,5 @@ export async function TabCount({ userId, status }: TabCountProps) {
 
   const count = counts[status];
   if (!count) return null;
-  return <Badge variant="secondary">{count}</Badge>;
+  return <Badge variant="outline">{count}</Badge>;
 }

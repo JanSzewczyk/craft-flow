@@ -28,8 +28,8 @@ export const TimelineTab = meta.story({
 });
 
 TimelineTab.test("Renders both tab links", async ({ canvas }) => {
-  await expect(canvas.getByRole("link", { name: "Oś czasu" })).toBeVisible();
-  await expect(canvas.getByRole("link", { name: "Wszystkie pliki" })).toBeVisible();
+  await expect(canvas.getByRole("tab", { name: "Oś czasu" })).toBeVisible();
+  await expect(canvas.getByRole("tab", { name: "Wszystkie pliki" })).toBeVisible();
 });
 
 TimelineTab.test("Timeline tab is active when on timeline path", async ({ canvas }) => {

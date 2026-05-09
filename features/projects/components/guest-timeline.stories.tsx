@@ -1,6 +1,5 @@
 import { expect } from "storybook/test";
-import { type PublicProjectView } from "~/features/projects/server/services/projects.service";
-import { projectBuilder } from "~/features/projects/test/builders";
+import { publicProjectViewBuilder } from "~/features/projects/test/builders";
 
 import { GuestTimeline } from "./guest-timeline";
 
@@ -20,7 +19,7 @@ const meta = preview.meta({
 });
 
 export const EmptyGuestTimeline = meta.story({
-  args: { project: projectBuilder.one({ traits: "active" }) as unknown as PublicProjectView }
+  args: { project: publicProjectViewBuilder.one({ traits: "active" })! }
 });
 
 EmptyGuestTimeline.test("Shows empty state when no steps", async ({ canvas }) => {
@@ -28,7 +27,7 @@ EmptyGuestTimeline.test("Shows empty state when no steps", async ({ canvas }) =>
 });
 
 export const ActiveGuestTimeline = meta.story({
-  args: { project: projectBuilder.one({ traits: "activeWithMixedSteps" }) as unknown as PublicProjectView }
+  args: { project: publicProjectViewBuilder.one({ traits: "activeWithMixedSteps" })! }
 });
 
 ActiveGuestTimeline.test("Shows completed badges", async ({ canvas }) => {
@@ -45,7 +44,7 @@ ActiveGuestTimeline.test("Does not show complete button", async ({ canvas }) => 
 });
 
 export const CompletedGuestTimeline = meta.story({
-  args: { project: projectBuilder.one({ traits: "completedWithSteps" }) as unknown as PublicProjectView }
+  args: { project: publicProjectViewBuilder.one({ traits: "completedWithSteps" })! }
 });
 
 CompletedGuestTimeline.test("All steps show completed badge", async ({ canvas, args }) => {

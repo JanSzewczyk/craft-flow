@@ -20,7 +20,7 @@ async function loadData({ token }: { token: string }) {
   const [error, publicProjectView] = await getPublicProjectView({ token });
 
   if (error) {
-    logger.error({ token, errorCode: error.code }, "Failed to load public project");
+    logger.warn({ token, errorCode: error.code }, "Failed to load public project");
     notFound();
   }
 
@@ -67,7 +67,7 @@ export default async function GuestProjectPage({ params }: PageProps<"/status/[t
         </div>
       </Header>
 
-      <ClientTracker projectId={publicProjectView.id} onTrackAction={updateClientViewAction} />
+      <ClientTracker token={token} onTrackAction={updateClientViewAction} />
 
       <main className="flex-1 px-4 pt-24 pb-16 sm:px-6">
         <div className="container-3xl">

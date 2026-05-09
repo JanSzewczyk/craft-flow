@@ -34,8 +34,9 @@ export const DraftTimeline = meta.story({
   args: { project: projectBuilder.one({ traits: "draftWithSteps" }) as Project }
 });
 
-DraftTimeline.test("Shows info alert for draft project", async ({ canvas }) => {
-  await expect(canvas.getByText("Projekt nie został jeszcze aktywowany")).toBeVisible();
+DraftTimeline.test("Renders all steps for draft project", async ({ canvas, args }) => {
+  const items = canvas.getAllByRole("listitem");
+  await expect(items).toHaveLength(args.project.steps.length);
 });
 
 DraftTimeline.test("No status badges shown for draft project", async ({ canvas }) => {

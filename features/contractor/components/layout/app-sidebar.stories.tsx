@@ -3,7 +3,7 @@ import { expect } from "storybook/test";
 
 import { AppSidebar } from "./app-sidebar";
 
-import preview from "~/.storybook/preview";
+import preview from ".storybook/preview";
 
 const meta = preview.meta({
   title: "Features/Contractor/App Sidebar",

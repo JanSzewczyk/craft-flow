@@ -1,5 +1,5 @@
-export { AppHeader } from "./app-header";
-export { AppSidebar } from "./app-sidebar";
+export { AppHeader } from "./layout/app-header";
+export { AppSidebar } from "./layout/app-sidebar";
 export { BrandingEditor } from "./branding-editor";
 export { EmailNotificationsEditor } from "./email-notifications-editor";
 export { KpiCard } from "./kpi-card";

@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { Role } from "~/features/auth/constants/roles";
 import { requireRole } from "~/features/auth/server/api/require-role";
+import { getBillingPeriodStart, getPlanFeatures } from "~/features/billing/server";
 import { getContractorBrandingEnabled } from "~/features/billing/server/api/get-contractor-branding-enabled";
 import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
 import { getOptionalClientByContractorIdAndEmail } from "~/features/crm/server/db/queries";
@@ -21,10 +22,11 @@ import {
 import {
   getProjectById,
   getProjectByPublicToken,
+  getProjectCountStartedSince,
   getProjectLastClientViewAt
 } from "~/features/projects/server/db/queries";
 import { ProjectStatus, type Project, ProjectRow } from "~/features/projects/server/db/schema";
-import { canCreateProject } from "~/features/projects/server/permissions";
+import { canActivateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
 import { getTemplateById } from "~/features/templates/server/db/queries";
 import { createLogger } from "~/lib/logger";
@@ -173,12 +175,6 @@ export async function createProject({
     return [roleErr, null];
   }
 
-  const [permErr] = await canCreateProject(contractorId);
-  if (permErr) {
-    logger.warn({ contractorId, operation: "createProject", errorCode: permErr.code }, "Permission check failed");
-    return [permErr, null];
-  }
-
   let clientId: string;
 
   if (formData.client.mode === "existing") {
@@ -315,7 +311,23 @@ export async function updateProjectStatus({
     return [SupabaseServiceError.validation(`Niedozwolone przejście statusu: ${project.status} → ${newStatus}`), null];
   }
 
-  const [updateErr] = await updateProject({ id: projectId, data: { status: newStatus } });
+  if (newStatus === ProjectStatus.ACTIVE) {
+    const [activateErr] = await canActivateProject(contractorId);
+    if (activateErr) {
+      logger.warn(
+        { contractorId, operation: "updateProjectStatus", projectId, errorCode: activateErr.code },
+        "Activation limit reached"
+      );
+      return [activateErr, null];
+    }
+  }
+
+  const statusData =
+    newStatus === ProjectStatus.ACTIVE
+      ? { status: newStatus, startedAt: new Date() }
+      : { status: newStatus, finishedAt: new Date() };
+
+  const [updateErr] = await updateProject({ id: projectId, data: statusData });
   if (updateErr) {
     logger.error(
       { contractorId, operation: "updateProjectStatus", projectId, errorCode: updateErr.code },
@@ -400,4 +412,17 @@ export async function softDeleteProject({
 
   logger.info({ contractorId, projectId }, "Project soft-deleted");
   return [null, undefined];
+}
+
+export async function isProjectActivationAtLimit(contractorId: string): Promise<boolean> {
+  const {
+    limitations: { projectsPerMonth: max }
+  } = await getPlanFeatures();
+
+  if (max === null) return false;
+
+  const periodStart = await getBillingPeriodStart(contractorId);
+  const [, count] = await getProjectCountStartedSince({ contractorId, since: periodStart });
+
+  return (count ?? 0) >= max;
 }

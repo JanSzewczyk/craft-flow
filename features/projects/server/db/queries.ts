@@ -228,7 +228,7 @@ export async function getProjectCountsByStatus({
   }
 }
 
-export async function getProjectCountCreatedSince({
+export async function getProjectCountStartedSince({
   contractorId,
   since,
   dbClient = db
@@ -244,7 +244,7 @@ export async function getProjectCountCreatedSince({
       .where(
         and(
           eq(projects.contractorId, contractorId),
-          gte(projects.createdAt, since),
+          gte(projects.startedAt, since),
           ne(projects.status, ProjectStatus.DELETED),
           ne(projects.status, ProjectStatus.DRAFT)
         )

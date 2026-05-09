@@ -1,7 +1,11 @@
+import { InfoIcon } from "lucide-react";
 import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -14,6 +18,7 @@ import { redirect } from "next/navigation";
 import { getClientsByContractorId } from "~/features/crm/server/db";
 import { CreateProjectForm } from "~/features/projects/components/forms/create-project-form";
 import { createProjectAction } from "~/features/projects/server/actions/create-project.action";
+import { isProjectActivationAtLimit } from "~/features/projects/server/services/projects.service";
 import { getTemplatesByContractor } from "~/features/templates/server/db";
 import { createLogger } from "~/lib/logger";
 
@@ -30,9 +35,10 @@ async function loadData() {
     redirect("/sign-in");
   }
 
-  const [[templatesError, templates], [clientsError, clients]] = await Promise.all([
+  const [[templatesError, templates], [clientsError, clients], atLimit] = await Promise.all([
     getTemplatesByContractor({ contractorId: userId }),
-    getClientsByContractorId({ contractorId: userId })
+    getClientsByContractorId({ contractorId: userId }),
+    isProjectActivationAtLimit(userId)
   ]);
 
   if (templatesError) {
@@ -46,12 +52,13 @@ async function loadData() {
 
   return {
     templates,
-    clients
+    clients,
+    atLimit
   };
 }
 
 export default async function NewProjectPage() {
-  const { templates, clients } = await loadData();
+  const { templates, clients, atLimit } = await loadData();
 
   return (
     <div className="space-y-6">
@@ -78,6 +85,16 @@ export default async function NewProjectPage() {
         <h1 className="text-heading-h1">Nowy projekt</h1>
         <p className="text-lead">Wypełnij poniższe pola, aby utworzyć szkic projektu</p>
       </div>
+
+      {atLimit ? (
+        <Alert>
+          <InfoIcon className="size-4" />
+          <AlertTitle>Osiągnąłeś limit projektów w tym okresie</AlertTitle>
+          <AlertDescription>
+            Możesz utworzyć projekt w stanie szkicu, ale nie będziesz mógł go uruchomić do momentu resetu licznika.
+          </AlertDescription>
+        </Alert>
+      ) : null}
 
       <CreateProjectForm clients={clients} templates={templates} onCreateAction={createProjectAction} />
     </div>

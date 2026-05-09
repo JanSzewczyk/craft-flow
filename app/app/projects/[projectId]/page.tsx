@@ -7,7 +7,7 @@ import { notFound, redirect } from "next/navigation";
 import { ProjectTimeline } from "~/features/projects/components";
 import { updateStepCompletionAction } from "~/features/projects/server/actions/update-project-step.action";
 import { ProjectStatus } from "~/features/projects/server/db";
-import { getContractorProject } from "~/features/projects/server/services/projects.service";
+import { getContractorProject, isProjectActivationAtLimit } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "project-detail-page" });
@@ -25,8 +25,10 @@ async function loadData({ projectId }: { projectId: string }) {
     notFound();
   }
 
+  const atLimit = project.status === ProjectStatus.DRAFT ? await isProjectActivationAtLimit(userId) : false;
+
   logger.info({ userId, projectId }, "Successfully loaded project detail");
-  return { project };
+  return { project, atLimit };
 }
 
 export async function generateMetadata({ params }: PageProps<"/app/projects/[projectId]">): Promise<Metadata> {
@@ -40,7 +42,7 @@ export async function generateMetadata({ params }: PageProps<"/app/projects/[pro
 
 export default async function ProjectDetailPage({ params }: PageProps<"/app/projects/[projectId]">) {
   const { projectId } = await params;
-  const { project } = await loadData({ projectId });
+  const { project, atLimit } = await loadData({ projectId });
 
   return (
     <div className="flex flex-col gap-6">
@@ -49,13 +51,23 @@ export default async function ProjectDetailPage({ params }: PageProps<"/app/proj
       </div>
 
       {project.status === ProjectStatus.DRAFT ? (
-        <Alert>
-          <InfoIcon className="size-4" />
-          <AlertTitle>Projekt nie został jeszcze aktywowany</AlertTitle>
-          <AlertDescription>
-            Po kliknięciu przycisku &quot;Aktywuj projekt&quot; pierwszy etap zostanie automatycznie uruchomiony.
-          </AlertDescription>
-        </Alert>
+        atLimit ? (
+          <Alert>
+            <InfoIcon className="size-4" />
+            <AlertTitle>Osiągnąłeś limit aktywnych projektów w tym okresie planu</AlertTitle>
+            <AlertDescription>
+              Ten projekt pozostanie w stanie szkicu. Uruchomienie będzie możliwe w nowym okresie rozliczeniowym.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert>
+            <InfoIcon className="size-4" />
+            <AlertTitle>Projekt nie został jeszcze aktywowany</AlertTitle>
+            <AlertDescription>
+              Po kliknięciu przycisku &quot;Aktywuj projekt&quot; pierwszy etap zostanie automatycznie uruchomiony.
+            </AlertDescription>
+          </Alert>
+        )
       ) : null}
 
       <ProjectTimeline project={project} onUpdateStepAction={updateStepCompletionAction} />

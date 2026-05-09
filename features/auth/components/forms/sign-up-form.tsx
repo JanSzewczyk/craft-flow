@@ -11,15 +11,17 @@ import { signUpSchema, type SignUpFormData } from "~/features/auth/schemas/sign-
 type SignUpFormProps = {
   onEmailSignUp: (data: SignUpFormData) => Promise<{ error?: string }>;
   onGoogleSignUp: () => void;
+  variant?: "contractor" | "client";
+  defaultEmail?: string;
 };
 
-export function SignUpForm({ onEmailSignUp, onGoogleSignUp }: SignUpFormProps) {
+export function SignUpForm({ onEmailSignUp, onGoogleSignUp, variant = "contractor", defaultEmail }: SignUpFormProps) {
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
-      email: "",
+      email: defaultEmail ?? "",
       password: "",
       confirmPassword: ""
     }
@@ -67,7 +69,7 @@ export function SignUpForm({ onEmailSignUp, onGoogleSignUp }: SignUpFormProps) {
           </div>
 
           <Field data-invalid={!!form.formState.errors.email}>
-            <FieldLabel htmlFor="email">E-mail firmowy</FieldLabel>
+            <FieldLabel htmlFor="email">{variant === "contractor" ? "E-mail firmowy" : "E-mail"}</FieldLabel>
             <Input
               id="email"
               type="email"
@@ -109,9 +111,14 @@ export function SignUpForm({ onEmailSignUp, onGoogleSignUp }: SignUpFormProps) {
           </Field>
         </FieldGroup>
 
+        {/* Clerk's CAPTCHA widget */}
+        <div id="clerk-captcha" />
         <Button type="submit" fullWidth loading={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Rejestracja..." : "Zacznij darmowy trial"}
-          {!form.formState.isSubmitting && <ZapIcon className="size-5" />}
+          {variant === "contractor"
+            ? form.formState.isSubmitting
+              ? "Rejestracja..."
+              : "Zacznij darmowy trial"
+            : "Zarejestruj się jako klient"}
         </Button>
       </form>
 

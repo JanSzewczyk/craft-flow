@@ -62,7 +62,9 @@ export default async function GuestProjectPage({ params }: PageProps<"/status/[t
             <BrandLogo />
           )}
           <Button asChild size="sm">
-            <Link href="/sign-up">Utwórz konto</Link>
+            <Link href={`/sign-up?invite=${token}&email=${encodeURIComponent(publicProjectView.client.email)}`}>
+              Utwórz konto
+            </Link>
           </Button>
         </div>
       </Header>
@@ -93,7 +95,9 @@ export default async function GuestProjectPage({ params }: PageProps<"/status/[t
                 Załóż konto, aby śledzić postępy, przeglądać historię i kontaktować się z wykonawcami bezpośrednio.
               </p>
               <Button asChild>
-                <Link href="/sign-up">Zarejestruj się</Link>
+                <Link href={`/sign-up?invite=${token}&email=${encodeURIComponent(publicProjectView.client.email)}`}>
+                  Zarejestruj się
+                </Link>
               </Button>
             </CardContent>
           </Card>

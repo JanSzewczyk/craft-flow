@@ -8,7 +8,7 @@ const logger = createLogger({ module: "auth" });
 
 type UserMetadata = {
   roles: Array<string>;
-  onboardingComplete: boolean;
+  onboardingComplete?: boolean;
 };
 
 export async function setUserMetadata(userId: string, metadata: UserMetadata): Promise<ClerkServiceResult<void>> {

@@ -16,9 +16,17 @@ import { type ActionResponse } from "~/lib/action-types";
 
 type SignUpCardProps = {
   onCompleteSignUpAction(userIs: string): ActionResponse<true>;
+  redirectTo?: string;
+  variant?: "contractor" | "client";
+  defaultEmail?: string;
 };
 
-export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
+export function SignUpCard({
+  onCompleteSignUpAction,
+  redirectTo,
+  variant = "contractor",
+  defaultEmail
+}: SignUpCardProps) {
   const { signUp } = useSignUp();
   const { getToken } = useAuth();
   const router = useRouter();
@@ -56,7 +64,7 @@ export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
         await getToken({ skipCache: true });
       }
 
-      router.push("/onboarding");
+      router.push(redirectTo ?? "/onboarding");
       return {};
     }
 
@@ -95,26 +103,45 @@ export function SignUpCard({ onCompleteSignUpAction }: SignUpCardProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <Alert variant="default">
-        <AwardIcon />
-        <AlertTitle>14 dni Basic za darmo (bez karty płatniczej)</AlertTitle>
-      </Alert>
+      {variant === "contractor" ? (
+        <Alert variant="default">
+          <AwardIcon />
+          <AlertTitle>14 dni Basic za darmo (bez karty płatniczej)</AlertTitle>
+        </Alert>
+      ) : null}
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-heading-h2">Zacznij budować swój sukces</CardTitle>
-          <CardDescription>
-            Dołącz do grona profesjonalistów i stwórz swój portal w kilka chwil.
-            <span className="mt-2 block">
-              Chcesz pominąć okres próbny?{" "}
-              <Link href="/pricing" className="text-primary font-medium hover:underline">
-                Wybierz plan i zarejestruj się teraz
-              </Link>
-            </span>
-          </CardDescription>
+          {variant === "contractor" ? (
+            <>
+              <CardTitle className="text-heading-h2">Zacznij budować swój sukces</CardTitle>
+              <CardDescription>
+                Dołącz do grona profesjonalistów i stwórz swój portal w kilka chwil.
+                <span className="mt-2 block">
+                  Chcesz pominąć okres próbny?{" "}
+                  <Link href="/pricing" className="text-primary font-medium hover:underline">
+                    Wybierz plan i zarejestruj się teraz
+                  </Link>
+                </span>
+              </CardDescription>
+            </>
+          ) : (
+            <>
+              <CardTitle className="text-heading-h2">Uzyskaj dostęp do swoich projektów</CardTitle>
+              <CardDescription>
+                Stwórz bezpłatne konto, aby śledzić postępy realizacji i przeglądać historię swoich zleceń w jednym
+                miejscu.
+              </CardDescription>
+            </>
+          )}
         </CardHeader>
         <CardContent>
-          <SignUpForm onEmailSignUp={handleEmailSignUp} onGoogleSignUp={handleGoogleSignUp} />
+          <SignUpForm
+            onEmailSignUp={handleEmailSignUp}
+            onGoogleSignUp={handleGoogleSignUp}
+            variant={variant}
+            defaultEmail={defaultEmail}
+          />
 
           <div className="text-body-sm mt-8 text-center">
             <span className="text-muted-foreground">Masz już konto?</span>

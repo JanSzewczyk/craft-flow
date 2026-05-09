@@ -1,8 +1,8 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import { type PublicProjectView } from "~/features/projects/server/services/projects.service";
 import { ProjectStatus } from "~/features/projects/server/db/schema";
+import { type PublicProjectView } from "~/features/projects/server/services/projects.service";
 
 function buildStep(overrides: Partial<PublicProjectView["steps"][0]> = {}): PublicProjectView["steps"][0] {
   return {
@@ -28,6 +28,11 @@ function buildPendingStep(orderIndex: number): PublicProjectView["steps"][0] {
 export const publicProjectViewBuilder = build<PublicProjectView>({
   fields: {
     id: () => faker.string.uuid(),
+    client: () => ({
+      id: faker.string.uuid(),
+      name: faker.person.fullName(),
+      email: faker.internet.email()
+    }),
     name: () => faker.lorem.words(3),
     status: ProjectStatus.ACTIVE,
     clientName: () => faker.person.fullName(),

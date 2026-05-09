@@ -35,6 +35,7 @@ const isStatusRoute = createRouteMatcher(["/status(.*)"]);
 
 const isAccountIssuePage = createRouteMatcher(["/account-issue(.*)"]);
 
+const isClientPortalRoute = createRouteMatcher(["/client-portal(.*)"]);
 const isAppRoute = createRouteMatcher(["/app(.*)"]);
 const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
 const isOnboardingSuccessRoute = createRouteMatcher(["/onboarding/success(.*)"]);
@@ -100,6 +101,13 @@ export const proxy = clerkMiddleware(async (auth, request) => {
         requestLogger.info({ userId, destination }, "Redirecting authenticated user from entrance route");
         return NextResponse.redirect(new URL(destination, request.url));
       }
+      if (roles.includes(Role.CLIENT)) {
+        requestLogger.info(
+          { userId, destination: "/client-portal" },
+          "Redirecting authenticated client from entrance route"
+        );
+        return NextResponse.redirect(new URL("/client-portal", request.url));
+      }
     }
   }
 
@@ -113,11 +121,11 @@ export const proxy = clerkMiddleware(async (auth, request) => {
       return NextResponse.redirect(new URL("/account-issue", request.url));
     }
 
-    // Onboarding flow protection for contractors
-    if ((isAppRoute(request) || isOnboardingRoute(request)) && userId && sessionClaims) {
+    if (userId && sessionClaims) {
       const roles = sessionClaims.metadata?.roles ?? [];
       const onboardingComplete = sessionClaims.metadata?.onboardingComplete;
 
+      // Onboarding flow protection for contractors
       if (roles.includes(Role.CONTRACTOR)) {
         if (isAppRoute(request) && !onboardingComplete) {
           return NextResponse.redirect(new URL("/onboarding", request.url));
@@ -125,6 +133,25 @@ export const proxy = clerkMiddleware(async (auth, request) => {
         if (isOnboardingRoute(request) && !isOnboardingSuccessRoute(request) && onboardingComplete) {
           return NextResponse.redirect(new URL("/app/dashboard", request.url));
         }
+      }
+
+      // CLIENT: blokuj dostęp do tras kontraktora
+      if (roles.includes(Role.CLIENT) && !roles.includes(Role.CONTRACTOR)) {
+        if (isAppRoute(request) || isOnboardingRoute(request)) {
+          requestLogger.warn({ userId }, "CLIENT user attempted to access contractor route, redirecting");
+          return NextResponse.redirect(new URL("/client-portal", request.url));
+        }
+      }
+
+      // Ochrona client-portal: blokuj nie-klientów
+      if (isClientPortalRoute(request) && !roles.includes(Role.CLIENT)) {
+        const destination = roles.includes(Role.CONTRACTOR)
+          ? onboardingComplete
+            ? "/app/dashboard"
+            : "/onboarding"
+          : "/";
+        requestLogger.warn({ userId }, "Non-CLIENT user attempted to access client portal, redirecting");
+        return NextResponse.redirect(new URL(destination, request.url));
       }
     }
   }

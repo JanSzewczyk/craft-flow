@@ -1,9 +1,9 @@
 import { cache } from "react";
 
-import { type LucideIcon, CheckCircleIcon, FolderOpenIcon, HardHatIcon } from "lucide-react";
+import { type LucideIcon, CheckCircleIcon, FolderOpenIcon } from "lucide-react";
 
 import { type PlanId } from "~/features/billing/constants";
-import { detectClerkPlan, getPlanById, getPlanFeatures } from "~/features/billing/server";
+import { detectClerkPlan, getBillingPeriodStart, getPlanById, getPlanFeatures } from "~/features/billing/server";
 import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
 import { type ContractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import {
@@ -12,6 +12,7 @@ import {
   getCachedRecentActivity,
   type RecentActivityItem
 } from "~/features/contractor/server/db/dashboard";
+import { getProjectCountCreatedSince } from "~/features/projects/server/db";
 import { createLogger } from "~/lib/logger";
 import { type SupabaseServiceResult } from "~/lib/supabase/errors";
 
@@ -49,9 +50,11 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
     return [profileError, null];
   }
 
-  const [planId, activeProjectsResult, recentActivityResult] = await Promise.all([
+  const periodStart = await getBillingPeriodStart(userId);
+
+  const [planId, projectsCountResult, recentActivityResult] = await Promise.all([
     detectClerkPlan(),
-    getCachedActiveProjectsCount({ contractorId: userId }),
+    getProjectCountCreatedSince({ contractorId: userId, since: periodStart }),
     getCachedRecentActivity({ contractorId: userId })
   ]);
 
@@ -60,11 +63,11 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
     limitations: { projectsPerMonth: projectLimit }
   } = await getPlanFeatures();
 
-  const [activeProjectsError, activeProjectsCount] = activeProjectsResult;
-  if (activeProjectsError) {
+  const [projectsCountError, projectsCount] = projectsCountResult;
+  if (projectsCountError) {
     logger.warn(
-      { userId, errorCode: activeProjectsError.code, isRetryable: activeProjectsError.isRetryable },
-      "Failed to get active projects count, using default"
+      { userId, errorCode: projectsCountError.code, isRetryable: projectsCountError.isRetryable },
+      "Failed to get projects count, using default"
     );
   }
 
@@ -83,7 +86,7 @@ async function _getDashboardData(userId: string): Promise<SupabaseServiceResult<
       planLimit: {
         planId,
         planName: plan?.name ?? "Brak planu",
-        activeProjectsCount: activeProjectsCount ?? 0,
+        activeProjectsCount: projectsCount ?? 0,
         projectLimit
       },
       recentActivity: recentActivity ?? []
@@ -99,33 +102,25 @@ async function _getDashboardKpiCards(userId: string): Promise<SupabaseServiceRes
     getCachedCompletedProjectsThisMonth({ contractorId: userId })
   ]);
 
-  const {
-    limitations: { projectsPerMonth: projectLimit }
-  } = await getPlanFeatures();
   const [, activeProjectsCount] = activeProjectsResult;
   const [, completedThisMonth] = completedThisMonthResult;
-
-  const active = activeProjectsCount ?? 0;
-  const completed = completedThisMonth ?? 0;
-  const isNearLimit = projectLimit !== null && active / projectLimit >= 0.8;
 
   return [
     null,
     [
-      { id: "active-projects", title: "Aktywne projekty", value: active, variant: "default", icon: FolderOpenIcon },
+      {
+        id: "active-projects",
+        title: "Aktywne projekty",
+        value: activeProjectsCount ?? 0,
+        variant: "default",
+        icon: FolderOpenIcon
+      },
       {
         id: "completed-this-month",
         title: "Ukończone w tym miesiącu",
-        value: completed,
+        value: completedThisMonth ?? 0,
         variant: "default",
         icon: CheckCircleIcon
-      },
-      {
-        id: "project-limit",
-        title: "Limit projektów",
-        value: projectLimit === null ? "\u221E" : `${active}/${projectLimit}`,
-        variant: isNearLimit ? "warning" : "default",
-        icon: HardHatIcon
       }
     ]
   ];

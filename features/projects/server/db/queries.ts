@@ -243,7 +243,8 @@ export async function getProjectCountCreatedSince({
         and(
           eq(projects.contractorId, contractorId),
           gte(projects.createdAt, since),
-          ne(projects.status, ProjectStatus.DELETED)
+          ne(projects.status, ProjectStatus.DELETED),
+          ne(projects.status, ProjectStatus.DRAFT)
         )
       );
 

@@ -205,3 +205,20 @@ export async function getOptionalClientByContractorIdAndEmail({
     return [serviceError, null];
   }
 }
+
+export async function getClientsByClerkUserId({
+  clerkUserId,
+  dbClient = db
+}: {
+  clerkUserId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Array<Client>>> {
+  try {
+    const rows = await dbClient.select().from(clients).where(eq(clients.clerkUserId, clerkUserId));
+    return [null, rows];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Client");
+    logger.error({ clerkUserId, errorCode: serviceError.code }, "Failed to get clients by clerkUserId");
+    return [serviceError, null];
+  }
+}

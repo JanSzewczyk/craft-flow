@@ -11,6 +11,7 @@ import {
 } from "~/features/crm/server/db/mutations";
 import {
   getClientById,
+  getClientsByClerkUserId,
   getClientListByContractorId,
   type ClientListOptions,
   type ClientListResult
@@ -177,6 +178,19 @@ export async function updateClient({
   logger.info({ contractorId, clientId }, "Client updated successfully");
   return [null, updated];
 }
+
+export const getClientsForClerkUser = React.cache(async function (
+  clerkUserId: string
+): Promise<SupabaseServiceResult<Array<Client>>> {
+  const [err, clientRecords] = await getClientsByClerkUserId({ clerkUserId });
+  if (err) {
+    logger.error({ clerkUserId, errorCode: err.code }, "Failed to fetch client records by clerkUserId");
+    return [err, null];
+  }
+
+  logger.info({ clerkUserId, count: clientRecords.length }, "Fetched client records by clerkUserId");
+  return [null, clientRecords];
+});
 
 export async function deleteClient({
   contractorId,

@@ -10,7 +10,11 @@ import { getBillingPeriodStart, getPlanFeatures } from "~/features/billing/serve
 import { getContractorBrandingEnabled } from "~/features/billing/server/api/get-contractor-branding-enabled";
 import { getContractorProfile } from "~/features/contractor/server/db/contractor-profile/queries";
 import { getOptionalClientByContractorIdAndEmail } from "~/features/crm/server/db/queries";
-import { createClient, getContractorClient } from "~/features/crm/server/services/clients.service";
+import {
+  createClient,
+  getClientsForClerkUser,
+  getContractorClient
+} from "~/features/crm/server/services/clients.service";
 import { type ProjectFormData } from "~/features/projects/schemas/project-schema";
 import {
   updateProject,
@@ -20,11 +24,15 @@ import {
   updateProjectLastClientViewAt
 } from "~/features/projects/server/db/mutations";
 import {
+  getProjectListByClientIds,
   getProjectById,
   getProjectByPublicToken,
   getProjectCountStartedSince,
-  getProjectLastClientViewAt
+  getProjectLastClientViewAt,
+  type ClientProjectListItem
 } from "~/features/projects/server/db/queries";
+
+export type { ClientProjectListItem };
 import { ProjectStatus, type Project, type ProjectRow } from "~/features/projects/server/db/schema";
 import { canActivateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
@@ -422,6 +430,49 @@ export async function softDeleteProject({
 
   logger.info({ contractorId, projectId }, "Project soft-deleted");
   return [null, undefined];
+}
+
+export async function getClientProjects({
+  userId,
+  statuses
+}: {
+  userId: string;
+  statuses: Array<ProjectStatus>;
+}): Promise<ServiceResult<Array<ClientProjectListItem>>> {
+  logger.info({ userId, statuses }, "Loading client portal projects");
+
+  const [roleErr] = await requireRole(userId, [Role.CLIENT]);
+  if (roleErr) {
+    logger.warn({ userId, operation: "getClientProjects", errorCode: roleErr.code }, "Role check failed");
+    return [roleErr, null];
+  }
+
+  const [clientsErr, clientRecords] = await getClientsForClerkUser(userId);
+  if (clientsErr) {
+    logger.error(
+      { userId, operation: "getClientProjects", errorCode: clientsErr.code },
+      "Failed to fetch client records"
+    );
+    return [clientsErr, null];
+  }
+
+  if (clientRecords.length === 0) {
+    logger.info({ userId }, "No client records found — returning empty project list");
+    return [null, []];
+  }
+
+  const clientIds = clientRecords.map((c) => c.id);
+  const [err, projects] = await getProjectListByClientIds({ clientIds, statuses });
+  if (err) {
+    logger.error({ userId, operation: "getClientProjects", errorCode: err.code }, "Failed to load projects");
+    return [err, null];
+  }
+
+  logger.info(
+    { userId, clientCount: clientRecords.length, projectCount: projects.length },
+    "Successfully loaded client portal projects"
+  );
+  return [null, projects];
 }
 
 export async function isProjectActivationAtLimit(contractorId: string): Promise<boolean> {

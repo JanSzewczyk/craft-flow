@@ -1,11 +1,10 @@
 import * as React from "react";
 
 import { auth } from "@clerk/nextjs/server";
-import { Header } from "@szum-tech/design-system";
+import { SidebarInset, SidebarProvider } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
-import { ThemeToggle } from "~/components/ui/theme-toggle";
 import { Role } from "~/features/auth/constants/roles";
-import { BrandLogo } from "~/features/marketing/components/brand-logo";
+import { ClientHeader, ClientSidebar } from "~/features/crm/components";
 import { createLogger } from "~/lib/logger";
 
 const logger = createLogger({ module: "client-layout" });
@@ -27,18 +26,16 @@ async function loadData() {
   logger.info({ userId }, "Client portal layout auth guard passed");
 }
 
-export default async function ClientPortalLayout({ children }: { children: React.ReactNode }) {
+export default async function ClientPortalLayout({ children }: LayoutProps<"/client">) {
   await loadData();
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header>
-        <div className="flex w-full items-center justify-between">
-          <BrandLogo />
-          <ThemeToggle />
-        </div>
-      </Header>
-      <div className="container my-8">{children}</div>
-    </div>
+    <SidebarProvider>
+      <ClientSidebar />
+      <SidebarInset>
+        <ClientHeader />
+        <div className="container-7xl w-full flex-1 p-4 md:p-6">{children}</div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

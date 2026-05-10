@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { InfoIcon } from "lucide-react";
 import { type Metadata } from "next";
 
 import { auth } from "@clerk/nextjs/server";
@@ -17,29 +16,32 @@ import { ProjectStatus } from "~/features/projects/server/db/schema";
 import { getClientProjects } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 
-export const metadata: Metadata = { title: "Moje projekty" };
+export const metadata: Metadata = { title: "Historia projektów" };
 
-const logger = createLogger({ module: "client-page" });
+const logger = createLogger({ module: "client-history-page" });
 
 async function loadData() {
   const { isAuthenticated, userId } = await auth();
 
-  if (!isAuthenticated || !userId) {
+  if (!isAuthenticated) {
     logger.error("User not authenticated");
     redirect("/sign-in");
   }
 
-  const [projErr, projects] = await getClientProjects({ userId, statuses: [ProjectStatus.ACTIVE] });
+  const [projErr, projects] = await getClientProjects({
+    userId,
+    statuses: [ProjectStatus.COMPLETED, ProjectStatus.ARCHIVED]
+  });
   if (projErr) {
-    logger.error({ userId, errorCode: projErr.code }, "Failed to load active projects");
+    logger.error({ userId, errorCode: projErr.code }, "Failed to load history projects");
     throw projErr;
   }
 
-  logger.info({ userId, projectCount: projects.length }, "Successfully loaded active projects");
+  logger.info({ userId, projectCount: projects.length }, "Successfully loaded history projects");
   return { projects };
 }
 
-export default async function ClientPortalPage() {
+export default async function ClientHistoryPage() {
   const { projects } = await loadData();
 
   return (
@@ -52,11 +54,11 @@ export default async function ClientPortalPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Moje Projekty</BreadcrumbPage>
+              <BreadcrumbPage>Historia projektów</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <h1 className="text-heading-h1">Moje Projekty</h1>
+        <h1 className="text-heading-h1">Historia projektów</h1>
       </div>
 
       <ClientProjectsNav />
@@ -68,16 +70,8 @@ export default async function ClientPortalPage() {
           ))}
         </div>
       ) : (
-        <ClientProjectsEmptyState context="active" />
+        <ClientProjectsEmptyState context="history" />
       )}
-
-      <div className="border-border flex items-start gap-3 border-t pt-6">
-        <InfoIcon className="text-muted-foreground mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        <p className="text-body-sm text-muted-foreground">
-          Nowe projekty mogą być inicjowane wyłącznie przez wykonawców. Skontaktuj się bezpośrednio ze swoim fachowcem,
-          aby założyć nową realizację w systemie CraftFlow.
-        </p>
-      </div>
     </div>
   );
 }

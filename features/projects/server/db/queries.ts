@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql } from "drizzle-orm";
 
+import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { clients } from "~/features/crm/server/db/schema";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 import { createLogger } from "~/lib/logger";
@@ -297,6 +298,64 @@ export const getProjectByPublicToken = React.cache(async function ({
     return [serviceError, null];
   }
 });
+
+export type ClientProjectListItem = {
+  id: string;
+  name: string;
+  status: string;
+  contractorCompanyName: string;
+  totalSteps: number;
+  completedSteps: number;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  updatedAt: Date;
+};
+
+export async function getProjectListByClientIds({
+  clientIds,
+  statuses,
+  dbClient = db
+}: {
+  clientIds: Array<string>;
+  statuses: Array<ProjectStatus>;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<Array<ClientProjectListItem>>> {
+  try {
+    const stepCountSubquery = dbClient
+      .select({
+        projectId: projectSteps.projectId,
+        totalSteps: count().as("total_steps"),
+        completedSteps: sql<number>`count(*) filter (where ${projectSteps.isCompleted} = true)`.as("completed_steps")
+      })
+      .from(projectSteps)
+      .groupBy(projectSteps.projectId)
+      .as("step_counts");
+
+    const rows = await dbClient
+      .select({
+        id: projects.id,
+        name: projects.name,
+        status: projects.status,
+        contractorCompanyName: contractorProfile.companyName,
+        totalSteps: sql<number>`coalesce(${stepCountSubquery.totalSteps}, 0)`,
+        completedSteps: sql<number>`coalesce(${stepCountSubquery.completedSteps}, 0)`,
+        startedAt: projects.startedAt,
+        completedAt: projects.completedAt,
+        updatedAt: projects.updatedAt
+      })
+      .from(projects)
+      .innerJoin(contractorProfile, eq(projects.contractorId, contractorProfile.id))
+      .leftJoin(stepCountSubquery, eq(projects.id, stepCountSubquery.projectId))
+      .where(and(inArray(projects.clientId, clientIds), inArray(projects.status, statuses)))
+      .orderBy(desc(projects.updatedAt));
+
+    return [null, rows];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Project");
+    logger.error({ clientIds, errorCode: serviceError.code }, "Failed to get project list by client ids");
+    return [serviceError, null];
+  }
+}
 
 export async function getProjectLastClientViewAt({
   projectId,

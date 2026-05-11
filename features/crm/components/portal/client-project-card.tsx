@@ -14,7 +14,6 @@ const STATUS_ACCENT: Record<string, string> = {
   [ProjectStatus.ACTIVE]: "border-l-primary",
   [ProjectStatus.COMPLETED]: "border-l-success",
   [ProjectStatus.ARCHIVED]: "border-l-border",
-  [ProjectStatus.DRAFT]: "border-l-muted-foreground/40",
   [ProjectStatus.DELETED]: "border-l-error"
 };
 

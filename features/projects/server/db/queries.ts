@@ -5,6 +5,7 @@ import { and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql } from "dri
 import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { clients } from "~/features/crm/server/db/schema";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
+import { addresses } from "~/features/shared/server/db/schema";
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
@@ -355,6 +356,210 @@ export async function getProjectListByClientIds({
   } catch (error) {
     const serviceError = categorizeSupabaseError(error, "Project");
     logger.error({ clientIds, errorCode: serviceError.code }, "Failed to get project list by client ids");
+    return [serviceError, null];
+  }
+}
+
+export type ClientContractorAddress = {
+  street: string;
+  postalCode: string;
+  city: string;
+  country: string;
+  additionalInfo: string | null;
+};
+
+export type ClientContractorListItem = {
+  id: string;
+  companyName: string;
+  industry: string;
+  email: string;
+  phone: string | null;
+  logoUrl: string | null;
+  brandColor: string | null;
+  projectCount: number;
+  activeProjectCount: number;
+  address: ClientContractorAddress | null;
+};
+
+export type ContractorListOptions = {
+  search: string;
+  page: number;
+  perPage: number;
+};
+
+export type ContractorListResult = {
+  items: Array<ClientContractorListItem>;
+  pagination: PaginationMeta;
+};
+
+function buildContractorListItem(row: {
+  id: string;
+  companyName: string;
+  industry: string;
+  email: string;
+  phone: string | null;
+  logoUrl: string | null;
+  brandColor: string | null;
+  projectCount: number;
+  activeProjectCount: number;
+  addressStreet: string | null;
+  addressPostalCode: string | null;
+  addressCity: string | null;
+  addressCountry: string | null;
+  addressAdditionalInfo: string | null;
+}): ClientContractorListItem {
+  return {
+    id: row.id,
+    companyName: row.companyName,
+    industry: row.industry,
+    email: row.email,
+    phone: row.phone,
+    logoUrl: row.logoUrl,
+    brandColor: row.brandColor,
+    projectCount: row.projectCount,
+    activeProjectCount: row.activeProjectCount,
+    address: row.addressStreet
+      ? {
+          street: row.addressStreet,
+          postalCode: row.addressPostalCode!,
+          city: row.addressCity!,
+          country: row.addressCountry!,
+          additionalInfo: row.addressAdditionalInfo ?? null
+        }
+      : null
+  };
+}
+
+const CONTRACTOR_SELECT = (dbClient: DbClient) => ({
+  id: contractorProfile.id,
+  companyName: contractorProfile.companyName,
+  industry: contractorProfile.industry,
+  email: contractorProfile.email,
+  phone: contractorProfile.phone,
+  logoUrl: contractorProfile.logoUrl,
+  brandColor: contractorProfile.brandColor,
+  projectCount: sql<number>`cast(count(${projects.id}) as int)`,
+  activeProjectCount: sql<number>`cast(count(${projects.id}) filter (where ${projects.status} = ${ProjectStatus.ACTIVE}) as int)`,
+  addressStreet: addresses.street,
+  addressPostalCode: addresses.postalCode,
+  addressCity: addresses.city,
+  addressCountry: addresses.country,
+  addressAdditionalInfo: addresses.additionalInfo
+});
+
+const CONTRACTOR_GROUP_BY = [
+  contractorProfile.id,
+  contractorProfile.companyName,
+  contractorProfile.industry,
+  contractorProfile.email,
+  contractorProfile.phone,
+  contractorProfile.logoUrl,
+  contractorProfile.brandColor,
+  addresses.street,
+  addresses.postalCode,
+  addresses.city,
+  addresses.country,
+  addresses.additionalInfo
+] as const;
+
+export async function getContractorListByClientIds({
+  clientIds,
+  options,
+  dbClient = db
+}: {
+  clientIds: Array<string>;
+  options: ContractorListOptions;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ContractorListResult>> {
+  try {
+    const { search, page, perPage } = options;
+    const offset = (page - 1) * perPage;
+
+    const baseConditions = [inArray(projects.clientId, clientIds), ne(projects.status, ProjectStatus.DELETED)];
+    if (search) {
+      baseConditions.push(ilike(contractorProfile.companyName, `%${search}%`));
+    }
+    const whereClause = and(...baseConditions)!;
+
+    const [rows, countResult] = await Promise.all([
+      dbClient
+        .select(CONTRACTOR_SELECT(dbClient))
+        .from(projects)
+        .innerJoin(contractorProfile, eq(projects.contractorId, contractorProfile.id))
+        .leftJoin(addresses, eq(contractorProfile.addressId, addresses.id))
+        .where(whereClause)
+        .groupBy(...CONTRACTOR_GROUP_BY)
+        .orderBy(asc(contractorProfile.companyName))
+        .limit(perPage)
+        .offset(offset),
+      dbClient
+        .select({ value: sql<number>`cast(count(distinct ${contractorProfile.id}) as int)` })
+        .from(projects)
+        .innerJoin(contractorProfile, eq(projects.contractorId, contractorProfile.id))
+        .where(whereClause)
+    ]);
+
+    const totalCount = countResult[0]?.value ?? 0;
+    const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
+
+    return [
+      null,
+      {
+        items: rows.map(buildContractorListItem),
+        pagination: {
+          totalCount,
+          totalPages,
+          currentPage: page,
+          perPage,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        }
+      }
+    ];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Contractor");
+    logger.error({ clientIds, errorCode: serviceError.code }, "Failed to get contractor list by client ids");
+    return [serviceError, null];
+  }
+}
+
+export async function getContractorByClientIdsAndContractorId({
+  clientIds,
+  contractorId,
+  dbClient = db
+}: {
+  clientIds: Array<string>;
+  contractorId: string;
+  dbClient?: DbClient;
+}): Promise<SupabaseServiceResult<ClientContractorListItem>> {
+  try {
+    const [row] = await dbClient
+      .select(CONTRACTOR_SELECT(dbClient))
+      .from(projects)
+      .innerJoin(contractorProfile, eq(projects.contractorId, contractorProfile.id))
+      .leftJoin(addresses, eq(contractorProfile.addressId, addresses.id))
+      .where(
+        and(
+          inArray(projects.clientId, clientIds),
+          eq(projects.contractorId, contractorId),
+          ne(projects.status, ProjectStatus.DELETED)
+        )
+      )
+      .groupBy(...CONTRACTOR_GROUP_BY);
+
+    if (!row) {
+      const error = SupabaseServiceError.notFound("Contractor");
+      logger.error({ contractorId, errorCode: error.code }, "Contractor not found for client");
+      return [error, null];
+    }
+
+    return [null, buildContractorListItem(row)];
+  } catch (error) {
+    const serviceError = categorizeSupabaseError(error, "Contractor");
+    logger.error(
+      { contractorId, errorCode: serviceError.code },
+      "Failed to get contractor by client ids and contractor id"
+    );
     return [serviceError, null];
   }
 }

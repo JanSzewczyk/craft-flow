@@ -43,7 +43,7 @@ export default async function ClientPortalPage() {
   const { projects } = await loadData();
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-1 flex-col space-y-6">
       <div>
         <Breadcrumb className="mb-2">
           <BreadcrumbList>
@@ -61,15 +61,17 @@ export default async function ClientPortalPage() {
 
       <ClientProjectsNav />
 
-      {projects.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ClientProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-      ) : (
-        <ClientProjectsEmptyState context="active" />
-      )}
+      <div className="flex-1">
+        {projects.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {projects.map((project) => (
+              <ClientProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        ) : (
+          <ClientProjectsEmptyState context="active" />
+        )}
+      </div>
 
       <div className="border-border flex items-start gap-3 border-t pt-6">
         <InfoIcon className="text-muted-foreground mt-0.5 size-4 shrink-0" aria-hidden="true" />

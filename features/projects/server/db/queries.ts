@@ -302,13 +302,14 @@ export const getProjectByPublicToken = React.cache(async function ({
 export type ClientProjectListItem = {
   id: string;
   name: string;
-  status: string;
+  status: ProjectStatus;
   contractorCompanyName: string;
   totalSteps: number;
   completedSteps: number;
   startedAt: Date | null;
   completedAt: Date | null;
   updatedAt: Date;
+  createdAt: Date;
 };
 
 export async function getProjectListByClientIds({
@@ -341,7 +342,8 @@ export async function getProjectListByClientIds({
         completedSteps: sql<number>`coalesce(${stepCountSubquery.completedSteps}, 0)`,
         startedAt: projects.startedAt,
         completedAt: projects.completedAt,
-        updatedAt: projects.updatedAt
+        updatedAt: projects.updatedAt,
+        createdAt: projects.createdAt
       })
       .from(projects)
       .innerJoin(contractorProfile, eq(projects.contractorId, contractorProfile.id))

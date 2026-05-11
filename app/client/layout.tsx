@@ -34,7 +34,7 @@ export default async function ClientPortalLayout({ children }: LayoutProps<"/cli
       <ClientSidebar />
       <SidebarInset>
         <ClientHeader />
-        <div className="container-7xl w-full flex-1 p-4 md:p-6">{children}</div>
+        <div className="container flex w-full flex-1 flex-col p-4 md:p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

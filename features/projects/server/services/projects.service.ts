@@ -29,10 +29,13 @@ import {
   getProjectByPublicToken,
   getProjectCountStartedSince,
   getProjectLastClientViewAt,
-  type ClientProjectListItem
+  getContractorListByClientIds,
+  getContractorByClientIdsAndContractorId,
+  type ClientProjectListItem,
+  type ClientContractorListItem,
+  type ContractorListOptions,
+  type ContractorListResult
 } from "~/features/projects/server/db/queries";
-
-export type { ClientProjectListItem };
 import { ProjectStatus, type Project, type ProjectRow } from "~/features/projects/server/db/schema";
 import { canActivateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
@@ -41,6 +44,8 @@ import { createLogger } from "~/lib/logger";
 import { type ServiceResult } from "~/lib/services/errors";
 import { withTransaction } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
+
+export type { ClientProjectListItem, ClientContractorListItem, ContractorListOptions, ContractorListResult };
 
 export type PublicProjectView = {
   id: string;
@@ -473,6 +478,102 @@ export async function getClientProjects({
     "Successfully loaded client portal projects"
   );
   return [null, projects];
+}
+
+export async function getClientContractorsList({
+  userId,
+  options
+}: {
+  userId: string;
+  options: ContractorListOptions;
+}): Promise<ServiceResult<ContractorListResult>> {
+  logger.info({ userId, ...options }, "Loading client portal contractors");
+
+  const [roleErr] = await requireRole(userId, [Role.CLIENT]);
+  if (roleErr) {
+    logger.warn({ userId, operation: "getClientContractorsList", errorCode: roleErr.code }, "Role check failed");
+    return [roleErr, null];
+  }
+
+  const [clientsErr, clientRecords] = await getClientsForClerkUser(userId);
+  if (clientsErr) {
+    logger.error(
+      { userId, operation: "getClientContractorsList", errorCode: clientsErr.code },
+      "Failed to fetch client records"
+    );
+    return [clientsErr, null];
+  }
+
+  if (clientRecords.length === 0) {
+    logger.info({ userId }, "No client records found — returning empty contractor list");
+    return [
+      null,
+      {
+        items: [],
+        pagination: {
+          totalCount: 0,
+          totalPages: 1,
+          currentPage: options.page,
+          perPage: options.perPage,
+          hasNextPage: false,
+          hasPrevPage: false
+        }
+      }
+    ];
+  }
+
+  const clientIds = clientRecords.map((c) => c.id);
+  const [err, contractors] = await getContractorListByClientIds({ clientIds, options });
+  if (err) {
+    logger.error({ userId, operation: "getClientContractorsList", errorCode: err.code }, "Failed to load contractors");
+    return [err, null];
+  }
+
+  logger.info({ userId, contractorCount: contractors.items.length }, "Successfully loaded client portal contractors");
+  return [null, contractors];
+}
+
+export async function getClientContractor({
+  userId,
+  contractorId
+}: {
+  userId: string;
+  contractorId: string;
+}): Promise<ServiceResult<ClientContractorListItem>> {
+  logger.info({ userId, contractorId }, "Loading client portal contractor detail");
+
+  const [roleErr] = await requireRole(userId, [Role.CLIENT]);
+  if (roleErr) {
+    logger.warn({ userId, operation: "getClientContractor", errorCode: roleErr.code }, "Role check failed");
+    return [roleErr, null];
+  }
+
+  const [clientsErr, clientRecords] = await getClientsForClerkUser(userId);
+  if (clientsErr) {
+    logger.error(
+      { userId, operation: "getClientContractor", errorCode: clientsErr.code },
+      "Failed to fetch client records"
+    );
+    return [clientsErr, null];
+  }
+
+  if (clientRecords.length === 0) {
+    logger.info({ userId, contractorId }, "No client records found — contractor not accessible");
+    return [SupabaseServiceError.notFound("Contractor"), null];
+  }
+
+  const clientIds = clientRecords.map((c) => c.id);
+  const [err, contractor] = await getContractorByClientIdsAndContractorId({ clientIds, contractorId });
+  if (err) {
+    logger.error(
+      { userId, contractorId, operation: "getClientContractor", errorCode: err.code },
+      "Failed to load contractor detail"
+    );
+    return [err, null];
+  }
+
+  logger.info({ userId, contractorId }, "Successfully loaded client portal contractor detail");
+  return [null, contractor];
 }
 
 export async function isProjectActivationAtLimit(contractorId: string): Promise<boolean> {

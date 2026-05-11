@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderIcon, HistoryIcon, LogOutIcon } from "lucide-react";
+import { FolderIcon, HardHatIcon, HistoryIcon, LogOutIcon } from "lucide-react";
 
 import { useClerk } from "@clerk/nextjs";
 import {
@@ -22,7 +22,8 @@ import { ThemeToggle } from "~/components/ui/theme-toggle";
 
 const NAV_ITEMS = [
   { label: "Moje Projekty", href: "/client", icon: FolderIcon },
-  { label: "Historia", href: "/client/history", icon: HistoryIcon }
+  { label: "Historia", href: "/client/history", icon: HistoryIcon },
+  { label: "Wykonawcy", href: "/client/contractors", icon: HardHatIcon }
 ] as const;
 
 export function ClientSidebar() {
@@ -53,7 +54,15 @@ export function ClientSidebar() {
             <SidebarMenu>
               {NAV_ITEMS.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={
+                      item.href === "/client"
+                        ? pathname === "/client"
+                        : pathname === item.href || pathname.startsWith(item.href + "/")
+                    }
+                    tooltip={item.label}
+                  >
                     <Link href={item.href}>
                       <item.icon className="size-4" aria-hidden="true" />
                       <span>{item.label}</span>

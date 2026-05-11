@@ -11,3 +11,7 @@ export { ClientSidebar } from "./portal/layout/client-sidebar";
 export { ClientProjectCard } from "./portal/client-project-card";
 export { ClientProjectsEmptyState } from "./portal/client-projects-empty-state";
 export { ClientProjectsNav } from "./portal/client-projects-nav";
+export { ContractorDetailsContent } from "./portal/contractor-details-content";
+export { ContractorDetailsSheet } from "./portal/contractor-details-sheet";
+export { ContractorsDataTable } from "./portal/contractors-data-table/contractors-data-table";
+export { ContractorsEmptyState } from "./portal/contractors-empty-state";

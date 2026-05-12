@@ -13,7 +13,7 @@ import {
   TableRow
 } from "@szum-tech/design-system";
 import Link from "next/link";
-import { type ClientContractorListItem } from "~/features/projects/server/services/projects.service";
+import { type ClientContractorListItem } from "~/features/projects/types/contractor";
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);

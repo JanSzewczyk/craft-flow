@@ -11,7 +11,7 @@ import {
   ItemTitle,
   Separator
 } from "@szum-tech/design-system";
-import { type ClientContractorListItem } from "~/features/projects/server/services/projects.service";
+import { type ClientContractorListItem } from "~/features/projects/types/contractor";
 
 type ContractorDetailsContentProps = {
   contractor: ClientContractorListItem;

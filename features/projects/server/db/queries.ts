@@ -4,6 +4,7 @@ import { and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql } from "dri
 
 import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { clients } from "~/features/crm/server/db/schema";
+import { type ClientContractorAddress, type ClientContractorListItem } from "~/features/projects/types/contractor";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
 import { addresses } from "~/features/shared/server/db/schema";
 import { createLogger } from "~/lib/logger";
@@ -360,26 +361,7 @@ export async function getProjectListByClientIds({
   }
 }
 
-export type ClientContractorAddress = {
-  street: string;
-  postalCode: string;
-  city: string;
-  country: string;
-  additionalInfo: string | null;
-};
-
-export type ClientContractorListItem = {
-  id: string;
-  companyName: string;
-  industry: string;
-  email: string;
-  phone: string | null;
-  logoUrl: string | null;
-  brandColor: string | null;
-  projectCount: number;
-  activeProjectCount: number;
-  address: ClientContractorAddress | null;
-};
+export type { ClientContractorAddress, ClientContractorListItem };
 
 export type ContractorListOptions = {
   search: string;

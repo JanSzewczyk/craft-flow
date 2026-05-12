@@ -32,13 +32,13 @@ import {
   getContractorListByClientIds,
   getContractorByClientIdsAndContractorId,
   type ClientProjectListItem,
-  type ClientContractorListItem,
   type ContractorListOptions,
   type ContractorListResult
 } from "~/features/projects/server/db/queries";
 import { ProjectStatus, type Project, type ProjectRow } from "~/features/projects/server/db/schema";
 import { canActivateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
+import { type ClientContractorListItem } from "~/features/projects/types/contractor";
 import { getTemplateById } from "~/features/templates/server/db/queries";
 import { createLogger } from "~/lib/logger";
 import { type ServiceResult } from "~/lib/services/errors";

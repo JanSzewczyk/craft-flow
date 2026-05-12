@@ -45,13 +45,13 @@ export type Project = BuildQueryResult<TSchema, TSchema["projects"], { with: { c
 export type ProjectStep = typeof projectSteps.$inferSelect;
 
 export type ProjectStatus = (typeof projectStatusEnum.enumValues)[number];
-export const ProjectStatus = {
+export const ProjectStatus: Record<ProjectStatus, ProjectStatus> = {
   DRAFT: "DRAFT",
   ACTIVE: "ACTIVE",
   COMPLETED: "COMPLETED",
   ARCHIVED: "ARCHIVED",
   DELETED: "DELETED"
-} as const satisfies Record<ProjectStatus, ProjectStatus>;
+} as const;
 
 export const ProjectStatuses = projectStatusEnum.enumValues;
 

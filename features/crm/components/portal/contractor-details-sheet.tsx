@@ -4,8 +4,8 @@ import * as React from "react";
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@szum-tech/design-system";
 import { useRouter } from "next/navigation";
-import { ContractorDetailsContent } from "~/features/crm/components";
-import { type ClientContractorListItem } from "~/features/projects/server/services/projects.service";
+import { ContractorDetailsContent } from "~/features/crm/components/portal/contractor-details-content";
+import { type ClientContractorListItem } from "~/features/projects/types/contractor";
 
 type ContractorDetailsSheetProps = {
   contractor: ClientContractorListItem;

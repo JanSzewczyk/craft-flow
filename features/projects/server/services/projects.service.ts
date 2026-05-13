@@ -32,6 +32,8 @@ import {
   getContractorListByClientIds,
   getContractorByClientIdsAndContractorId,
   type ClientProjectListItem,
+  type ClientProjectDetail,
+  type ClientProjectStep,
   type ContractorListOptions,
   type ContractorListResult
 } from "~/features/projects/server/db/queries";
@@ -45,7 +47,14 @@ import { type ServiceResult } from "~/lib/services/errors";
 import { withTransaction } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-export type { ClientProjectListItem, ClientContractorListItem, ContractorListOptions, ContractorListResult };
+export type {
+  ClientProjectListItem,
+  ClientProjectDetail,
+  ClientProjectStep,
+  ClientContractorListItem,
+  ContractorListOptions,
+  ContractorListResult
+};
 
 export type PublicProjectView = {
   id: string;
@@ -574,6 +583,94 @@ export async function getClientContractor({
 
   logger.info({ userId, contractorId }, "Successfully loaded client portal contractor detail");
   return [null, contractor];
+}
+
+export async function getClientProject({
+  userId,
+  projectId
+}: {
+  userId: string;
+  projectId: string;
+}): Promise<ServiceResult<ClientProjectDetail>> {
+  logger.info({ userId, projectId }, "Loading client portal project detail");
+
+  const [roleErr] = await requireRole(userId, [Role.CLIENT]);
+  if (roleErr) {
+    logger.warn({ userId, operation: "getClientProject", errorCode: roleErr.code }, "Role check failed");
+    return [roleErr, null];
+  }
+
+  const [clientsErr, clientRecords] = await getClientsForClerkUser(userId);
+  if (clientsErr) {
+    logger.error(
+      { userId, operation: "getClientProject", errorCode: clientsErr.code },
+      "Failed to fetch client records"
+    );
+    return [clientsErr, null];
+  }
+
+  if (clientRecords.length === 0) {
+    logger.info({ userId, projectId }, "No client records found — project not accessible");
+    return [SupabaseServiceError.notFound("Project"), null];
+  }
+
+  const [projectErr, project] = await getProjectById({ projectId });
+  if (projectErr) {
+    logger.error({ userId, projectId, operation: "getClientProject", errorCode: projectErr.code }, "Project not found");
+    return [projectErr, null];
+  }
+
+  const clientIds = clientRecords.map((c) => c.id);
+  if (!clientIds.includes(project.clientId) || project.status === ProjectStatus.DELETED) {
+    const error = SupabaseServiceError.notFound("Project");
+    logger.warn({ userId, projectId, operation: "getClientProject" }, "Project not accessible for client");
+    return [error, null];
+  }
+
+  const [contractorErr, contractor] = await getContractorProfile({ contractorId: project.contractorId });
+  if (contractorErr) {
+    logger.error(
+      { userId, projectId, operation: "getClientProject", errorCode: contractorErr.code },
+      "Failed to load contractor profile"
+    );
+    return [contractorErr, null];
+  }
+
+  const steps: Array<ClientProjectStep> = [...project.steps]
+    .sort((a, b) => a.orderIndex - b.orderIndex)
+    .map((s) => ({
+      id: s.id,
+      title: s.title,
+      description: s.description ?? null,
+      isCompleted: s.isCompleted,
+      completedAt: s.completedAt ?? null,
+      orderIndex: s.orderIndex
+    }));
+
+  const totalSteps = steps.length;
+  const completedSteps = steps.filter((s) => s.isCompleted).length;
+
+  logger.info({ userId, projectId, totalSteps, completedSteps }, "Successfully loaded client portal project detail");
+  return [
+    null,
+    {
+      id: project.id,
+      name: project.name,
+      description: project.description ?? null,
+      status: project.status,
+      totalSteps,
+      completedSteps,
+      startedAt: project.startedAt ?? null,
+      completedAt: project.completedAt ?? null,
+      updatedAt: project.updatedAt,
+      createdAt: project.createdAt,
+      contractorCompanyName: contractor.companyName,
+      contractorEmail: contractor.email,
+      contractorPhone: contractor.phone ?? null,
+      contractorLogoUrl: contractor.logoUrl ?? null,
+      steps
+    }
+  ];
 }
 
 export async function isProjectActivationAtLimit(contractorId: string): Promise<boolean> {

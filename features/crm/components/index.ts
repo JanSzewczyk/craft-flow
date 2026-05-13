@@ -15,3 +15,4 @@ export { ContractorDetailsContent } from "./portal/contractor-details-content";
 export { ContractorDetailsSheet } from "./portal/contractor-details-sheet";
 export { ContractorsDataTable } from "./portal/contractors-data-table/contractors-data-table";
 export { ContractorsEmptyState } from "./portal/contractors-empty-state";
+export { ClientProjectTimeline } from "./portal/client-project-timeline";

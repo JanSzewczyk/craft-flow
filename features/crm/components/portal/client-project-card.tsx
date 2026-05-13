@@ -1,6 +1,7 @@
 import { BuildingIcon, CalendarIcon } from "lucide-react";
 
-import { Card, CardContent, Separator } from "@szum-tech/design-system";
+import { Button, Card, CardContent, Separator } from "@szum-tech/design-system";
+import Link from "next/link";
 import { ProjectProgressBar, ProjectStatusBadge } from "~/features/projects/components";
 import { ProjectStatus } from "~/features/projects/server/db/schema";
 import { type ClientProjectListItem } from "~/features/projects/server/services/projects.service";
@@ -28,7 +29,7 @@ export function ClientProjectCard({ project }: ClientProjectCardProps) {
 
   return (
     <Card className={`border-l-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${accentClass}`}>
-      <CardContent className="flex flex-col gap-4 pt-5">
+      <CardContent className="flex h-full flex-col gap-4 pt-5">
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-heading-h4 leading-snug">{project.name}</h3>
           <div className="shrink-0">
@@ -53,6 +54,10 @@ export function ClientProjectCard({ project }: ClientProjectCardProps) {
             </span>
           </div>
         ) : null}
+
+        <Button asChild variant="outline" size="sm" className="mt-auto">
+          <Link href={`/client/projects/${project.id}`}>Szczegóły</Link>
+        </Button>
       </CardContent>
     </Card>
   );

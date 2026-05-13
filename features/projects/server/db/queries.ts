@@ -572,3 +572,30 @@ export async function getProjectLastClientViewAt({
     return [serviceError, null];
   }
 }
+
+export type ClientProjectStep = {
+  id: string;
+  title: string;
+  description: string | null;
+  isCompleted: boolean;
+  completedAt: Date | null;
+  orderIndex: number;
+};
+
+export type ClientProjectDetail = {
+  id: string;
+  name: string;
+  description: string | null;
+  status: ProjectStatus;
+  totalSteps: number;
+  completedSteps: number;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  updatedAt: Date;
+  createdAt: Date;
+  contractorCompanyName: string;
+  contractorEmail: string;
+  contractorPhone: string | null;
+  contractorLogoUrl: string | null;
+  steps: Array<ClientProjectStep>;
+};

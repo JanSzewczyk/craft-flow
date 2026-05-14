@@ -1,8 +1,7 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import { ProjectStatus } from "~/features/projects/server/db/schema";
-import { type PublicProjectView } from "~/features/projects/server/services/projects.service";
+import { ProjectStatus, type PublicProjectView } from "~/features/projects/types/project";
 
 function buildStep(overrides: Partial<PublicProjectView["steps"][0]> = {}): PublicProjectView["steps"][0] {
   return {

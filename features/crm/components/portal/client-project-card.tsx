@@ -3,8 +3,7 @@ import { BuildingIcon, CalendarIcon } from "lucide-react";
 import { Button, Card, CardContent, Separator } from "@szum-tech/design-system";
 import Link from "next/link";
 import { ProjectProgressBar, ProjectStatusBadge } from "~/features/projects/components";
-import { ProjectStatus } from "~/features/projects/server/db/schema";
-import { type ClientProjectListItem } from "~/features/projects/server/services/projects.service";
+import { ProjectStatus, type ClientProjectListItem } from "~/features/projects/types/project";
 import { formatDate } from "~/utils/date";
 
 type ClientProjectCardProps = {

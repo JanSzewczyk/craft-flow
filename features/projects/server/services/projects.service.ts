@@ -30,17 +30,23 @@ import {
   getProjectCountStartedSince,
   getProjectLastClientViewAt,
   getContractorListByClientIds,
-  getContractorByClientIdsAndContractorId,
+  getContractorByClientIdsAndContractorId
+} from "~/features/projects/server/db/queries";
+import { type Project, type ProjectRow } from "~/features/projects/server/db/schema";
+import { canActivateProject } from "~/features/projects/server/permissions";
+import { emailService } from "~/features/projects/server/services/email.service";
+import {
+  type ClientContractorListItem,
+  type ContractorListOptions,
+  type ContractorListResult
+} from "~/features/projects/types/contractor";
+import {
+  ProjectStatus,
   type ClientProjectListItem,
   type ClientProjectDetail,
   type ClientProjectStep,
-  type ContractorListOptions,
-  type ContractorListResult
-} from "~/features/projects/server/db/queries";
-import { ProjectStatus, type Project, type ProjectRow } from "~/features/projects/server/db/schema";
-import { canActivateProject } from "~/features/projects/server/permissions";
-import { emailService } from "~/features/projects/server/services/email.service";
-import { type ClientContractorListItem } from "~/features/projects/types/contractor";
+  type PublicProjectView
+} from "~/features/projects/types/project";
 import { getTemplateById } from "~/features/templates/server/db/queries";
 import { createLogger } from "~/lib/logger";
 import { type ServiceResult } from "~/lib/services/errors";
@@ -51,35 +57,10 @@ export type {
   ClientProjectListItem,
   ClientProjectDetail,
   ClientProjectStep,
+  PublicProjectView,
   ClientContractorListItem,
   ContractorListOptions,
   ContractorListResult
-};
-
-export type PublicProjectView = {
-  id: string;
-  client: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  name: string;
-  status: Extract<ProjectStatus, "ACTIVE" | "COMPLETED">;
-  clientName: string;
-  steps: Array<{
-    id: string;
-    title: string;
-    description: string | null;
-    isCompleted: boolean;
-    completedAt: Date | null;
-    createdAt: Date;
-    orderIndex: number;
-  }>;
-  contractor: {
-    companyName: string;
-    brandColor: string | null;
-    logoUrl: string | null;
-  };
 };
 
 const logger = createLogger({ module: "project-service" });

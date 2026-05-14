@@ -4,15 +4,21 @@ import { and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql } from "dri
 
 import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { clients } from "~/features/crm/server/db/schema";
-import { type ClientContractorAddress, type ClientContractorListItem } from "~/features/projects/types/contractor";
+import {
+  type ClientContractorAddress,
+  type ClientContractorListItem,
+  type ContractorListOptions,
+  type ContractorListResult
+} from "~/features/projects/types/contractor";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
+import { ProjectStatus, type ClientProjectListItem } from "~/features/projects/types/project";
 import { addresses } from "~/features/shared/server/db/schema";
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { type PaginationMeta } from "~/types/pagination";
 
-import { projectSteps, projects, ProjectStatus, type ProjectStep, type Project, type ProjectRow } from "./schema";
+import { projectSteps, projects, type ProjectStep, type Project, type ProjectRow } from "./schema";
 
 const logger = createLogger({ module: "projects-db" });
 
@@ -301,19 +307,6 @@ export const getProjectByPublicToken = React.cache(async function ({
   }
 });
 
-export type ClientProjectListItem = {
-  id: string;
-  name: string;
-  status: ProjectStatus;
-  contractorCompanyName: string;
-  totalSteps: number;
-  completedSteps: number;
-  startedAt: Date | null;
-  completedAt: Date | null;
-  updatedAt: Date;
-  createdAt: Date;
-};
-
 export async function getProjectListByClientIds({
   clientIds,
   statuses,
@@ -360,19 +353,6 @@ export async function getProjectListByClientIds({
     return [serviceError, null];
   }
 }
-
-export type { ClientContractorAddress, ClientContractorListItem };
-
-export type ContractorListOptions = {
-  search: string;
-  page: number;
-  perPage: number;
-};
-
-export type ContractorListResult = {
-  items: Array<ClientContractorListItem>;
-  pagination: PaginationMeta;
-};
 
 function buildContractorListItem(row: {
   id: string;
@@ -572,30 +552,3 @@ export async function getProjectLastClientViewAt({
     return [serviceError, null];
   }
 }
-
-export type ClientProjectStep = {
-  id: string;
-  title: string;
-  description: string | null;
-  isCompleted: boolean;
-  completedAt: Date | null;
-  orderIndex: number;
-};
-
-export type ClientProjectDetail = {
-  id: string;
-  name: string;
-  description: string | null;
-  status: ProjectStatus;
-  totalSteps: number;
-  completedSteps: number;
-  startedAt: Date | null;
-  completedAt: Date | null;
-  updatedAt: Date;
-  createdAt: Date;
-  contractorCompanyName: string;
-  contractorEmail: string;
-  contractorPhone: string | null;
-  contractorLogoUrl: string | null;
-  steps: Array<ClientProjectStep>;
-};

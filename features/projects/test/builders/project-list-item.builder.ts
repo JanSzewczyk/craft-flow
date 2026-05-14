@@ -2,7 +2,7 @@ import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
 import { type ProjectListItem } from "~/features/projects/server/db";
-import { ProjectStatus } from "~/features/projects/server/db/schema";
+import { ProjectStatus } from "~/features/projects/types/project";
 
 export const projectListItemBuilder = build<ProjectListItem>({
   fields: {

@@ -14,7 +14,7 @@ import { notFound, redirect } from "next/navigation";
 import { ProjectDetailTabsNav, ProjectSidebar } from "~/features/projects/components";
 import { deleteProjectAction } from "~/features/projects/server/actions/delete-project.action";
 import { updateProjectStatusAction } from "~/features/projects/server/actions/update-project-status.action";
-import { ProjectStatus } from "~/features/projects/server/db";
+import { ProjectStatus } from "~/features/projects/types/project";
 import { getContractorProject, isProjectActivationAtLimit } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 

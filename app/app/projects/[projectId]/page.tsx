@@ -6,7 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@szum-tech/design-system";
 import { notFound, redirect } from "next/navigation";
 import { ProjectTimeline } from "~/features/projects/components";
 import { updateStepCompletionAction } from "~/features/projects/server/actions/update-project-step.action";
-import { ProjectStatus } from "~/features/projects/server/db";
+import { ProjectStatus } from "~/features/projects/types/project";
 import { getContractorProject, isProjectActivationAtLimit } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 

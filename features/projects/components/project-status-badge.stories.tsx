@@ -1,5 +1,5 @@
 import { expect } from "storybook/test";
-import { ProjectStatus } from "~/features/projects/server/db/schema";
+import { ProjectStatus } from "~/features/projects/types/project";
 
 import { ProjectStatusBadge } from "./project-status-badge";
 

@@ -1,3 +1,5 @@
+import { type PaginationMeta } from "~/types/pagination";
+
 export type ClientContractorAddress = {
   street: string;
   postalCode: string;
@@ -17,4 +19,15 @@ export type ClientContractorListItem = {
   projectCount: number;
   activeProjectCount: number;
   address: ClientContractorAddress | null;
+};
+
+export type ContractorListOptions = {
+  search: string;
+  page: number;
+  perPage: number;
+};
+
+export type ContractorListResult = {
+  items: Array<ClientContractorListItem>;
+  pagination: PaginationMeta;
 };

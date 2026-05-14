@@ -44,7 +44,8 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@szum-tech/design-system";
-import { type Project, ProjectStatus } from "~/features/projects/server/db/schema";
+import { type Project } from "~/features/projects/server/db/schema";
+import { ProjectStatus } from "~/features/projects/types/project";
 import { type ActionResponse, type RedirectAction, isActionSuccess } from "~/lib/action-types";
 import { formatRelativeTime } from "~/utils/date";
 import { getInitials } from "~/utils/users";

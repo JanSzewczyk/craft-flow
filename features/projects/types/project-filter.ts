@@ -1,4 +1,4 @@
-import { ProjectStatus } from "~/features/projects/server/db/schema";
+import { ProjectStatus } from "./project";
 
 export const ProjectStatusFilter = {
   ALL: "ALL",

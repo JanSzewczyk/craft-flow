@@ -2,7 +2,8 @@ import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
 import { clientBuilder } from "~/features/crm/test/builders";
-import { ProjectStatus, type Project } from "~/features/projects/server/db/schema";
+import { type Project } from "~/features/projects/server/db/schema";
+import { ProjectStatus } from "~/features/projects/types/project";
 
 import { projectStepBuilder } from "./project-step.builder";
 

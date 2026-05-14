@@ -44,17 +44,6 @@ export type ProjectRow = typeof projects.$inferSelect;
 export type Project = BuildQueryResult<TSchema, TSchema["projects"], { with: { client: true; steps: true } }>;
 export type ProjectStep = typeof projectSteps.$inferSelect;
 
-export type ProjectStatus = (typeof projectStatusEnum.enumValues)[number];
-export const ProjectStatus = {
-  DRAFT: "DRAFT",
-  ACTIVE: "ACTIVE",
-  COMPLETED: "COMPLETED",
-  ARCHIVED: "ARCHIVED",
-  DELETED: "DELETED"
-} as const satisfies Record<ProjectStatus, ProjectStatus>;
-
-export const ProjectStatuses = projectStatusEnum.enumValues;
-
 export const projectsRelations = relations(projects, ({ one, many }) => ({
   client: one(clients, {
     fields: [projects.clientId],

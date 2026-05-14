@@ -13,8 +13,7 @@ import {
   TimelineItem,
   TimelineTitle
 } from "@szum-tech/design-system";
-import { ProjectStatus } from "~/features/projects/server/db/schema";
-import { type ClientProjectDetail } from "~/features/projects/server/services/projects.service";
+import { ProjectStatus, type ClientProjectDetail } from "~/features/projects/types/project";
 import { formatDate } from "~/utils/date";
 
 type StepStatus = "completed" | "active" | "pending";

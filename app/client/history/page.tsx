@@ -12,7 +12,7 @@ import {
 } from "@szum-tech/design-system";
 import { redirect } from "next/navigation";
 import { ClientProjectCard, ClientProjectsEmptyState, ClientProjectsNav } from "~/features/crm/components";
-import { ProjectStatus } from "~/features/projects/server/db/schema";
+import { ProjectStatus } from "~/features/projects/types/project";
 import { getClientProjects } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 

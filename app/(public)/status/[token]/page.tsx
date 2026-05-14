@@ -10,7 +10,7 @@ import { notFound } from "next/navigation";
 import { BrandLogo } from "~/features/marketing/components/brand-logo";
 import { ClientTracker, GuestTimeline } from "~/features/projects/components";
 import { updateClientViewAction } from "~/features/projects/server/actions/update-client-view.action";
-import { ProjectStatus } from "~/features/projects/server/db";
+import { ProjectStatus } from "~/features/projects/types/project";
 import { getPublicProjectView } from "~/features/projects/server/services/projects.service";
 import { createLogger } from "~/lib/logger";
 

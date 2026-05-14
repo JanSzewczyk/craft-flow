@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { ProjectStatus } from "~/features/projects/server/db/schema";
+import { ProjectStatus } from "~/features/projects/types/project";
 import { updateProjectStatus } from "~/features/projects/server/services/projects.service";
 import { type ActionResponse } from "~/lib/action-types";
 

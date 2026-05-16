@@ -1,82 +1,130 @@
 <div align="center">
 
-# 🚀 Craft Flow
+# 🔨 CraftFlow
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=github&utm_campaign=next-enterprise)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=github&utm_campaign=craft-flow)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/JanSzewczyk/craft-flow/actions/workflows/pr-check.yml/badge.svg)](https://github.com/JanSzewczyk/craft-flow/actions/workflows/pr-check.yml)
 
-**An enterprise-ready Next.js template that accelerates your development workflow**
+**A SaaS platform for craftsmen — create project timelines and share progress with clients via a single link**
 
-[Features](#-features) • [Getting Started](#-getting-started) • [Documentation](#-table-of-contents) •
+[Product](#-product) • [Getting Started](#-getting-started) • [Documentation](#-table-of-contents) •
 [Deployment](#-deployment)
 
 </div>
 
 ---
 
-## 👋 Hello there!
+## 👋 What is CraftFlow?
 
-This is **Craft Flow**, an open-source template for enterprise projects! It is packed with features that will help you
-create an efficient, maintainable, and enjoyable application. This template will save you a lot of time, so sit back,
-relax, and get ready to conquer the whole world with your new awesome app!
+**Problem:** Craftsmen (carpenters, plumbers, finishers) waste time answering client questions ("What stage is my order
+at?"). Documents, contracts, and job-site photos are scattered across SMS messages, emails, and chat apps.
 
-## ✨ Features
+**Solution:** CraftFlow is a simple B2B2C SaaS platform that lets a craftsman create a **project timeline** and share it
+with a client via a single link. The client sees real-time progress, while the contractor manages all their jobs in one
+place.
 
-### 🏗️ Core Technologies
+**Growth model (PLG):** Clients receive the link as Guests but are encouraged to create a free account to save their
+renovation history forever. By signing up, they enter the CraftFlow ecosystem — becoming a free marketing channel.
 
-- **⚡ [Next.js](https://nextjs.org/)** - Fast by default, with config optimized for performance
-- **💅 [Tailwind CSS](https://tailwindcss.com/)** - A utility-first CSS framework
-- **🛠️ Extremely strict [TypeScript](https://www.typescriptlang.org/)** - With `ts-reset` library for ultimate type
-  safety
-- **🎯 [Absolute imports](https://nextjs.org/docs/advanced-features/module-path-aliases)** - No more spaghetti imports
+## ✨ Product
+
+### 🧑‍🔧 Contractor Zone (`/app/*`)
+
+- **📋 Project Management** — Paginated job list, create new projects, and assign them to clients
+- **🗓️ Project Timeline** — Add execution stages, mark them as complete, and track progress
+- **📁 Files & Attachments** — Upload contracts (PDF) and photos (JPEG/PNG/WEBP); Supabase Storage serves optimized
+  thumbnails
+- **📄 Templates (`/app/templates`)** — Project "recipes" (e.g. "Window Installation") copied via Deep Copy — template
+  changes don't affect existing projects
+- **👥 Client CRM (`/app/clients`)** — Contact database; relational protection prevents deleting clients with active
+  projects
+- **🎨 Branding (`/app/branding`)** — Customize logo, primary color, and default email message shown in the client
+  portal
+
+### 👁️ Client View & PLG Mechanics
+
+- **🔗 Guest View (`/status/[publicToken]`)** — Clean, read-only project view with contractor branding; a Data Mock
+  Object (DMO) protects internal notes from unauthorized access
+- **🚪 Authwall (PLG)** — A prompt on the timeline encouraging clients to sign up to "save their renovation history
+  forever"
+- **✨ Account Auto-Linking** — When a client signs up, the server searches their email across all CRM databases and
+  links historical projects to their global Clerk ID
+- **🖥️ Client Portal (`/client/*`)** — Registered client dashboard with active jobs and history views
+
+### 💳 Subscriptions & Limits (Stripe)
+
+B2B subscription model with a 14-day trial:
+
+| Plan         | Active Projects | Templates | Branding    |
+| ------------ | --------------- | --------- | ----------- |
+| **Basic**    | 5               | 2         | Locked      |
+| **Standard** | 20              | 10        | ✅ Unlocked |
+| **Premium**  | Unlimited       | Unlimited | ✅ Unlocked |
+
+### 🏗️ Onboarding & Authorization
+
+- **Role-based Registration** — Sign-up form assigns `publicMetadata.roles: ["contractor"]` in Clerk
+- **Plan Selection** — Stripe Checkout is enforced before entering the dashboard
+- **Stepper State Persistence** — Onboarding progress is saved to the database, preventing data loss on refresh
+- **Middleware Protection** — Middleware blocks `/app/*` for users without `onboardingComplete: true` and an active plan
+
+### 🔐 Admin Panel
+
+Available only after assigning the `admin` role in Clerk:
+
+- KPI overview: number of active contractors, MRR, PLG growth
+- Ability to ban a contractor account and provide technical support (Impersonate)
+
+---
+
+## 🛠️ Tech Stack
+
+### 🏗️ Core
+
+- **⚡ [Next.js 16](https://nextjs.org/)** — App Router, Turbopack, React Compiler (automatic memoization)
+- **⚛️ [React 19](https://react.dev/)** — React Server Components and Server Actions
+- **🛠️ [TypeScript 6](https://www.typescriptlang.org/)** — Strict mode, `noUncheckedIndexedAccess`, `ts-reset`
+- **💅 [Tailwind CSS 4](https://tailwindcss.com/)** — CSS-first configuration with
+  [@szum-tech/design-system](https://www.npmjs.com/package/@szum-tech/design-system)
+- **🔐 [Clerk](https://clerk.com/)** — Authentication with Custom UI (hooks: `useSignIn`, `useSignUp`)
+- **🗄️ [Drizzle ORM](https://orm.drizzle.team/)** — Type-safe SQL on PostgreSQL hosted in
+  [Supabase](https://supabase.com/)
+- **💳 [Stripe](https://stripe.com/)** — Billing, Checkout, subscription webhooks
+- **📧 [Resend](https://resend.com/) + [React Email](https://react.email/)** — Transactional emails rendered as React
+  components
+- **📝 [Pino](https://getpino.io/)** — High-performance structured JSON logging
+- **🧩 [T3 Env](https://env.t3.gg/)** — Build-time validated, type-safe environment variables
 
 ### 🧪 Testing & Quality
 
-- **🧪 [Vitest](https://vitest.dev/)** - Rock-solid and highly speed unit and integration tests
-- **🧬 [React Testing Library](https://testing-library.com/react)** - Component testing
-- **🎭 [Playwright](https://playwright.dev/)** - End-to-end tests with smoke testing and acceptance tests
-- **📚 [Storybook](https://storybook.js.org/)** - Create, test, and showcase your components
-- **✨ [ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)** - Clean, consistent, and error-free code
+- **🧪 [Vitest 4](https://vitest.dev/)** — Dual-project setup: `unit` (Node) and `storybook` (Playwright/Chromium)
+- **🎭 [Playwright](https://playwright.dev/)** — E2E tests with accessibility checks via `@axe-core/playwright`
+- **📚 [Storybook 10](https://storybook.js.org/)** — Browser-rendered interaction tests in CSF Next format
+- **✨ [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/)** — Pre-configured with
+  [@szum-tech](https://www.npmjs.com/package/@szum-tech/eslint-config) configs
 
-### 🤖 Automation & DevOps
+### 🤖 Automation
 
-- **🚀 [GitHub Actions](https://github.com/features/actions)** - Pre-configured workflows for CI/CD
-- **🚢 [Semantic Release](https://github.com/semantic-release/semantic-release)** - Automated versioning and changelog
-  generation
-- **🤖 [Dependabot](https://github.com/dependabot)** - Automated dependency updates
-- **🧠 [ChatGPT Code Reviews](https://openai.com/chatgpt)** - AI-powered code reviews
-
-### 🔧 Developer Experience
-
-- **💻 [T3 Env](https://env.t3.gg/)** - Type-safe environment variables management
-- **📊 [Bundle Analyzer](https://www.npmjs.com/package/@next/bundle-analyzer)** - Keep an eye on your bundle size
-- **⚕️
-  [Health Checks](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)** -
-  Kubernetes-compatible for robust deployments
-- **🎨 [Szum-Tech Design System](https://www.npmjs.com/package/@szum-tech/design-system)** - Pre-built components and
-  design tokens
-- **📝 [Pino](https://getpino.io/)** - High-performance structured logging with development and production modes
-
-### 🏆 Performance
-
-- **💯 Perfect Lighthouse Score** - Optimized for performance, accessibility, and SEO
+- **🚀 [GitHub Actions](https://github.com/features/actions)** — PR check, AI code review, automated releases
+- **🚢 [Semantic Release](https://github.com/semantic-release/semantic-release)** — Versioning and changelog on merge to
+  `main`
 
 ---
 
 ## 📖 Table of Contents
 
-- [✨ Features](#-features)
-- [📖 Table of Contents](#-table-of-contents)
+- [✨ Product](#-product)
+- [🛠️ Tech Stack](#️-tech-stack)
 - [🎯 Getting Started](#-getting-started)
 - [🚀 Deployment](#-deployment)
 - [📃 Scripts Overview](#-scripts-overview)
 - [🧪 Testing](#-testing)
-- [🎨 Styling and Design System](#-styling-and-design-system)
-- [🤖 ChatGPT Code Review](#-chatgpt-code-review)
-- [💻 Environment Variables Handling](#-environment-variables-handling)
+- [🎨 Styling & Design System](#-styling--design-system)
+- [💻 Environment Variables](#-environment-variables)
 - [📝 Logging](#-logging)
 - [🚀 GitHub Actions](#-github-actions)
-- [🔒 Keeping Server-only Code out of the Client Environment](#-keeping-server-only-code-out-of-the-client-environment)
+- [🔒 Server-only Code](#-server-only-code)
 - [📁 Project Structure](#-project-structure)
 - [🤝 Contributing](#-contributing)
 - [📜 License](#-license)
@@ -87,668 +135,309 @@ relax, and get ready to conquer the whole world with your new awesome app!
 
 ## 🎯 Getting Started
 
-### Prerequisites
+### 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
+Before you begin, make sure you have:
 
-- **Bun** (version 1.1.x or higher recommended) - Primary runtime for optimal performance
+- **Node.js** (version 18.x or higher)
+- **npm** package manager
 - **Git** for version control
+- A [Clerk](https://clerk.com/) account — authentication
+- A [Supabase](https://supabase.com/) project — PostgreSQL database and file storage
+- A [Resend](https://resend.com/) account — transactional email
+- A [Stripe](https://stripe.com/) account — subscriptions and payments
 
-### Installation
+### 📦 Installation
 
-Follow these steps to get started:
-
-#### 1. ⭐ Star and Fork the Repository
-
-Don't forget to star ⭐ and fork the repository first!
-
-#### 2. 📥 Clone the Repository
+#### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your_username>/craft-flow.git
+git clone https://github.com/JanSzewczyk/craft-flow.git
 cd craft-flow
 ```
 
-#### 3. 📦 Install Dependencies with Bun
-
-```bash
-bun install
-```
-
-#### 4. ⚙️ Configure Environment Variables
-
-Create a `.env.local` file in the root directory and add your environment variables:
-
-```env
-# Add your environment variables here
-# NEXT_PUBLIC_API_URL=your_api_url
-```
-
-#### 5. 🚀 Start Development Server with Bun
-
-```bash
-bun run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-### Alternative: Node.js/npm
-
-This project also supports Node.js 24.x and npm if needed:
+#### 2. Install Dependencies
 
 ```bash
 npm install
+```
+
+#### 3. Configure Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# Database (Supabase)
+DATABASE_URL=postgresql://...
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Email (Resend)
+RESEND_API_KEY=re_...
+CONTACT_EMAIL_TO=your@email.com
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# Logging
+LOG_LEVEL=info
+```
+
+#### 4. Set Up the Database
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
+
+#### 5. Start the Development Server
+
+```bash
 npm run dev
 ```
 
-**Why use Bun?**
-
-- 🚀 10-100x faster package installation
-- ⚡ 2-3x faster dev server startup
-- 🎯 Native TypeScript support
-- 💎 Drop-in Node.js compatibility
-
-### Optional Configuration
-
-#### Semantic Release Setup
-
-To use the fully configured [Semantic Release](https://github.com/semantic-release/semantic-release) feature:
-
-1. Go to `.github/workflows/publish.yml` file
-2. Expose hidden code (lines 26 to 30)
-3. Enjoy automated versioning and changelog generation
-   ([more details](https://www.npmjs.com/package/@szum-tech/semantic-release-preset))
-
-#### ChatGPT Code Review Setup
-
-Add the `OPENAI_API_KEY` to your
-[GitHub Actions secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets) to enable AI-powered code
-reviews.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
 ## 🚀 Deployment
 
-Easily deploy your Next.js app with **Vercel** by clicking the button below:
+Deploy to **Vercel** with a single click:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=github&utm_campaign=next-enterprise)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=github&utm_campaign=craft-flow)
 
 ### Deployment Steps
 
 1. Click the "Deploy with Vercel" button
 2. Connect your GitHub repository
-3. Configure environment variables
-4. Deploy!
-
-Your application will be live in minutes with automatic CI/CD pipeline.
+3. Configure environment variables in the Vercel dashboard
+4. Deploy — your application goes live with automatic CI/CD
 
 ---
 
 ## 📃 Scripts Overview
 
-The following scripts are available in the `package.json`:
+### 🛠️ Development
 
-### Development
+| Script            | Description                             |
+| ----------------- | --------------------------------------- |
+| `npm run dev`     | Start development server with Turbopack |
+| `npm run build`   | Production build                        |
+| `npm run start`   | Start production server                 |
+| `npm run analyze` | Bundle analyzer (client, server, edge)  |
 
-- `npm run dev` - Starts the development server
-- `npm run build` - Builds the app for production
-- `npm run start` - Starts the production server
+### 🗄️ Database
 
-### Code Quality
+| Script                | Description                                     |
+| --------------------- | ----------------------------------------------- |
+| `npm run db:generate` | Generate Drizzle migrations from schema changes |
+| `npm run db:migrate`  | Apply pending migrations                        |
+| `npm run db:push`     | Push schema directly (dev only)                 |
+| `npm run db:studio`   | Open Drizzle Studio GUI                         |
 
-- `npm run lint` - Lints the code using ESLint
-- `npm run lint:ci` - Lints the code for CI (treats warnings as errors)
-- `npm run lint:fix` - Automatically fixes linting errors
-- `npm run prettier:check` - Checks the code for proper formatting
-- `npm run prettier:fix` - Automatically fixes formatting issues
-- `npm run type-check` - Runs TypeScript type checking
+### 🧹 Code Quality
 
-### Testing
+| Script                   | Description           |
+| ------------------------ | --------------------- |
+| `npm run lint`           | ESLint check          |
+| `npm run lint:fix`       | ESLint auto-fix       |
+| `npm run prettier:check` | Prettier format check |
+| `npm run prettier:write` | Prettier auto-fix     |
+| `npm run type-check`     | TypeScript type check |
 
-- `npm run test` - Runs unit and integration tests
-- `npm run test:ci` - Runs tests for CI environment
-- `npm run test:coverage` - Generates test coverage report
-- `npm run test:unit` - Runs unit tests only
-- `npm run test:watch` - Runs tests in watch mode
-- `npm run test:ui` - Runs tests with UI
+### 🧪 Testing
 
-### E2E Testing
+| Script                   | Description                           |
+| ------------------------ | ------------------------------------- |
+| `npm run test`           | Run all Vitest tests                  |
+| `npm run test:ci`        | Tests with coverage for CI            |
+| `npm run test:coverage`  | Generate coverage report              |
+| `npm run test:unit`      | Unit tests only                       |
+| `npm run test:watch`     | Watch mode                            |
+| `npm run test:storybook` | Storybook component tests             |
+| `npm run test:e2e`       | Playwright E2E tests (requires build) |
+| `npm run test:e2e:ui`    | Playwright UI mode                    |
 
-- `npm run e2e` - Runs end-to-end tests
-- `npm run e2e:ci` - Runs E2E tests for CI
-- `npm run e2e:ui` - Runs E2E tests with Playwright UI
+### 📚 Storybook
 
-### Storybook
-
-- `npm run storybook:dev` - Starts Storybook in development mode
-- `npm run storybook:build` - Builds Storybook for production
-- `npm run storybook:serve` - Serves the built Storybook
-- `npm run test:storybook` - Runs Storybook tests
-
-### Analysis
-
-- `npm run analyze` - Analyzes bundle sizes for Client, Server, and Edge environments
+| Script                    | Description                  |
+| ------------------------- | ---------------------------- |
+| `npm run storybook:dev`   | Start Storybook on port 6006 |
+| `npm run storybook:build` | Build static Storybook       |
+| `npm run storybook:serve` | Serve built Storybook        |
 
 ---
 
 ## 🧪 Testing
 
-This template comes with a comprehensive testing setup to ensure your application's reliability and robustness.
+CraftFlow has a three-layer testing infrastructure.
 
-### Unit & Integration Tests
-
-Run Vitest tests using:
+### 🔬 Unit Tests (Vitest — Node environment)
 
 ```bash
-npm run test
+npm run test:unit
 ```
 
-For watch mode:
+Unit tests live in `tests/unit/` using the `*.test.ts` pattern. Run a single file:
 
 ```bash
-npm run test:watch
+npx vitest run --project=unit path/to/file.test.ts
 ```
 
-Generate coverage report:
-
-```bash
-npm run test:coverage
-```
-
-### End-to-End Tests
-
-Run Playwright E2E tests:
-
-```bash
-npm run e2e
-```
-
-Run with UI for debugging:
-
-```bash
-npm run e2e:ui
-```
-
-<img width="1665" alt="image" src="https://github.com/[REPLACE_WITH_USERNAME]/craft-flow/assets/29024606/9c65cdd2-4e04-4687-81d6-8e7a32f12518">
-
-### Storybook Tests
-
-Run Storybook component tests:
+### 🧩 Component Tests (Vitest + Storybook — Playwright/Chromium)
 
 ```bash
 npm run test:storybook
 ```
 
-### Acceptance Tests
-
-To write acceptance tests, we leverage Storybook's
-[play function](https://storybook.js.org/docs/writing-stories/play-function#writing-stories-with-the-play-function).
-This allows you to interact with your components and test various user flows within Storybook.
-
----
-
-## 🎨 Styling and Design System
-
-This boilerplate uses **Tailwind CSS** for styling and the
-**[Szum-Tech Design System](https://www.npmjs.com/package/@szum-tech/design-system)**, which contains:
-
-- ✅ Fully designed components
-- 🎨 Color palette and design tokens
-- 🛠️ Utility functions and helpers
-- 📖 Comprehensive documentation
-
-**[Check the Design System Documentation](https://szum-tech-design-system.vercel.app/?path=/docs/components--docs)**
-
-### Usage Example
-
-```tsx
-import { Button } from "@szum-tech/design-system";
-
-export default function MyComponent() {
-  return <Button variant="primary">Click me!</Button>;
-}
-```
-
----
-
-## 🤖 ChatGPT Code Review
-
-We've integrated the innovative [ChatGPT Code Review](https://github.com/anc95/ChatGPT-CodeReview) for AI-powered,
-automated code reviews. This feature provides real-time feedback on your code, helping improve code quality and catch
-potential issues.
-
-### Setup
-
-1. Generate an API key from [OpenAI Platform](https://platform.openai.com/)
-2. Add `OPENAI_API_KEY` as a secret in your GitHub repository settings
-3. The workflow will automatically run on every pull request
-
-For detailed setup instructions, refer to the
-[Using GitHub Actions](https://github.com/anc95/ChatGPT-CodeReview#using-github-actions) section in the documentation.
-
-![image](https://user-images.githubusercontent.com/28964599/233685071-e1371edf-6359-41c3-a989-335d6ee09cb7.png)
-
----
-
-## 💻 Environment Variables Handling
-
-[T3 Env](https://env.t3.gg/) provides type-safe environment variable management with build-time validation. It ensures
-that your application uses correct environment variables and their values are of the expected type.
-
-### Configuration
-
-The config file is located at `data/env/{client,server}.ts`:
+Storybook interaction tests run in a real browser. Stories use CSF Next format with the `.test()` method:
 
 ```typescript
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
-
-const env = createEnv({
-  server: {
-    // Server-side variables
-    SECRET_KEY: z.string()
-  },
-  client: {
-    // Client-side variables (must be prefixed with NEXT_PUBLIC_)
-    API_URL: z.string().url()
-  },
-  runtimeEnv: {
-    // Assign runtime variables
-    SECRET_KEY: process.env.SECRET_KEY,
-    API_URL: process.env.NEXT_PUBLIC_API_URL
-  }
-});
-
-export default env;
+const meta = preview.meta({ title: "Features/...", component: MyComponent });
+export const Default = meta.story({ args: { ... } });
+Default.test("renders correctly", async ({ canvas }) => { ... });
 ```
+
+### 🎭 End-to-End Tests (Playwright)
+
+Build the app first, then run the tests:
+
+```bash
+npm run build && npm run test:e2e
+```
+
+Playwright UI mode for debugging:
+
+```bash
+npm run test:e2e:ui
+```
+
+---
+
+## 🎨 Styling & Design System
+
+CraftFlow uses **[Tailwind CSS 4](https://tailwindcss.com/)** with a CSS-first configuration and the
+**[Szum-Tech Design System](https://www.npmjs.com/package/@szum-tech/design-system)**, which provides:
+
+- ✅ Ready-made components built on [Radix UI](https://www.radix-ui.com/)
+- 🎨 OKLCH semantic color tokens and design tokens
+- 🌙 Dark mode support via `next-themes`
+- 📖 [Component documentation](https://szum-tech-design-system.vercel.app/?path=/docs/components--docs)
+
+### Usage
+
+```typescript
+import { Button, Card, Tooltip } from "@szum-tech/design-system";
+```
+
+Icons are provided via `lucide-react` (re-exported through the design system). Use `startIcon`/`endIcon` props on
+`Button` — not children.
+
+---
+
+## 💻 Environment Variables
+
+[T3 Env](https://env.t3.gg/) provides build-time validation of environment variables.
+
+### Configuration Files
+
+- **`data/env/server.ts`** — Server-only variables (CLERK_SECRET_KEY, RESEND_API_KEY, DATABASE_URL, SUPABASE_URL,
+  STRIPE_SECRET_KEY, LOG_LEVEL, etc.)
+- **`data/env/client.ts`** — Client-safe variables (must use `NEXT_PUBLIC_` prefix)
 
 ### Benefits
 
-- ✅ Type-safe environment variables
-- ✅ Build-time validation
-- ✅ Runtime error prevention
-- ✅ Auto-completion in your IDE
-
-If required environment variables are not set, you'll get a clear error message:
-
-```
-❌ Invalid environment variables: { SECRET_KEY: [ 'Required' ] }
-```
+- ✅ Fully typed access across the entire codebase
+- ✅ Build-time validation — missing variables fail fast
+- ✅ Empty strings treated as `undefined`
+- ✅ Skip validation in Docker builds with `SKIP_ENV_VALIDATION=true`
 
 ---
 
 ## 📝 Logging
 
-This template uses **[Pino](https://getpino.io/)**, one of the fastest and most popular logging libraries for Node.js,
-to provide structured logging throughout the application.
+CraftFlow uses **[Pino](https://getpino.io/)** for structured JSON logging.
 
-### Features
+### Usage
 
-- ✅ **High Performance** - Minimal overhead with extremely fast JSON logging
-- ✅ **Structured Logging** - JSON-formatted logs for easy parsing and analysis
-- ✅ **Next.js Compatible** - Optimized to work with Next.js App Router and Turbopack
-- ✅ **Universal Support** - Works on both server-side and client-side (browser)
-- ✅ **Production Ready** - JSON logs optimized for log aggregation tools (Datadog, ELK, CloudWatch)
-- ✅ **Request Tracking** - Automatic request ID generation and logging via middleware
-- ✅ **Error Handling** - Integrated with global error boundaries for comprehensive error logging
-- ✅ **Type-safe Configuration** - LOG_LEVEL environment variable with TypeScript validation
+```typescript
+import logger, { createLogger } from "~/lib/logger";
 
-### Configuration
-
-The logger is configured in `lib/logger.ts` and automatically adapts based on the environment:
-
-**Server-side (Node.js):**
-
-- Structured JSON output for both development and production
-- ISO timestamps for consistency
-- Includes PID and hostname in development mode
-- Direct stdout logging for optimal performance
-
-**Client-side (Browser):**
-
-- Fallback to browser console with appropriate log levels
-- Fatal/Error → `console.error()`
-- Warn → `console.warn()`
-- Info → `console.info()`
-- Debug/Trace → `console.debug()`
-
-**Technical Note:** This implementation doesn't use `pino-pretty` transport to avoid worker thread issues with
-Next.js/Turbopack. The logs remain fully structured and parseable as JSON, making them ideal for production environments
-and log aggregation services.
+const moduleLogger = createLogger({ module: "projects-service" });
+moduleLogger.info({ userId, projectId }, "Project created successfully");
+moduleLogger.error({ userId, operation: "createProject", errorCode: err.code }, "DB insert failed");
+```
 
 ### Log Levels
 
-Set the `LOG_LEVEL` environment variable to control verbosity:
-
 ```bash
-# Available levels (from highest to lowest priority)
-LOG_LEVEL=fatal  # Only fatal errors
-LOG_LEVEL=error  # Errors and above
-LOG_LEVEL=warn   # Warnings and above
-LOG_LEVEL=info   # Info and above (default)
-LOG_LEVEL=debug  # Debug messages and above
-LOG_LEVEL=trace  # Everything including trace
-```
-
-Add to your `.env.local`:
-
-```env
-LOG_LEVEL=debug
-```
-
-### Usage Examples
-
-#### Basic Logging
-
-```typescript
-import logger from "~/lib/logger";
-
-// Info level
-logger.info("User logged in successfully");
-
-// Warning
-logger.warn("API rate limit approaching");
-
-// Error with context
-logger.error({ userId: "123", error: err }, "Failed to fetch user data");
-
-// Debug information
-logger.debug({ query: params }, "Database query executed");
-```
-
-#### Creating Context Loggers
-
-Create child loggers with persistent context:
-
-```typescript
-import { createLogger } from "~/lib/logger";
-
-// Create a logger with specific context
-const apiLogger = createLogger({
-  module: "api",
-  service: "user-service"
-});
-
-apiLogger.info("Processing request"); // Will include module and service in every log
-```
-
-#### API Route Logging
-
-```typescript
-import { NextResponse } from "next/server";
-import logger from "~/lib/logger";
-
-export async function GET(request: Request) {
-  logger.info("Fetching users list");
-
-  try {
-    const users = await fetchUsers();
-    logger.debug({ count: users.length }, "Users fetched successfully");
-    return NextResponse.json(users);
-  } catch (error) {
-    logger.error({ error }, "Failed to fetch users");
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
-```
-
-#### Server Actions Logging
-
-```typescript
-"use server";
-
-import { createLogger } from "~/lib/logger";
-
-const actionLogger = createLogger({ context: "server-action" });
-
-export async function createUser(formData: FormData) {
-  actionLogger.info({ action: "createUser" }, "Creating new user");
-
-  try {
-    // Your logic here
-    actionLogger.info({ userId: newUser.id }, "User created successfully");
-    return { success: true };
-  } catch (error) {
-    actionLogger.error({ error }, "Failed to create user");
-    return { success: false, error: "Failed to create user" };
-  }
-}
+LOG_LEVEL=fatal   # Fatal errors only
+LOG_LEVEL=error   # Errors and above
+LOG_LEVEL=warn    # Warnings and above
+LOG_LEVEL=info    # Info and above (default)
+LOG_LEVEL=debug   # Debug messages and above
+LOG_LEVEL=trace   # Everything
 ```
 
 ### Built-in Logging
 
-The template includes automatic logging in several key areas:
-
-#### 1. Request Logging (`middleware.ts`)
-
-Every HTTP request is automatically logged with:
-
-- **Request ID**: Unique UUID for request tracing
-- **HTTP Method**: GET, POST, PUT, DELETE, etc.
-- **URL**: Full request URL
-- **User Agent**: Client information
-- **Response Status**: HTTP status code
-- **Duration**: Request processing time in milliseconds
-
-The `X-Request-ID` header is added to all responses for distributed tracing.
-
-**Example log output:**
-
-```json
-{
-  "level": 30,
-  "time": "2025-01-19T10:30:45.123Z",
-  "requestId": "550e8400-e29b-41d4-a716-446655440000",
-  "method": "GET",
-  "url": "http://localhost:3000/api/users",
-  "userAgent": "Mozilla/5.0...",
-  "msg": "Incoming request"
-}
-```
-
-#### 2. Health Check API (`app/api/health/route.ts`)
-
-The health check endpoint includes:
-
-- Info-level logging when endpoint is called
-- Debug-level logging with response details
-- Error logging if health check fails
-- Timestamp in response for monitoring
-
-#### 3. Global Error Handling
-
-**Page-level errors** (`app/error.tsx`):
-
-- Catches errors in specific pages/routes
-- Logs error details including message, stack trace, and digest
-- Provides user-friendly error UI with retry option
-
-**Application-level errors** (`app/global-error.tsx`):
-
-- Catches critical errors across the entire application
-- Logs fatal errors with full context
-- Last-resort error boundary for unhandled exceptions
-
-### Production Best Practices
-
-1. **Use Structured Logging**: Always include context objects for better searchability
-
-```typescript
-// Good
-logger.error({ userId, orderId, error }, "Order processing failed");
-
-// Avoid
-logger.error(`Order ${orderId} failed for user ${userId}`);
-```
-
-2. **Don't Log Sensitive Data**: Never log passwords, tokens, or PII
-
-```typescript
-// Bad
-logger.info({ password: user.password }, "User login");
-
-// Good
-logger.info({ userId: user.id }, "User login");
-```
-
-3. **Use Appropriate Log Levels**:
-   - `error` - Failures that need attention
-   - `warn` - Issues that don't stop execution
-   - `info` - Important business events
-   - `debug` - Detailed diagnostic information
-
-4. **Include Error Objects**: Always pass error objects for full stack traces
-
-```typescript
-try {
-  // code
-} catch (error) {
-  logger.error({ error }, "Operation failed"); // Captures full stack
-}
-```
-
-### Log Output Format
-
-Logs are output in structured JSON format, making them easy to parse and search:
-
-```json
-{
-  "level": 30,
-  "time": "2025-01-19T10:30:45.123Z",
-  "pid": 12345,
-  "hostname": "my-server",
-  "msg": "User login successful",
-  "userId": "user-123",
-  "action": "login"
-}
-```
-
-**Log Levels (Pino standard):**
-
-- `10` - trace
-- `20` - debug
-- `30` - info
-- `40` - warn
-- `50` - error
-- `60` - fatal
-
-### Integration with Log Aggregation Services
-
-The structured JSON output is compatible with all major log aggregation and monitoring services:
-
-**Cloud Platforms:**
-
-- **Vercel**: Built-in log streaming and filtering
-- **AWS CloudWatch**: Works with Lambda, ECS, and EC2
-- **Google Cloud Logging**: Compatible with Cloud Run, GKE, and App Engine
-- **Azure Monitor**: Supports structured JSON logs
-
-**Log Management Services:**
-
-- **Datadog**: Direct Node.js integration available
-- **New Relic**: Standard JSON log format supported
-- **Splunk**: Can ingest and parse Pino JSON logs
-- **Sumo Logic**: JSON log parsing built-in
-
-**Open Source:**
-
-- **ELK Stack** (Elasticsearch, Logstash, Kibana): Logstash can parse Pino format
-- **Grafana Loki**: Supports JSON log ingestion
-- **Graylog**: JSON input supported
-
-### Viewing Logs
-
-**Development:**
-
-```bash
-npm run dev
-# Logs appear in terminal as structured JSON
-```
-
-**Production (Vercel):**
-
-```bash
-vercel logs [deployment-url]
-# Or view in Vercel Dashboard → Logs
-```
-
-**Docker/Self-hosted:**
-
-```bash
-# View container logs
-docker logs [container-id]
-
-# Stream logs in real-time
-docker logs -f [container-id]
-
-# Filter by log level (using jq)
-docker logs [container-id] | jq 'select(.level >= 40)'
-```
+- **Request logging** — `proxy.ts` logs method, URL, status, and response time with a unique `X-Request-ID` header
+- **Health check** — `app/api/health/route.ts` logs at info/debug/error levels
+- **Error handlers** — `app/error.tsx` and `app/global-error.tsx` capture and log page and application errors
 
 ---
 
 ## 🚀 GitHub Actions
 
-GitHub Actions offer multiple smooth workflows that make development easier and reduce the developer's impact on
-repetitive tasks.
-
 ### Available Workflows
 
-#### 1. 🤖 ChatGPT Code Review (`code-review.yml`)
+#### 1. ✅ PR Check (`pr-check.yml`)
 
-Provides AI-powered code reviews on every pull request.
+Runs on every pull request:
 
-#### 2. ✅ PR Check (`pr-check.yml`)
+- 🏗️ **Build** — Verifies the project builds successfully
+- 🧹 **Prettier** — Code formatting
+- ⬣ **ESLint** — Code quality and linting
+- 🛠️ **TypeScript** — Type checking
+- 🧪 **Tests** — Unit and Storybook component tests
+- 🎭 **Playwright** — E2E tests
 
-Validates code on every pull request, checking:
+#### 2. 🤖 AI Code Review (`code-review.yml`)
 
-- 🏗️ **Build** - Ensures the project builds successfully
-- 🧹 **Prettier** - Code formatting validation
-- ⬣ **ESLint** - Code quality and linting
-- 🛠️ **TypeScript** - Type checking
-- 🧪 **Tests** - Unit and integration tests
-- 🎭 **Playwright** - E2E tests
+Automated code review on every PR via OpenAI (requires `OPENAI_API_KEY` secret).
 
 #### 3. 🚢 Publish (`publish.yml`)
 
-Automatically triggered when changes are merged to the `main` branch:
+Triggered on merge to `main`:
 
-- 📦 Determines next version using [Semantic Release](https://github.com/semantic-release/semantic-release)
+- 📦 Determines next version via [Semantic Release](https://github.com/semantic-release/semantic-release) +
+  [Conventional Commits](https://www.conventionalcommits.org/)
 - 📝 Updates `CHANGELOG.md`
-- 🏷️ Creates GitHub release
+- 🏷️ Creates a GitHub release
 - 🔢 Bumps version in `package.json`
-
-Based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), this workflow uses
-[@szum-tech/semantic-release-preset](https://www.npmjs.com/package/@szum-tech/semantic-release-preset) configuration.
 
 ---
 
-## 🔒 Keeping Server-only Code out of the Client Environment
+## 🔒 Server-only Code
 
-Since JavaScript modules can be shared between both Server and Client Components, it's possible for server-only code to
-accidentally be included in the client bundle.
-
-### Solution: `server-only` Package
-
-Use the [server-only](https://www.npmjs.com/package/server-only) package to give developers a build-time error if they
-accidentally import server code into a Client Component.
-
-```bash
-npm install server-only
-```
-
-Then import it in any module that contains server-only code:
+The [`server-only`](https://www.npmjs.com/package/server-only) package prevents server code from leaking into the client
+bundle:
 
 ```typescript
 import "server-only";
 
-// The rest of your server-only code
-export async function getData() {
-  // This function can only be used on the server
+export async function getSecretData() {
+  // Build-time error if imported by a Client Component
 }
 ```
+
+The `lib/supabase/db.ts` database client uses `server-only` — it will never reach the browser.
 
 ---
 
@@ -758,83 +447,78 @@ export async function getData() {
 craft-flow/
 ├── .claude/              # Claude Code configuration (agents, skills, hooks)
 ├── .github/
-│   └── workflows/        # GitHub Actions workflows (CI/CD)
-├── .storybook/           # Storybook configuration
-├── app/                  # Next.js App Router (pages, layouts, API routes)
-├── components/           # Reusable React components (stories co-located)
-├── constants/            # Static data and configuration constants
+│   └── workflows/        # GitHub Actions (pr-check, code-review, publish)
+├── .storybook/           # Storybook configuration and decorators
+├── app/                  # Next.js App Router
+│   ├── (auth)/           # Auth pages (sign-in, sign-up, forgot-password)
+│   ├── (marketing)/      # Public marketing pages
+│   ├── (onboarding)/     # Onboarding flow with plan selection
+│   ├── (public)/         # Public project status view (/status/[token])
+│   ├── app/              # Contractor dashboard (projects, clients, templates)
+│   ├── client/           # Client portal (active jobs, history)
+│   └── api/              # API routes (health check)
+├── components/           # Shared React components
+├── constants/            # Static data and configuration
 ├── data/
 │   └── env/              # T3 Env type-safe environment variables
-├── features/             # Feature-based modules (components, schemas, server)
-├── lib/                  # Utility functions and configurations (logger)
+├── features/             # Feature-driven modules (self-contained domains)
+├── lib/
+│   └── supabase/         # Drizzle ORM client and central schema exports
 ├── public/               # Static assets (images, fonts, icons)
-├── tests/                # Test files
+├── tests/
 │   ├── e2e/              # Playwright end-to-end tests
 │   ├── integration/      # Storybook integration test setup
 │   └── unit/             # Vitest unit tests
-├── .env.example          # Example environment variables template
-├── eslint.config.mjs     # ESLint configuration
+├── drizzle.config.ts     # Drizzle ORM configuration
 ├── next.config.ts        # Next.js configuration
-├── playwright.config.ts  # Playwright E2E test configuration
-├── prettier.config.js    # Prettier configuration
+├── playwright.config.ts  # Playwright E2E configuration
 ├── proxy.ts              # Request logging middleware
-├── release.config.js     # Semantic Release configuration
 ├── tsconfig.json         # TypeScript configuration
-├── vitest.config.ts      # Vitest test configuration
-└── package.json          # Project dependencies and scripts
+└── vitest.config.ts      # Vitest configuration
 ```
 
 ### Key Directories
 
-- **`.claude/`** - Claude Code configuration (agents, skills, hooks, project context)
-- **`.github/workflows/`** - CI/CD automation (code review, PR checks, releases)
-- **`.storybook/`** - Storybook setup for component development and documentation
-- **`app/`** - Next.js 16 App Router with server/client components, layouts, and API routes
-- **`components/`** - Shared, reusable UI components with co-located stories
-- **`constants/`** - Static data and configuration constants
-- **`data/env/`** - T3 Env type-safe environment variable definitions
-- **`features/`** - Feature-based modules with related components and logic (modular architecture)
-- **`lib/`** - Utility functions, helpers, and third-party library configurations
-- **`public/`** - Static files served directly (images, fonts, favicon, etc.)
-- **`tests/e2e/`** - End-to-end tests using Playwright for full user flow testing
-- **`tests/unit/`** - Unit tests using Vitest
+- **`app/`** — App Router with route groups: auth, marketing, onboarding, contractor dashboard, and client portal
+- **`features/{domain}/`** — Self-contained domain modules: `components/`, `schemas/`, `server/db/`, `server/services/`,
+  `server/actions/`, `test/builders/`
+- **`lib/supabase/`** — Drizzle ORM client (`db.ts`) and central schema exports (`schema.ts`) — server-only
+- **`data/env/`** — T3 Env type-safe environment variable definitions
+- **`tests/`** — Three test environments: unit (Node), Storybook (browser), E2E (Playwright)
 
 ### Important Configuration Files
 
-- **`eslint.config.mjs`** - ESLint linting rules and plugins
-- **`next.config.ts`** - Next.js framework configuration (build, plugins, Turbopack, etc.)
-- **`playwright.config.ts`** - Playwright E2E testing configuration
-- **`postcss.config.js`** - PostCSS plugins and Tailwind CSS processing
-- **`prettier.config.js`** - Code formatting rules and preferences
-- **`release.config.js`** - Semantic Release automation configuration
-- **`tsconfig.json`** - TypeScript compiler options and path aliases
-- **`vitest.config.ts`** - Vitest unit test configuration and setup
+- **`next.config.ts`** — Next.js build, React Compiler, image domains, health check rewrites
+- **`drizzle.config.ts`** — ORM and migration configuration
+- **`vitest.config.ts`** — Dual-project Vitest setup (unit + storybook)
+- **`proxy.ts`** — Request logging middleware (not `middleware.ts`)
+- **`tsconfig.json`** — TypeScript strict mode with `~/` path alias
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you'd like to contribute to this project:
+Contributions are welcome. Follow this flow:
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create a branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+4. Push the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-Please make sure your code passes all tests and follows the project's coding standards.
+Make sure your code passes all tests and lint checks before opening a PR.
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **MIT License**. For more information, see the [LICENSE](LICENSE) file.
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 🙏 Acknowledgments
 
-This template is built with amazing tools and libraries from the open-source community:
+CraftFlow is built with amazing open-source tools and libraries:
 
 - [Next.js](https://nextjs.org/) - The React Framework
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
@@ -848,20 +532,20 @@ This template is built with amazing tools and libraries from the open-source com
 
 ## 📧 Contact & Support
 
-If you have any questions, suggestions, or issues:
+Have questions, suggestions, or found an issue?
 
-- 🐛 [Open an issue](https://github.com/[REPLACE_WITH_USERNAME]/craft-flow/issues)
-- ⭐ [Star this repository](https://github.com/[REPLACE_WITH_USERNAME]/craft-flow)
-- 👨‍💻 Check out my [GitHub profile](https://github.com/[REPLACE_WITH_USERNAME])
+- 🐛 [Open an issue](https://github.com/JanSzewczyk/craft-flow/issues)
+- ⭐ [Star this repository](https://github.com/JanSzewczyk/craft-flow)
+- 👨‍💻 Check out my [GitHub profile](https://github.com/JanSzewczyk)
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by [Szum-Tech](https://github.com/szum-tech)**
+**Made with ❤️ by [Szum-Tech](https://github.com/JanSzewczyk)**
 
-If this template helped you, please consider giving it a ⭐ on GitHub!
+If this project helped you, please consider giving it a ⭐ on GitHub!
 
-[⬆ Back to Top](#-craft-flow)
+[⬆ Back to Top](#-craftflow)
 
 </div>

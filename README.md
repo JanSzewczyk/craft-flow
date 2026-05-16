@@ -41,6 +41,7 @@ renovation history forever. By signing up, they enter the CraftFlow ecosystem �
   projects
 - **🎨 Branding (`/app/branding`)** — Customize logo, primary color, and default email message shown in the client
   portal
+- **🌙 Light & Dark Theme** — System-wide light/dark/system theme switching available across all views
 
 ### 👁️ Client View & PLG Mechanics
 
@@ -52,7 +53,7 @@ renovation history forever. By signing up, they enter the CraftFlow ecosystem �
   links historical projects to their global Clerk ID
 - **🖥️ Client Portal (`/client/*`)** — Registered client dashboard with active jobs and history views
 
-### 💳 Subscriptions & Limits (Stripe)
+### 💳 Subscriptions & Limits (Clerk Billing)
 
 B2B subscription model with a 14-day trial:
 
@@ -65,7 +66,7 @@ B2B subscription model with a 14-day trial:
 ### 🏗️ Onboarding & Authorization
 
 - **Role-based Registration** — Sign-up form assigns `publicMetadata.roles: ["contractor"]` in Clerk
-- **Plan Selection** — Stripe Checkout is enforced before entering the dashboard
+- **Plan Selection** — Clerk Billing plan selection is enforced before entering the dashboard
 - **Stepper State Persistence** — Onboarding progress is saved to the database, preventing data loss on refresh
 - **Middleware Protection** — Middleware blocks `/app/*` for users without `onboardingComplete: true` and an active plan
 
@@ -90,7 +91,8 @@ Available only after assigning the `admin` role in Clerk:
 - **🔐 [Clerk](https://clerk.com/)** — Authentication with Custom UI (hooks: `useSignIn`, `useSignUp`)
 - **🗄️ [Drizzle ORM](https://orm.drizzle.team/)** — Type-safe SQL on PostgreSQL hosted in
   [Supabase](https://supabase.com/)
-- **💳 [Stripe](https://stripe.com/)** — Billing, Checkout, subscription webhooks
+- **💳 [Clerk Billing](https://clerk.com/docs/billing/overview)** — Subscription plans and feature gating via Clerk's
+  built-in billing system
 - **📧 [Resend](https://resend.com/) + [React Email](https://react.email/)** — Transactional emails rendered as React
   components
 - **📝 [Pino](https://getpino.io/)** — High-performance structured JSON logging
@@ -142,10 +144,9 @@ Before you begin, make sure you have:
 - **Node.js** (version 18.x or higher)
 - **npm** package manager
 - **Git** for version control
-- A [Clerk](https://clerk.com/) account — authentication
+- A [Clerk](https://clerk.com/) account — authentication and subscription billing
 - A [Supabase](https://supabase.com/) project — PostgreSQL database and file storage
 - A [Resend](https://resend.com/) account — transactional email
-- A [Stripe](https://stripe.com/) account — subscriptions and payments
 
 ### 📦 Installation
 
@@ -179,11 +180,6 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 # Email (Resend)
 RESEND_API_KEY=re_...
 CONTACT_EMAIL_TO=your@email.com
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 
 # Logging
 LOG_LEVEL=info
@@ -327,7 +323,8 @@ CraftFlow uses **[Tailwind CSS 4](https://tailwindcss.com/)** with a CSS-first c
 
 - ✅ Ready-made components built on [Radix UI](https://www.radix-ui.com/)
 - 🎨 OKLCH semantic color tokens and design tokens
-- 🌙 Dark mode support via `next-themes`
+- 🌙 Light, dark, and system theme switching via [next-themes](https://github.com/pacocoursey/next-themes) — applies
+  across all views including the client portal
 - 📖 [Component documentation](https://szum-tech-design-system.vercel.app/?path=/docs/components--docs)
 
 ### Usage

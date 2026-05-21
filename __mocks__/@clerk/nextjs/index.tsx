@@ -17,3 +17,9 @@ export const ClerkProvider = ({ children }: { children: React.ReactNode }) => {
 export const UserButton = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
+
+const signOut = fn().mockName("signOut");
+
+export function useClerk() {
+  return { signOut };
+}

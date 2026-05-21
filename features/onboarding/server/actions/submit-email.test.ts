@@ -4,7 +4,6 @@ const mocks = vi.hoisted(() => ({
   updateStepData: vi.fn()
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("~/features/onboarding/server/services/step-service", () => ({
   getOnboardingPlanConfig: mocks.getOnboardingPlanConfig
@@ -12,12 +11,6 @@ vi.mock("~/features/onboarding/server/services/step-service", () => ({
 vi.mock("~/features/onboarding/server/db", () => ({
   updateStepData: mocks.updateStepData
 }));
-vi.mock("~/lib/logger", () => {
-  const noop = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() };
-  noop.child.mockReturnValue(noop);
-  return { default: noop, createLogger: vi.fn(() => noop) };
-});
-
 import { submitEmailAction } from "~/features/onboarding/server/actions/submit-email";
 import { emailFormBuilder, onboardingStateBuilder } from "~/features/onboarding/test/builders";
 

@@ -7,7 +7,6 @@ const mocks = vi.hoisted(() => ({
   duplicateTemplate: vi.fn()
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@clerk/nextjs/server", () => ({ auth: mocks.auth }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("~/features/templates/server/services/templates.service", () => ({
@@ -16,12 +15,6 @@ vi.mock("~/features/templates/server/services/templates.service", () => ({
   deleteTemplate: mocks.deleteTemplate,
   duplicateTemplate: mocks.duplicateTemplate
 }));
-vi.mock("~/lib/logger", () => {
-  const noop = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() };
-  noop.child.mockReturnValue(noop);
-  return { default: noop, createLogger: vi.fn(() => noop) };
-});
-
 import { templateFormBuilder } from "~/features/templates/test/builders";
 import { SupabaseServiceError } from "~/lib/supabase/errors";
 

@@ -391,6 +391,16 @@ export const templateBuilder = build<Template>({
 
 One builder per entity. Export all from `test/builders/index.ts`.
 
+**Builders live in the same feature as the types they are based on.** If the entity type is defined in `features/projects/types/`, its builder belongs in `features/projects/test/builders/` — even if the builder is used in another feature's tests or stories. Other features import the builder directly from the owning feature's builders path:
+
+```ts
+// ✓ — CRM story imports project-domain builder from the projects feature
+import { clientProjectDetailBuilder } from "~/features/projects/test/builders";
+
+// ✗ — do not duplicate the builder in the importing feature's builders directory
+import { clientProjectDetailBuilder } from "~/features/crm/test/builders";
+```
+
 Builders for types from `types/` import from `types/`, not from `server/`:
 
 ```ts

@@ -19,7 +19,7 @@ import { formatDate } from "~/utils/date";
 type StepStatus = "completed" | "active" | "pending";
 
 type ClientProjectTimelineProps = {
-  project: Pick<ClientProjectDetail, "status" | "steps">;
+  project: ClientProjectDetail;
 };
 
 function getStepStatus(index: number, activeIndex: number): StepStatus {

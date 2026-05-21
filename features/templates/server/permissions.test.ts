@@ -3,7 +3,6 @@ const mocks = vi.hoisted(() => ({
   getPlanFeatures: vi.fn()
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("~/features/templates/server/db/queries", () => ({
   getTemplateCountByContractor: mocks.getTemplateCountByContractor
 }));

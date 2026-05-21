@@ -8,10 +8,11 @@ process.env.SKIP_ENV_VALIDATION = "true";
 export default defineConfig({
   test: {
     globals: true,
-    reporters: process.env.CI ? ["dot", "github-actions"] : ["tree"],
+    reporters: process.env.CI ? ["dot", "github-actions", "blob"] : ["tree"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json-summary", "json"],
+      reportsDirectory: "coverage",
       reportOnFailure: true,
       include: [
         "app/**/*.{js,jsx,ts,tsx}",

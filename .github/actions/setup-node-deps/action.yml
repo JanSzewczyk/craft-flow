@@ -1,0 +1,78 @@
+name: "Setup Node & deps"
+description:
+  "Restores node_modules and (optionally) Playwright browsers from cache, running npm ci only on cache miss. Caller is
+  responsible for actions/checkout before this step."
+
+inputs:
+  node-version:
+    description: "Node.js version"
+    required: true
+  install-playwright:
+    description: "Install Playwright browsers with system deps"
+    required: false
+    default: "false"
+  playwright-browsers:
+    description:
+      "Which browsers to install when install-playwright is true. 'chromium' for Vitest browser mode, 'all' for full
+      Playwright E2E."
+    required: false
+    default: "chromium"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js 🟢
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: "npm"
+
+    - name: Cache node_modules
+      id: nm-cache
+      uses: actions/cache@v5
+      with:
+        path: node_modules
+        key:
+          node_modules-${{ runner.os }}-${{ inputs.node-version }}-${{ hashFiles('package-lock.json', 'patches/**',
+          '.npmrc') }}
+
+    - name: Install dependencies ⚙️
+      if: steps.nm-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm ci
+
+    - name: Cache Playwright Browsers
+      if: inputs.install-playwright == 'true'
+      id: pw-cache
+      uses: actions/cache@v5
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ inputs.playwright-browsers }}-${{ hashFiles('package-lock.json') }}
+
+    - name: Install Playwright (chromium only)
+      if:
+        inputs.install-playwright == 'true' && inputs.playwright-browsers == 'chromium' &&
+        steps.pw-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: npx playwright install chromium --with-deps
+
+    - name: Ensure Playwright deps (chromium only)
+      if:
+        inputs.install-playwright == 'true' && inputs.playwright-browsers == 'chromium' &&
+        steps.pw-cache.outputs.cache-hit == 'true'
+      shell: bash
+      run: npx playwright install-deps chromium
+
+    - name: Install Playwright (all browsers)
+      if:
+        inputs.install-playwright == 'true' && inputs.playwright-browsers == 'all' && steps.pw-cache.outputs.cache-hit
+        != 'true'
+      shell: bash
+      run: npx playwright install --with-deps
+
+    - name: Ensure Playwright deps (all browsers)
+      if:
+        inputs.install-playwright == 'true' && inputs.playwright-browsers == 'all' && steps.pw-cache.outputs.cache-hit
+        == 'true'
+      shell: bash
+      run: npx playwright install-deps

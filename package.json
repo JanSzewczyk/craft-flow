@@ -22,7 +22,6 @@
     "storybook:dev": "storybook dev -p 6006",
     "storybook:serve": "serve storybook-static",
     "test": "vitest run --passWithNoTests",
-    "test:ci": "vitest --coverage",
     "test:coverage": "vitest --coverage --passWithNoTests",
     "test:e2e": "playwright test --pass-with-no-tests",
     "test:e2e:ci": " playwright test --pass-with-no-tests",

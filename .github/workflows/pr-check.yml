@@ -29,17 +29,12 @@ jobs:
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
-      - name: Set up Node.js 🟢
-        uses: actions/setup-node@v6
+      - name: Setup Node & deps ⚙️
+        uses: ./.github/actions/setup-node-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Install dependencies ⚙️
-        run: npm ci
       - name: Build Check 🏗️
         run: npm run build
-  #        env:
-  #          SOME_SECRET: ${{ secret.SOME_SECRET }}
 
   build-storybook:
     name: Build Storybook 📖🏗️
@@ -47,13 +42,10 @@ jobs:
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
-      - name: Set up Node.js 🟢
-        uses: actions/setup-node@v6
+      - name: Setup Node & deps ⚙️
+        uses: ./.github/actions/setup-node-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Install packages ⚙️
-        run: npm ci
       - name: Build Check 🏗️
         run: npm run storybook:build
 
@@ -63,13 +55,10 @@ jobs:
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
-      - name: Set up Node.js 🟢
-        uses: actions/setup-node@v6
+      - name: Setup Node & deps ⚙️
+        uses: ./.github/actions/setup-node-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Install dependencies ⚙️
-        run: npm ci
       - name: Prettier Check 🧹
         run: npm run prettier:check
 
@@ -79,23 +68,15 @@ jobs:
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
-      - name: Set up Node 🟢
-        uses: actions/setup-node@v6
+      - name: Setup Node & deps ⚙️
+        uses: ./.github/actions/setup-node-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Install dependencies ⚙️
-        run: npm ci
       - name: Install utils ⚙️
         run: npm install @microsoft/eslint-formatter-sarif
       - name: ESlint Check ⬣
         run: npm run lint:ci
         continue-on-error: true
-  #      - name: Upload ESlint results to GitHub
-  #        uses: github/codeql-action/upload-sarif@v4
-  #        with:
-  #          sarif_file: eslint-results.sarif
-  #          wait-for-processing: true
 
   type-check:
     name: TypeScript 🛠️
@@ -103,113 +84,95 @@ jobs:
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
-      - name: Set up Node.js 🟢
-        uses: actions/setup-node@v6
+      - name: Setup Node & deps ⚙️
+        uses: ./.github/actions/setup-node-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Install dependencies ⚙️
-        run: npm ci
       - name: TypeScript Check 🛠️
         run: npm run type-check
 
-  test-unit:
-    name: Test Unit 🧪
+  prewarm-playwright-cache:
+    name: Prewarm Playwright Cache ♻️
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
-      - name: Set up Node.js 🟢
-        uses: actions/setup-node@v6
+      - name: Setup Node & deps + Playwright ⚙️
+        uses: ./.github/actions/setup-node-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Install packages ⚙️
-        run: npm ci
-      - name: Run Unit Tests 🧪
-        run: npm run test:unit:coverage
-      - name: Upload Unit Coverage
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-unit
-          path: coverage-unit/
-          retention-days: 1
+          install-playwright: "true"
 
-  test-storybook:
-    name: Test Storybook 📖🧪
+  test:
+    name: Test ${{ matrix.feature }} 🧪
     runs-on: ubuntu-latest
+    needs: [prewarm-playwright-cache]
     permissions:
       contents: read
       pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { feature: auth, path: "features/auth/", extraArgs: "" }
+          - { feature: billing, path: "features/billing/", extraArgs: "" }
+          - { feature: contact, path: "features/contact/", extraArgs: "" }
+          - { feature: contractor, path: "features/contractor/", extraArgs: "" }
+          - { feature: crm, path: "features/crm/", extraArgs: "" }
+          - { feature: marketing, path: "features/marketing/", extraArgs: "" }
+          - { feature: onboarding, path: "features/onboarding/", extraArgs: "" }
+          - { feature: projects, path: "features/projects/", extraArgs: "" }
+          - { feature: templates, path: "features/templates/", extraArgs: "" }
+          - { feature: misc, path: "lib/ components/ app/ tests/unit/", extraArgs: "--exclude='**/features/**'" }
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
-      - name: Set up Node.js 🟢
-        uses: actions/setup-node@v6
+      - name: Setup Node & deps ⚙️
+        uses: ./.github/actions/setup-node-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Install packages ⚙️
-        run: npm ci
-      - name: Cache Playwright Browsers
-        uses: actions/cache@v5
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-      - name: Install Playwright (Chromium only)
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium --with-deps
-      - name: Ensure Playwright deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-      - name: Run Storybook Tests 📖🧪
-        run: npm run test:storybook:coverage
-      - name: Upload Storybook Coverage
+          install-playwright: "true"
+      - name: Run tests for ${{ matrix.feature }} 🧪
+        run:
+          npx vitest run --coverage --passWithNoTests ${{ matrix.path }} ${{ matrix.extraArgs }}
+          --outputFile=.vitest-reports/blob-${{ matrix.feature }}.json
+      - name: Upload blob report
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-storybook
-          path: coverage-storybook/
+          name: blob-${{ matrix.feature }}
+          path: .vitest-reports/*
           retention-days: 1
+          include-hidden-files: true
 
   report-coverage:
     name: Coverage Report 📊
     runs-on: ubuntu-latest
-    needs: [test-unit, test-storybook]
+    needs: [test]
     if: always()
     permissions:
       contents: read
       pull-requests: write
     steps:
-      - name: Download Unit Coverage
+      - name: Checkout code 📚
+        uses: actions/checkout@v6
+      - name: Setup Node & deps ⚙️
+        uses: ./.github/actions/setup-node-deps
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Download blob reports
         uses: actions/download-artifact@v8
         with:
-          name: coverage-unit
-          path: coverage-unit/
-      - name: Download Storybook Coverage
-        uses: actions/download-artifact@v8
-        with:
-          name: coverage-storybook
-          path: coverage-storybook/
-      - name: Merge Coverage Reports
-        run: |
-          mkdir -p .nyc_input coverage-merged
-          cp coverage-unit/coverage-final.json .nyc_input/unit.json
-          cp coverage-storybook/coverage-final.json .nyc_input/storybook.json
-          npx nyc merge .nyc_input coverage-merged/coverage-final.json
-          mkdir -p .nyc_merged
-          cp coverage-merged/coverage-final.json .nyc_merged/merged.json
-          npx nyc report --reporter=json-summary --temp-dir=.nyc_merged --report-dir=coverage-merged
-      - name: Report Merged Coverage
+          path: .vitest-reports
+          pattern: blob-*
+          merge-multiple: true
+      - name: Merge reports & generate coverage
+        run: npx vitest run --merge-reports=.vitest-reports --reporter=default --coverage
+      - name: Report coverage to PR
         uses: davelosert/vitest-coverage-report-action@v2
         with:
-          json-summary-path: coverage-merged/coverage-summary.json
-          json-final-path: coverage-merged/coverage-final.json
+          json-summary-path: coverage/coverage-summary.json
+          json-final-path: coverage/coverage-final.json
 
   e2e-test:
     name: Playwright 🎭
@@ -218,17 +181,14 @@ jobs:
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
-      - name: Set up Node.js 🟢
-        uses: actions/setup-node@v6
+      - name: Setup Node & deps ⚙️
+        uses: ./.github/actions/setup-node-deps
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Install dependencies ⚙️
-        run: npm ci
+          install-playwright: "true"
+          playwright-browsers: "all"
       - name: Build app 🏗️
         run: npm run build
-      - name: Install Playwright Browsers ⚙️
-        run: npx playwright install --with-deps
       - name: Playwright tests check 🎭
         run: npm run test:e2e:ci
       - uses: actions/upload-artifact@v7

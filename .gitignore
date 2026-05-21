@@ -110,6 +110,7 @@ jest-results.json
 /coverage
 /coverage-storybook
 /coverage-unit
+/.vitest-reports
 
 # Develpment
 .vscode/

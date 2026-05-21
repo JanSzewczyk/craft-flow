@@ -11,7 +11,7 @@ import { setUserMetadata } from "../api/set-user-metadata";
 const logger = createLogger({ module: "complete-sign-up-action" });
 
 const completeSignUpSchema = z.object({
-  userId: z.string().min(1, "User ID is required")
+  userId: z.string().trim().min(1, "User ID is required")
 });
 
 export async function completeSignUp(userId: string): ActionResponse<true> {

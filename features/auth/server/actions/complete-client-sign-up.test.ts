@@ -24,7 +24,7 @@ import { completeClientSignUp } from "./complete-client-sign-up";
 const USER_ID = "user-client-1";
 const PRIMARY_EMAIL = "client@example.com";
 
-function makeClerkClient(email: string | undefined = PRIMARY_EMAIL) {
+function makeClerkClient(email: string | null = PRIMARY_EMAIL) {
   return {
     users: {
       getUser: vi.fn().mockResolvedValue({
@@ -53,7 +53,7 @@ describe("completeClientSignUp", () => {
 
   describe("missing primary email", () => {
     it("returns error when user has no primary email address", async () => {
-      mocks.clerkClient.mockResolvedValue(makeClerkClient(undefined));
+      mocks.clerkClient.mockResolvedValue(makeClerkClient(null));
       const result = await completeClientSignUp({ inviteToken: null, userId: USER_ID });
       expect(result).toEqual({
         success: false,

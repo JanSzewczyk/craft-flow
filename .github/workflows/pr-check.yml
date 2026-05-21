@@ -114,16 +114,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { feature: auth, path: "features/auth/" }
-          - { feature: billing, path: "features/billing/" }
-          - { feature: contact, path: "features/contact/" }
-          - { feature: contractor, path: "features/contractor/" }
-          - { feature: crm, path: "features/crm/" }
-          - { feature: marketing, path: "features/marketing/" }
-          - { feature: onboarding, path: "features/onboarding/" }
-          - { feature: projects, path: "features/projects/" }
-          - { feature: templates, path: "features/templates/" }
-          - { feature: misc, path: "lib/ components/ app/ tests/unit/" }
+          - { feature: auth, path: "features/auth/", extraArgs: "" }
+          - { feature: billing, path: "features/billing/", extraArgs: "" }
+          - { feature: contact, path: "features/contact/", extraArgs: "" }
+          - { feature: contractor, path: "features/contractor/", extraArgs: "" }
+          - { feature: crm, path: "features/crm/", extraArgs: "" }
+          - { feature: marketing, path: "features/marketing/", extraArgs: "" }
+          - { feature: onboarding, path: "features/onboarding/", extraArgs: "" }
+          - { feature: projects, path: "features/projects/", extraArgs: "" }
+          - { feature: templates, path: "features/templates/", extraArgs: "" }
+          - { feature: misc, path: "lib/ components/ app/ tests/unit/", extraArgs: "--exclude='**/features/**'" }
     steps:
       - name: Checkout code 📚
         uses: actions/checkout@v6
@@ -133,7 +133,9 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           install-playwright: "true"
       - name: Run tests for ${{ matrix.feature }} 🧪
-        run: npm run test:path -- ${{ matrix.path }} --outputFile=.vitest-reports/blob-${{ matrix.feature }}.json
+        run:
+          npx vitest run --coverage --passWithNoTests ${{ matrix.path }} ${{ matrix.extraArgs }}
+          --outputFile=.vitest-reports/blob-${{ matrix.feature }}.json
       - name: Upload blob report
         if: always()
         uses: actions/upload-artifact@v7
@@ -165,7 +167,7 @@ jobs:
           pattern: blob-*
           merge-multiple: true
       - name: Merge reports & generate coverage
-        run: npm run test:merge-reports
+        run: npx vitest run --merge-reports=.vitest-reports --reporter=default --coverage
       - name: Report coverage to PR
         uses: davelosert/vitest-coverage-report-action@v2
         with:

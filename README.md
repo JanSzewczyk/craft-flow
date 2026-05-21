@@ -249,16 +249,15 @@ Deploy to **Vercel** with a single click:
 
 ### 🧪 Testing
 
-| Script                   | Description                           |
-| ------------------------ | ------------------------------------- |
-| `npm run test`           | Run all Vitest tests                  |
-| `npm run test:ci`        | Tests with coverage for CI            |
-| `npm run test:coverage`  | Generate coverage report              |
-| `npm run test:unit`      | Unit tests only                       |
-| `npm run test:watch`     | Watch mode                            |
-| `npm run test:storybook` | Storybook component tests             |
-| `npm run test:e2e`       | Playwright E2E tests (requires build) |
-| `npm run test:e2e:ui`    | Playwright UI mode                    |
+| Script                   | Description                                  |
+| ------------------------ | -------------------------------------------- |
+| `npm run test`           | Run all Vitest tests                         |
+| `npm run test:coverage`  | Generate full coverage report                |
+| `npm run test:unit`      | Unit tests only (with coverage)              |
+| `npm run test:watch`     | Watch mode                                   |
+| `npm run test:storybook` | Storybook component tests (Chromium browser) |
+| `npm run test:e2e`       | Playwright E2E tests (requires build)        |
+| `npm run test:e2e:ui`    | Playwright UI mode                           |
 
 ### 📚 Storybook
 
@@ -292,12 +291,23 @@ npx vitest run --project=unit path/to/file.test.ts
 npm run test:storybook
 ```
 
-Storybook interaction tests run in a real browser. Stories use CSF Next format with the `.test()` method:
+Storybook interaction tests run in a real Chromium browser via `@vitest/browser-playwright`. Stories use CSF Next format
+with the `.test()` method:
 
 ```typescript
-const meta = preview.meta({ title: "Features/...", component: MyComponent });
-export const Default = meta.story({ args: { ... } });
+const meta = preview.meta({
+  title: "Features/...",
+  component: MyComponent,
+  args: { requiredProp: defaultBuilder.one() } // required props as default meta args
+});
+export const Default = meta.story({});
 Default.test("renders correctly", async ({ canvas }) => { ... });
+```
+
+Run a single story file:
+
+```bash
+npx vitest run --project=storybook path/to/component.stories.tsx
 ```
 
 ### 🎭 End-to-End Tests (Playwright)
@@ -396,14 +406,24 @@ LOG_LEVEL=trace   # Everything
 
 #### 1. ✅ PR Check (`pr-check.yml`)
 
-Runs on every pull request:
+Runs on every pull request with the following jobs:
 
 - 🏗️ **Build** — Verifies the project builds successfully
-- 🧹 **Prettier** — Code formatting
+- 🧹 **Prettier** — Code formatting check
 - ⬣ **ESLint** — Code quality and linting
 - 🛠️ **TypeScript** — Type checking
-- 🧪 **Tests** — Unit and Storybook component tests
-- 🎭 **Playwright** — E2E tests
+- ♻️ **Prewarm Playwright Cache** — Installs Chromium once before the test matrix to prevent cache-save race conditions
+- 🧪 **Test `<feature>` (matrix)** — **10 parallel jobs**, one per feature domain (`auth`, `billing`, `contact`,
+  `contractor`, `crm`, `marketing`, `onboarding`, `projects`, `templates`, `misc`). Each job runs both unit
+  (`*.test.ts`) and Storybook (`*.stories.tsx`) tests for its domain in a single Vitest pass using the
+  [blob reporter](https://vitest.dev/guide/improving-performance#sharding) to produce a coverage shard.
+- 📊 **Coverage Report** — Merges all 10 blob shards with `vitest run --merge-reports`, generates a unified coverage
+  summary, and posts it as a PR comment via
+  [vitest-coverage-report-action](https://github.com/davelosert/vitest-coverage-report-action).
+- 🎭 **Playwright E2E** — Full end-to-end test suite (Chromium + Firefox + WebKit)
+
+The matrix strategy uses `fail-fast: false` so a failure in one domain does not cancel the remaining nine jobs — all
+domains always finish and the coverage report is always generated.
 
 #### 2. 🤖 AI Code Review (`code-review.yml`)
 

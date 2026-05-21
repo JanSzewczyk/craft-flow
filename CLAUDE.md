@@ -326,14 +326,33 @@ Vitest 4.1 is configured with two project modes:
 **Storybook stories** use CSF Next format with `preview.meta()` / `meta.story()` and `.test()` method for interaction tests:
 
 ```ts
-const meta = preview.meta({ title: "Features/...", component: MyComponent });
-export const Default = meta.story({ args: { ... } });
+// Required component props must be provided as default args at the meta level
+// so Storybook's type system can guarantee they are always present.
+const meta = preview.meta({
+  title: "Features/...",
+  component: MyComponent,
+  args: { requiredProp: defaultBuilder.one() }  // required props here, not in individual stories
+});
+export const Default = meta.story({});                              // inherits meta args
+export const Variant = meta.story({ args: { requiredProp: x } });  // overrides meta arg
 Default.test("renders correctly", async ({ canvas }) => { ... });
 ```
+
+When a story renders a `FormWrapper` instead of the raw component (e.g. to inject `useForm`), use `component: FormWrapper` in `preview.meta()` — not the underlying component. This avoids requiring non-serializable props (like `UseFormReturn`) in args.
 
 > **Always invoke the `testing:storybook-testing` skill** before creating, modifying, or extending Storybook stories or interaction tests. The skill encodes the canonical CSF Next patterns, builder usage, and `.test()` conventions for this project.
 
 **Test data builders** use `mimicry-js` + `faker`. One builder per entity, exported from `test/builders/index.ts`. All story `args` must use builders — no hardcoded test data.
+
+**Builder placement rule**: A builder lives in the same feature as the type it builds. If the type is in `features/projects/types/`, the builder goes in `features/projects/test/builders/` — even if it is used in another feature's stories or tests. Other features import builders directly from the owning feature:
+
+```ts
+// ✓ — CRM story imports a builder from the projects feature (type owner)
+import { clientProjectDetailBuilder } from "~/features/projects/test/builders";
+
+// ✗ — never duplicate the builder in the consuming feature's builders directory
+import { clientProjectDetailBuilder } from "~/features/crm/test/builders";
+```
 
 ```ts
 export const myBuilder = build<MyType>({
@@ -398,6 +417,8 @@ Uses `next-themes` for dark/light/system switching. `ThemeProvider` in `app/layo
 | React Hook Form child components | Read `form.formState.errors` from prop directly | Use `useFormState({ control: form.control })` in child — React Compiler memoizes children, blocking re-renders when parent form state changes |
 | Storybook test queries | `getByText("Wybierz branżę")` when Select placeholder matches error text | `getByText("...", { selector: '[data-slot="field-error"]' })` to target the error element specifically |
 | Nullable form fields | Omit nullable fields from `defaultValues` | Always include nullable fields as `null` — Zod `z.nullable()` rejects `undefined` |
+| Builder placement | Put a builder in the feature that uses it | Put a builder in the feature that owns the type (`features/projects/types/` → `features/projects/test/builders/`) |
+| Storybook required props | Pass required props only in story-level args | Pass required props as default args at `preview.meta()` level; story-level args override them |
 
 ## Before Implementing a New Page
 

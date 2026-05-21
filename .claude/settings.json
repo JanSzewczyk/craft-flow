@@ -1,9 +1,5 @@
 {
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "next-devtools",
-    "stitch"
-  ],
   "hooks": {
     "PreToolUse": [
       {

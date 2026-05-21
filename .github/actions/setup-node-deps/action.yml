@@ -8,9 +8,15 @@ inputs:
     description: "Node.js version"
     required: true
   install-playwright:
-    description: "Install Chromium with system deps for browser tests"
+    description: "Install Playwright browsers with system deps"
     required: false
     default: "false"
+  playwright-browsers:
+    description:
+      "Which browsers to install when install-playwright is true. 'chromium' for Vitest browser mode, 'all' for full
+      Playwright E2E."
+    required: false
+    default: "chromium"
 
 runs:
   using: composite
@@ -41,14 +47,32 @@ runs:
       uses: actions/cache@v5
       with:
         path: ~/.cache/ms-playwright
-        key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        key: playwright-${{ runner.os }}-${{ inputs.playwright-browsers }}-${{ hashFiles('package-lock.json') }}
 
-    - name: Install Playwright (Chromium only)
-      if: inputs.install-playwright == 'true' && steps.pw-cache.outputs.cache-hit != 'true'
+    - name: Install Playwright (chromium only)
+      if:
+        inputs.install-playwright == 'true' && inputs.playwright-browsers == 'chromium' &&
+        steps.pw-cache.outputs.cache-hit != 'true'
       shell: bash
       run: npx playwright install chromium --with-deps
 
-    - name: Ensure Playwright deps
-      if: inputs.install-playwright == 'true' && steps.pw-cache.outputs.cache-hit == 'true'
+    - name: Ensure Playwright deps (chromium only)
+      if:
+        inputs.install-playwright == 'true' && inputs.playwright-browsers == 'chromium' &&
+        steps.pw-cache.outputs.cache-hit == 'true'
       shell: bash
       run: npx playwright install-deps chromium
+
+    - name: Install Playwright (all browsers)
+      if:
+        inputs.install-playwright == 'true' && inputs.playwright-browsers == 'all' && steps.pw-cache.outputs.cache-hit
+        != 'true'
+      shell: bash
+      run: npx playwright install --with-deps
+
+    - name: Ensure Playwright deps (all browsers)
+      if:
+        inputs.install-playwright == 'true' && inputs.playwright-browsers == 'all' && steps.pw-cache.outputs.cache-hit
+        == 'true'
+      shell: bash
+      run: npx playwright install-deps

@@ -10,7 +10,6 @@ const mocks = vi.hoisted(() => ({
   setUserMetadata: vi.fn()
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@clerk/nextjs/server", () => ({ auth: mocks.auth }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -27,12 +26,6 @@ vi.mock("~/features/contractor/server/db", () => ({
 vi.mock("~/features/templates/server/db", () => ({ createTemplate: mocks.createTemplate }));
 vi.mock("~/features/auth/server/api/set-user-metadata", () => ({ setUserMetadata: mocks.setUserMetadata }));
 vi.mock("~/features/auth/constants/roles", () => ({ Role: { CONTRACTOR: "CONTRACTOR" } }));
-vi.mock("~/lib/logger", () => {
-  const noop = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn(), child: vi.fn() };
-  noop.child.mockReturnValue(noop);
-  return { default: noop, createLogger: vi.fn(() => noop) };
-});
-
 import { finalizeOnboardingAction } from "~/features/onboarding/server/actions/finalize-onboarding";
 import { onboardingStateBuilder } from "~/features/onboarding/test/builders";
 

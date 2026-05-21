@@ -28,7 +28,7 @@
     "test:e2e:ci": " playwright test --pass-with-no-tests",
     "test:e2e:ui": "playwright test --ui --pass-with-no-tests",
     "test:merge-reports": "vitest run --merge-reports=.vitest-reports --reporter=default --coverage",
-    "test:path": "vitest run --reporter=blob --coverage --passWithNoTests",
+    "test:path": "vitest run --coverage --passWithNoTests",
     "test:storybook": "vitest --project=storybook --coverage --passWithNoTests",
     "test:storybook:coverage": "vitest run --project=storybook --coverage.enabled --coverage.reportsDirectory=coverage-storybook",
     "test:ui": "vitest --ui",

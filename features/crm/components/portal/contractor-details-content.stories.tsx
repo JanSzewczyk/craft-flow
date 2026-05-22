@@ -7,7 +7,9 @@ import preview from "~/.storybook/preview";
 
 import { ContractorDetailsContent } from "./contractor-details-content";
 
-const minimalContractor: ClientContractorListItem = clientContractorListItemBuilder.one();
+const minimalContractor: ClientContractorListItem = clientContractorListItemBuilder.one({
+  overrides: { activeProjectCount: 3, projectCount: 10 }
+});
 const contractorWithPhone: ClientContractorListItem = clientContractorListItemBuilder.one({
   traits: "withPhone"
 });

@@ -1,7 +1,7 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import { type ProjectStep } from "~/features/projects/server/db/schema";
+import { type ProjectStep } from "~/features/projects/types/project";
 
 export const projectStepBuilder = build<ProjectStep>({
   fields: {

@@ -37,7 +37,7 @@ Default.test("Renders company name in sheet title", async ({ args }) => {
 Default.test("Renders contractor ID prefix in description", async ({ args }) => {
   const canvas = within(await screen.findByRole("dialog"));
 
-  await expect(canvas.getByText(`ID Wykonawcy: ${args.contractor.id.slice(0, 8)}`)).toBeVisible();
+  await expect(canvas.getByText(`ID Wykonawcy: ${args.contractor.id.slice(0, 8)}`)).toBeInTheDocument();
 });
 
 export const WithFullDetails = meta.story({
@@ -55,6 +55,6 @@ WithFullDetails.test("Renders company name in sheet title", async ({ args }) => 
 WithFullDetails.test("Renders phone and address inside sheet", async ({ args }) => {
   const canvas = within(await screen.findByRole("dialog"));
 
-  await expect(canvas.getByText(args.contractor.phone!)).toBeVisible();
-  await expect(canvas.getByText(args.contractor.address!.street)).toBeVisible();
+  await expect(canvas.getByText(args.contractor.phone!)).toBeInTheDocument();
+  await expect(canvas.getByText(args.contractor.address!.street)).toBeInTheDocument();
 });

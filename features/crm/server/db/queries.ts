@@ -4,9 +4,17 @@ import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 import { projects } from "~/lib/supabase/schema";
-import { type PaginationMeta } from "~/types/pagination";
 
-import { clients, type Client } from "./schema";
+import {
+  type Client,
+  type ClientListItem,
+  type ClientListOptions,
+  type ClientListResult
+} from "~/features/crm/types/client";
+
+import { clients } from "./schema";
+
+export type { ClientListItem, ClientListOptions, ClientListResult };
 
 const logger = createLogger({ module: "crm-db" });
 
@@ -51,28 +59,6 @@ export async function getClientById({
     return [serviceError, null];
   }
 }
-
-export type ClientListItem = {
-  id: string;
-  contractorId: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  clerkUserId: string | null;
-  hasProjects: boolean;
-  createdAt: Date;
-};
-
-export type ClientListOptions = {
-  search?: string;
-  page: number;
-  perPage: number;
-};
-
-export type ClientListResult = {
-  items: ClientListItem[];
-  pagination: PaginationMeta;
-};
 
 export async function getClientListByContractorId({
   contractorId,

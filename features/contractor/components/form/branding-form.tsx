@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { type DefaultValues, useForm } from "react-hook-form";
+import { type DefaultValues, useForm, useFormState } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, toast } from "@szum-tech/design-system";
@@ -38,8 +38,10 @@ export function BrandingForm({
 
   const form = useForm<BrandingFormData>({
     resolver: zodResolver(brandingSchema),
-    defaultValues: defaultValues ?? { brandColor: DEFAULT_BRAND_COLOR }
+    defaultValues: defaultValues ?? { logoUrl: null, brandColor: DEFAULT_BRAND_COLOR }
   });
+
+  const { isDirty, isSubmitting } = useFormState({ control: form.control });
 
   React.useEffect(() => {
     const subscription = form.watch((value) => {
@@ -118,10 +120,10 @@ export function BrandingForm({
       />
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button variant="outline" type="button" disabled={!form.formState.isDirty} onClick={() => form.reset()}>
+        <Button variant="outline" type="button" disabled={!isDirty} onClick={() => form.reset()}>
           Anuluj
         </Button>
-        <Button type="submit" loading={form.formState.isSubmitting} disabled={!form.formState.isDirty}>
+        <Button type="submit" loading={isSubmitting} disabled={!isDirty}>
           Zapisz zmiany
         </Button>
       </div>

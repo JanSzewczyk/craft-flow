@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@szum-tech/design-system";
-import { expect, fn } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 import { brandingSchema, type BrandingFormData } from "~/features/contractor/schemas/branding-schema";
 import { brandingFormBuilder } from "~/features/contractor/test/builders";
 
@@ -168,7 +168,8 @@ WithUrl.test("Renders logo item instead of dropzone", async ({ canvas, step }) =
 });
 
 WithUrl.test("Clicking remove button calls onRemoveLogo", async ({ canvas, userEvent, args }) => {
-  const removeButton = canvas.getByRole("button");
+  const listItem = canvas.getByRole("listitem");
+  const removeButton = within(listItem).getByRole("button");
   await userEvent.click(removeButton);
   await expect(args.onRemoveLogo).toHaveBeenCalledOnce();
 });

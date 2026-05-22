@@ -1,6 +1,8 @@
 import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 
+export type { Client } from "~/features/crm/types/client";
+
 export const clients = pgTable("clients", {
   id: uuid("id").primaryKey().defaultRandom(),
   contractorId: varchar("contractor_id", { length: 255 })
@@ -13,5 +15,3 @@ export const clients = pgTable("clients", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
-
-export type Client = typeof clients.$inferSelect;

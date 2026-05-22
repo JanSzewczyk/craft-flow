@@ -40,9 +40,8 @@ export const projectSteps = pgTable("project_steps", {
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
-export type ProjectRow = typeof projects.$inferSelect;
+export type { ProjectRow, ProjectStep, ProjectListItem } from "~/features/projects/types/project";
 export type Project = BuildQueryResult<TSchema, TSchema["projects"], { with: { client: true; steps: true } }>;
-export type ProjectStep = typeof projectSteps.$inferSelect;
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
   client: one(clients, {

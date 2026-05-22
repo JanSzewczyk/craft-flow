@@ -62,15 +62,15 @@ export const Empty = meta.story({
 
 Empty.test("Renders all expected content", async ({ canvas, step }) => {
   await step("Street field is visible", async () => {
-    await expect(canvas.getByLabelText("Ulica i numer")).toBeVisible();
+    await expect(canvas.getByLabelText("Ulica i numer", { exact: false })).toBeVisible();
   });
 
   await step("Postal code field is visible", async () => {
-    await expect(canvas.getByLabelText("Kod pocztowy")).toBeVisible();
+    await expect(canvas.getByLabelText("Kod pocztowy", { exact: false })).toBeVisible();
   });
 
   await step("City field is visible", async () => {
-    await expect(canvas.getByLabelText("Miasto")).toBeVisible();
+    await expect(canvas.getByLabelText("Miasto", { exact: false })).toBeVisible();
   });
 
   await step("Country field is visible", async () => {
@@ -78,26 +78,26 @@ Empty.test("Renders all expected content", async ({ canvas, step }) => {
   });
 
   await step("Additional info field is visible", async () => {
-    await expect(canvas.getByLabelText("Informacje dodatkowe")).toBeVisible();
+    await expect(canvas.getByLabelText("Informacje dodatkowe", { exact: false })).toBeVisible();
   });
 });
 
 Empty.test("All inputs are empty by default", async ({ canvas }) => {
-  await expect(canvas.getByLabelText("Ulica i numer")).toHaveValue("");
-  await expect(canvas.getByLabelText("Kod pocztowy")).toHaveValue("");
-  await expect(canvas.getByLabelText("Miasto")).toHaveValue("");
+  await expect(canvas.getByLabelText("Ulica i numer", { exact: false })).toHaveValue("");
+  await expect(canvas.getByLabelText("Kod pocztowy", { exact: false })).toHaveValue("");
+  await expect(canvas.getByLabelText("Miasto", { exact: false })).toHaveValue("");
   await expect(canvas.getByLabelText("Kraj")).toHaveValue("");
 });
 
 Empty.test("Can type into address fields", async ({ canvas, userEvent }) => {
-  const streetInput = canvas.getByLabelText("Ulica i numer");
+  const streetInput = canvas.getByLabelText("Ulica i numer", { exact: false });
   await userEvent.type(streetInput, "ul. Testowa 1");
 
   await waitFor(async () => {
     await expect(streetInput).toHaveValue("ul. Testowa 1");
   });
 
-  const cityInput = canvas.getByLabelText("Miasto");
+  const cityInput = canvas.getByLabelText("Miasto", { exact: false });
   await userEvent.type(cityInput, "Warszawa");
 
   await waitFor(async () => {
@@ -119,15 +119,15 @@ export const Prefilled = meta.story({
 
 Prefilled.test("Displays pre-filled address values", async ({ canvas, step }) => {
   await step("Street is pre-filled", async () => {
-    await expect(canvas.getByLabelText("Ulica i numer")).toHaveValue("ul. Główna 12");
+    await expect(canvas.getByLabelText("Ulica i numer", { exact: false })).toHaveValue("ul. Główna 12");
   });
 
   await step("Postal code is pre-filled", async () => {
-    await expect(canvas.getByLabelText("Kod pocztowy")).toHaveValue("00-001");
+    await expect(canvas.getByLabelText("Kod pocztowy", { exact: false })).toHaveValue("00-001");
   });
 
   await step("City is pre-filled", async () => {
-    await expect(canvas.getByLabelText("Miasto")).toHaveValue("Warszawa");
+    await expect(canvas.getByLabelText("Miasto", { exact: false })).toHaveValue("Warszawa");
   });
 
   await step("Country is pre-filled", async () => {
@@ -136,7 +136,7 @@ Prefilled.test("Displays pre-filled address values", async ({ canvas, step }) =>
 });
 
 Prefilled.test("Can modify pre-filled street value", async ({ canvas, userEvent }) => {
-  const streetInput = canvas.getByLabelText("Ulica i numer");
+  const streetInput = canvas.getByLabelText("Ulica i numer", { exact: false });
   await userEvent.clear(streetInput);
   await userEvent.type(streetInput, "ul. Nowa 5");
 

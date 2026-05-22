@@ -1,3 +1,6 @@
+import { type Client } from "~/features/crm/types/client";
+import { type PaginationMeta } from "~/types/pagination";
+
 export const ProjectStatus = {
   DRAFT: "DRAFT",
   ACTIVE: "ACTIVE",
@@ -9,6 +12,64 @@ export const ProjectStatus = {
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus];
 
 export const ProjectStatuses = Object.values(ProjectStatus) as Array<ProjectStatus>;
+
+export type ProjectRow = {
+  id: string;
+  contractorId: string;
+  clientId: string;
+  name: string;
+  description: string | null;
+  status: ProjectStatus;
+  publicToken: string;
+  lastClientViewAt: Date | null;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type ProjectStep = {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string | null;
+  isCompleted: boolean;
+  completedAt: Date | null;
+  orderIndex: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type ProjectListItem = {
+  id: string;
+  name: string;
+  status: ProjectStatus;
+  clientName: string;
+  lastClientViewAt: Date | null;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  totalSteps: number;
+  completedSteps: number;
+};
+
+export type ProjectListOptions = {
+  status?: ProjectStatus;
+  search?: string;
+  page: number;
+  perPage: number;
+};
+
+export type ProjectListResult = {
+  items: Array<ProjectListItem>;
+  pagination: PaginationMeta;
+};
+
+export type Project = ProjectRow & {
+  client: Client;
+  steps: Array<ProjectStep>;
+};
 
 export type ClientProjectStep = {
   id: string;

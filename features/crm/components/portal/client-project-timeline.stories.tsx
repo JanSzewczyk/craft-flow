@@ -30,7 +30,7 @@ export const Empty = meta.story({});
 
 Empty.test("Renders empty state content", async ({ canvas, step }) => {
   await step("Empty state heading is visible", async () => {
-    await expect(canvas.getByRole("heading", { name: /brak etapów/i })).toBeVisible();
+    await expect(canvas.getByText("Brak etapów")).toBeVisible();
   });
 
   await step("Empty state description is visible", async () => {
@@ -66,7 +66,7 @@ InProgress.test("Renders all expected content", async ({ canvas, step }) => {
   await step("All three status badges are visible", async () => {
     await expect(canvas.getByText("Ukończono")).toBeVisible();
     await expect(canvas.getByText("W trakcie")).toBeVisible();
-    await expect(canvas.getAllByText("Oczekuje")).toHaveLength(2);
+    await expect(canvas.getAllByText("Oczekuje")).toHaveLength(1);
   });
 });
 

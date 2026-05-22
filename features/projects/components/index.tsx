@@ -9,4 +9,3 @@ export { ProjectsTable } from "./projects-table";
 export { ProjectsTabsNav } from "./projects-tabs-nav";
 export { ProjectStatusBadge } from "./project-status-badge";
 export { ProjectTimeline } from "./project-timeline";
-export { TabCount } from "./tab-count";

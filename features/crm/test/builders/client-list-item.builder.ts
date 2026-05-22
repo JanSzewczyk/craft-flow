@@ -1,7 +1,7 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import { type ClientListItem } from "~/features/crm/server/db/queries";
+import { type ClientListItem } from "~/features/crm/types/client";
 
 /**
  * Builder for ClientListItem test data.

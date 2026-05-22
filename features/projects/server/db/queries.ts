@@ -11,14 +11,21 @@ import {
   type ContractorListResult
 } from "~/features/projects/types/contractor";
 import { isFilterableStatus, type ProjectStatusFilter } from "~/features/projects/types/project-filter";
-import { ProjectStatus, type ClientProjectListItem } from "~/features/projects/types/project";
+import {
+  ProjectStatus,
+  type ClientProjectListItem,
+  type ProjectListItem,
+  type ProjectListOptions,
+  type ProjectListResult
+} from "~/features/projects/types/project";
 import { addresses } from "~/features/shared/server/db/schema";
 import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
-import { type PaginationMeta } from "~/types/pagination";
 
 import { projectSteps, projects, type ProjectStep, type Project, type ProjectRow } from "./schema";
+
+export type { ProjectListItem, ProjectListOptions, ProjectListResult };
 
 const logger = createLogger({ module: "projects-db" });
 
@@ -82,32 +89,6 @@ export async function getProjectSteps({
     return [serviceError, null];
   }
 }
-
-export type ProjectListItem = {
-  id: string;
-  name: string;
-  status: string;
-  clientName: string;
-  lastClientViewAt: Date | null;
-  startedAt: Date | null;
-  completedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  totalSteps: number;
-  completedSteps: number;
-};
-
-export type ProjectListOptions = {
-  status?: ProjectStatus;
-  search?: string;
-  page: number;
-  perPage: number;
-};
-
-export type ProjectListResult = {
-  items: Array<ProjectListItem>;
-  pagination: PaginationMeta;
-};
 
 export async function getProjectListByContractor({
   contractorId,

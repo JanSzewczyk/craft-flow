@@ -1,7 +1,7 @@
 import { build } from "mimicry-js";
 
 import { faker } from "@faker-js/faker";
-import { type Client } from "~/features/crm/server/db/schema";
+import { type Client } from "~/features/crm/types/client";
 
 /**
  * Builder for Client test data.

@@ -20,7 +20,7 @@ import { createLogger } from "~/lib/logger";
 import { type ServiceResult } from "~/lib/services/errors";
 import { SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-import { type Client } from "../db/schema";
+import { type Client } from "~/features/crm/types/client";
 
 const logger = createLogger({ module: "crm-service" });
 

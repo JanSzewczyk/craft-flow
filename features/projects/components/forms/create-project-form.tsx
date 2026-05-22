@@ -28,7 +28,7 @@ import {
   toast
 } from "@szum-tech/design-system";
 import { useRouter } from "next/navigation";
-import { type Client } from "~/features/crm/server/db/schema";
+import { type Client } from "~/features/crm/types/client";
 import { type Template } from "~/features/templates/server/db/schema";
 import { type RedirectAction } from "~/lib/action-types";
 

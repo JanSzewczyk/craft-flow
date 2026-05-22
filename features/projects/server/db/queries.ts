@@ -5,7 +5,6 @@ import { and, asc, count, desc, eq, gte, ilike, inArray, ne, or, sql } from "dri
 import { contractorProfile } from "~/features/contractor/server/db/contractor-profile/schema";
 import { clients } from "~/features/crm/server/db/schema";
 import {
-  type ClientContractorAddress,
   type ClientContractorListItem,
   type ContractorListOptions,
   type ContractorListResult
@@ -23,7 +22,9 @@ import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-import { projectSteps, projects, type ProjectStep, type Project, type ProjectRow } from "./schema";
+import { type ProjectRow, type ProjectStep } from "~/features/projects/types/project";
+
+import { projectSteps, projects, type Project } from "./schema";
 
 export type { ProjectListItem, ProjectListOptions, ProjectListResult };
 

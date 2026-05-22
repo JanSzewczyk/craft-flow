@@ -5,7 +5,7 @@ import { EditClientForm } from "~/features/crm/components/forms/edit-client-form
 import { type ClientFormData } from "~/features/crm/schemas/client-schema";
 import { type ActionResponse } from "~/lib/action-types";
 
-import { type Client } from "../server/db/schema";
+import { type Client } from "~/features/crm/types/client";
 
 type ClientDetailsContentProps = {
   client: Client;

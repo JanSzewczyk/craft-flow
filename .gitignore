@@ -128,6 +128,7 @@ src/styles
 # Claude
 /.claude/*.local.json
 /bash.exe.stackdump
+/.claude/agent-memory
 
 # decs
 /tmp

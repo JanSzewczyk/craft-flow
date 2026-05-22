@@ -8,7 +8,7 @@ import { ClientDetailsContent } from "~/features/crm/components/client-details-c
 import { type ClientFormData } from "~/features/crm/schemas/client-schema";
 import { type ActionResponse } from "~/lib/action-types";
 
-import { type Client } from "../server/db/schema";
+import { type Client } from "~/features/crm/types/client";
 
 type ClientDetailsSheetProps = {
   client: Client;

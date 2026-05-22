@@ -4,7 +4,9 @@ import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-import { clients, type Client } from "./schema";
+import { type Client } from "~/features/crm/types/client";
+
+import { clients } from "./schema";
 
 const logger = createLogger({ module: "crm-db" });
 const RESOURCE_NAME = "Client";

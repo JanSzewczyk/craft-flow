@@ -21,7 +21,7 @@ import { ClientFormFields } from "~/features/crm/components/forms/client-form-fi
 import { clientSchema, type ClientFormData } from "~/features/crm/schemas/client-schema";
 import { type ActionResponse } from "~/lib/action-types";
 
-import { type Client } from "../../server/db/schema";
+import { type Client } from "~/features/crm/types/client";
 
 type CreateClientDialogProps = {
   onCreateAction(data: ClientFormData): ActionResponse<Client>;

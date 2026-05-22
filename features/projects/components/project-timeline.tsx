@@ -19,7 +19,8 @@ import {
   TimelineTitle,
   toast
 } from "@szum-tech/design-system";
-import { type Project, type ProjectStep } from "~/features/projects/server/db/schema";
+import { type ProjectStep } from "~/features/projects/types/project";
+import { type Project } from "~/features/projects/server/db/schema";
 import { ProjectStatus } from "~/features/projects/types/project";
 import { type ActionResponse, isActionSuccess } from "~/lib/action-types";
 import { formatDate } from "~/utils/date";

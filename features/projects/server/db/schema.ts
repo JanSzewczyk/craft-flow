@@ -40,7 +40,6 @@ export const projectSteps = pgTable("project_steps", {
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
-export type { ProjectRow, ProjectStep, ProjectListItem } from "~/features/projects/types/project";
 export type Project = BuildQueryResult<TSchema, TSchema["projects"], { with: { client: true; steps: true } }>;
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({

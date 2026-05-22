@@ -1,5 +1,5 @@
 import { expect, fn, screen, waitFor, within } from "storybook/test";
-import { type Client } from "~/features/crm/server/db/schema";
+import { type Client } from "~/features/crm/types/client";
 import { type ActionResponse } from "~/lib/action-types";
 
 import { CreateClientDialog } from "./create-client-dialog";

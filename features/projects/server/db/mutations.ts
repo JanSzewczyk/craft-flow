@@ -4,7 +4,9 @@ import { createLogger } from "~/lib/logger";
 import { db, type DbClient } from "~/lib/supabase/db";
 import { categorizeSupabaseError, SupabaseServiceError, type SupabaseServiceResult } from "~/lib/supabase/errors";
 
-import { type ProjectRow, projectSteps, projects, type ProjectStep } from "./schema";
+import { type ProjectRow, type ProjectStep } from "~/features/projects/types/project";
+
+import { projectSteps, projects } from "./schema";
 
 const logger = createLogger({ module: "projects-db" });
 

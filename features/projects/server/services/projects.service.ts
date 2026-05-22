@@ -32,7 +32,8 @@ import {
   getContractorListByClientIds,
   getContractorByClientIdsAndContractorId
 } from "~/features/projects/server/db/queries";
-import { type Project, type ProjectRow } from "~/features/projects/server/db/schema";
+import { type ProjectRow } from "~/features/projects/types/project";
+import { type Project } from "~/features/projects/server/db/schema";
 import { canActivateProject } from "~/features/projects/server/permissions";
 import { emailService } from "~/features/projects/server/services/email.service";
 import {

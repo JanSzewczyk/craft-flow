@@ -1,4 +1,5 @@
-export { clients, type Client } from "./schema";
+export { clients } from "./schema";
+export type { Client } from "~/features/crm/types/client";
 export { createClientByContractorId, updateClient, deleteClient } from "./mutations";
 export {
   getClientsByContractorId,

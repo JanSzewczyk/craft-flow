@@ -40,7 +40,32 @@ export default defineConfig({
         "test?(-*).?(c|m)[jt]s?(x)",
         "**/*{.,-}{test,spec,e2e}?(-d).?(c|m)[jt]s?(x)",
         "**/__tests__/**",
-        "**/constants/**"
+        "**/constants/**",
+
+        // API route handlers
+        "**/app/api/**/route.ts",
+
+        // Server-action support files (logger factory, error mapper)
+        "**/server/actions/**/{logger,map-service-error}.ts",
+
+        // Drizzle ORM schema declarations
+        "**/server/db/**/schema.ts",
+        "lib/supabase/schema.ts",
+
+        // Type-only declaration files
+        "**/types/**",
+        "**/types.ts",
+        "**/types.tsx",
+
+        // Vitest mocks
+        "__mocks__/**",
+
+        // Provider wrappers
+        "**/components/providers/**",
+
+        // Storybook support
+        ".storybook/**",
+        "stories/**"
       ]
     },
     projects: [

@@ -5,11 +5,12 @@
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=github&utm_campaign=craft-flow)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/JanSzewczyk/craft-flow/actions/workflows/pr-check.yml/badge.svg)](https://github.com/JanSzewczyk/craft-flow/actions/workflows/pr-check.yml)
+[![GitHub stars](https://img.shields.io/github/stars/JanSzewczyk/craft-flow?style=social)](https://github.com/JanSzewczyk/craft-flow/stargazers)
 
 **A SaaS platform for craftsmen — create project timelines and share progress with clients via a single link**
 
-[Product](#-product) • [Getting Started](#-getting-started) • [Documentation](#-table-of-contents) •
-[Deployment](#-deployment)
+[Product](#-product) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) •
+[Documentation](#-table-of-contents)
 
 </div>
 
@@ -83,34 +84,63 @@ Available only after assigning the `admin` role in Clerk:
 
 ### 🏗️ Core
 
-- **⚡ [Next.js 16](https://nextjs.org/)** — App Router, Turbopack, React Compiler (automatic memoization)
-- **⚛️ [React 19](https://react.dev/)** — React Server Components and Server Actions
-- **🛠️ [TypeScript 6](https://www.typescriptlang.org/)** — Strict mode, `noUncheckedIndexedAccess`, `ts-reset`
-- **💅 [Tailwind CSS 4](https://tailwindcss.com/)** — CSS-first configuration with
+- [![Next.js](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/next?logo=nextdotjs&logoColor=white&label=Next.js)](https://nextjs.org/)
+  — App Router, Turbopack, React Compiler (automatic memoization)
+- [![React](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/react?logo=react&logoColor=white&label=React)](https://react.dev/)
+  — React Server Components and Server Actions
+- [![TypeScript](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/typescript?logo=typescript&logoColor=white&label=TypeScript)](https://www.typescriptlang.org/)
+  — strict mode, `noUncheckedIndexedAccess`, `ts-reset`
+- [![Tailwind CSS](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/tailwindcss?logo=tailwindcss&logoColor=white&label=Tailwind%20CSS)](https://tailwindcss.com/)
+  — CSS-first configuration paired with
   [@szum-tech/design-system](https://www.npmjs.com/package/@szum-tech/design-system)
-- **🔐 [Clerk](https://clerk.com/)** — Authentication with Custom UI (hooks: `useSignIn`, `useSignUp`)
-- **🗄️ [Drizzle ORM](https://orm.drizzle.team/)** — Type-safe SQL on PostgreSQL hosted in
-  [Supabase](https://supabase.com/)
-- **💳 [Clerk Billing](https://clerk.com/docs/billing/overview)** — Subscription plans and feature gating via Clerk's
-  built-in billing system
-- **📧 [Resend](https://resend.com/) + [React Email](https://react.email/)** — Transactional emails rendered as React
-  components
-- **📝 [Pino](https://getpino.io/)** — High-performance structured JSON logging
-- **🧩 [T3 Env](https://env.t3.gg/)** — Build-time validated, type-safe environment variables
+- [![Design System](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/@szum-tech/design-system?label=Design%20System)](https://www.npmjs.com/package/@szum-tech/design-system)
+  — Radix UI components, OKLCH design tokens, `lucide-react` icons
+
+### 🔐 Auth & Data
+
+- [![Clerk](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/@clerk/nextjs?logo=clerk&logoColor=white&label=Clerk)](https://clerk.com/)
+  — Authentication with Custom UI (hooks: `useSignIn`, `useSignUp`) and Clerk Billing for subscription plans
+- [![Drizzle ORM](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/drizzle-orm?label=Drizzle%20ORM)](https://orm.drizzle.team/)
+  — Type-safe SQL on PostgreSQL hosted in [Supabase](https://supabase.com/)
+- [![Supabase](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/@supabase/supabase-js?logo=supabase&logoColor=white&label=Supabase)](https://supabase.com/)
+  — PostgreSQL hosting + Storage for project attachments
+- [![Resend](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/resend?logo=resend&logoColor=white&label=Resend)](https://resend.com/) +
+  [![React Email](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/@react-email/components?label=React%20Email)](https://react.email/)
+  — transactional emails rendered as React components
+- [![React Hook Form](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/react-hook-form?logo=reacthookform&logoColor=white&label=React%20Hook%20Form)](https://react-hook-form.com/) +
+  [![Zod](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/zod?logo=zod&logoColor=white&label=Zod)](https://zod.dev/)
+  — form handling with schema validation
+
+### 🔧 Infrastructure
+
+- [![T3 Env](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/@t3-oss/env-nextjs?label=T3%20Env)](https://env.t3.gg/)
+  — build-time validated, type-safe environment variables
+- [![Pino](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/pino?label=Pino)](https://getpino.io/)
+  — high-performance structured JSON logging
+- [![next-themes](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/next-themes?label=next-themes)](https://github.com/pacocoursey/next-themes)
+  — light/dark/system theme switching
 
 ### 🧪 Testing & Quality
 
-- **🧪 [Vitest 4](https://vitest.dev/)** — Dual-project setup: `unit` (Node) and `storybook` (Playwright/Chromium)
-- **🎭 [Playwright](https://playwright.dev/)** — E2E tests with accessibility checks via `@axe-core/playwright`
-- **📚 [Storybook 10](https://storybook.js.org/)** — Browser-rendered interaction tests in CSF Next format
-- **✨ [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/)** — Pre-configured with
-  [@szum-tech](https://www.npmjs.com/package/@szum-tech/eslint-config) configs
+- [![Vitest](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/vitest?logo=vitest&logoColor=white&label=Vitest)](https://vitest.dev/)
+  — dual-project setup: `unit` (Node) and `storybook` (Playwright/Chromium)
+- [![Playwright](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/playwright?logo=playwright&logoColor=white&label=Playwright)](https://playwright.dev/)
+  — E2E tests with accessibility checks via `@axe-core/playwright`
+- [![Storybook](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/storybook?logo=storybook&logoColor=white&label=Storybook)](https://storybook.js.org/)
+  — browser-rendered interaction tests in CSF Next format
+- [![ESLint](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/eslint?logo=eslint&logoColor=white&label=ESLint)](https://eslint.org/) +
+  [![Prettier](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/prettier?logo=prettier&logoColor=white&label=Prettier)](https://prettier.io/)
+  — pre-configured with [@szum-tech](https://www.npmjs.com/package/@szum-tech/eslint-config) shared configs
+- [![mimicry-js](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/mimicry-js?label=mimicry-js)](https://www.npmjs.com/package/mimicry-js) +
+  [![Faker](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/@faker-js/faker?label=Faker)](https://fakerjs.dev/)
+  — typed test data builders
 
 ### 🤖 Automation
 
-- **🚀 [GitHub Actions](https://github.com/features/actions)** — PR check, AI code review, automated releases
-- **🚢 [Semantic Release](https://github.com/semantic-release/semantic-release)** — Versioning and changelog on merge to
-  `main`
+- **🚀 [GitHub Actions](https://github.com/features/actions)** — PR check (sharded test matrix), AI code review,
+  automated releases
+- [![semantic-release](https://img.shields.io/github/package-json/dependency-version/JanSzewczyk/craft-flow/dev/semantic-release?label=semantic-release)](https://github.com/semantic-release/semantic-release)
+  — versioning and changelog on merge to `main`
 
 ---
 
@@ -141,8 +171,8 @@ Available only after assigning the `admin` role in Clerk:
 
 Before you begin, make sure you have:
 
-- **Node.js** (version 18.x or higher)
-- **npm** package manager
+- **Node.js** 24.x or higher (CI runs on Node 24)
+- **npm** package manager (the project uses `legacy-peer-deps=true` via `.npmrc`)
 - **Git** for version control
 - A [Clerk](https://clerk.com/) account — authentication and subscription billing
 - A [Supabase](https://supabase.com/) project — PostgreSQL database and file storage
@@ -165,24 +195,28 @@ npm install
 
 #### 3. Configure Environment Variables
 
-Create a `.env.local` file in the root directory:
+Copy `.env.example` to `.env.local` and fill in the values:
 
 ```env
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
+# Logging configuration
+LOG_LEVEL=debug
 
-# Database (Supabase)
-DATABASE_URL=postgresql://...
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxx
+CLERK_SECRET_KEY=sk_test_xxxxxxxx
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 
-# Email (Resend)
-RESEND_API_KEY=re_...
+# Resend
+RESEND_API_KEY=re_xxxxxxxx
 CONTACT_EMAIL_TO=your@email.com
 
-# Logging
-LOG_LEVEL=info
+# Supabase
+DATABASE_URL=postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+SUPABASE_URL=https://[ref].supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJxxxxxxxx
 ```
 
 #### 4. Set Up the Database
@@ -279,7 +313,7 @@ CraftFlow has a three-layer testing infrastructure.
 npm run test:unit
 ```
 
-Unit tests live in `tests/unit/` using the `*.test.ts` pattern. Run a single file:
+Unit tests use the `*.test.ts` pattern and run in the Node environment. Run a single file:
 
 ```bash
 npx vitest run --project=unit path/to/file.test.ts
@@ -355,7 +389,7 @@ Icons are provided via `lucide-react` (re-exported through the design system). U
 ### Configuration Files
 
 - **`data/env/server.ts`** — Server-only variables (CLERK_SECRET_KEY, RESEND_API_KEY, DATABASE_URL, SUPABASE_URL,
-  STRIPE_SECRET_KEY, LOG_LEVEL, etc.)
+  SUPABASE_SERVICE_ROLE_KEY, LOG_LEVEL, CONTACT_EMAIL_TO)
 - **`data/env/client.ts`** — Client-safe variables (must use `NEXT_PUBLIC_` prefix)
 
 ### Benefits
@@ -409,21 +443,22 @@ LOG_LEVEL=trace   # Everything
 Runs on every pull request with the following jobs:
 
 - 🏗️ **Build** — Verifies the project builds successfully
+- 📖 **Build Storybook** — Verifies Storybook builds successfully
 - 🧹 **Prettier** — Code formatting check
 - ⬣ **ESLint** — Code quality and linting
 - 🛠️ **TypeScript** — Type checking
 - ♻️ **Prewarm Playwright Cache** — Installs Chromium once before the test matrix to prevent cache-save race conditions
-- 🧪 **Test `<feature>` (matrix)** — **10 parallel jobs**, one per feature domain (`auth`, `billing`, `contact`,
-  `contractor`, `crm`, `marketing`, `onboarding`, `projects`, `templates`, `misc`). Each job runs both unit
-  (`*.test.ts`) and Storybook (`*.stories.tsx`) tests for its domain in a single Vitest pass using the
-  [blob reporter](https://vitest.dev/guide/improving-performance#sharding) to produce a coverage shard.
-- 📊 **Coverage Report** — Merges all 10 blob shards with `vitest run --merge-reports`, generates a unified coverage
+- 🧪 **Test (shard N/4)** — **4 parallel shards** using Vitest's native `--shard=N/4` mechanism. Each shard runs an
+  equal portion of unit (`*.test.ts`) and Storybook (`*.stories.tsx`) tests, with the
+  [blob reporter](https://vitest.dev/guide/improving-performance#sharding) producing a coverage shard per job.
+- 📊 **Coverage Report** — Merges the 4 blob shards with `vitest run --merge-reports`, generates a unified coverage
   summary, and posts it as a PR comment via
   [vitest-coverage-report-action](https://github.com/davelosert/vitest-coverage-report-action).
-- 🎭 **Playwright E2E** — Full end-to-end test suite (Chromium + Firefox + WebKit)
+- 🎭 **Playwright E2E** — End-to-end test suite (Chromium)
+- 🔍 **Dependency Review** — Audits dependency changes for known vulnerabilities
 
-The matrix strategy uses `fail-fast: false` so a failure in one domain does not cancel the remaining nine jobs — all
-domains always finish and the coverage report is always generated.
+The matrix uses `fail-fast: false` so a failure in one shard does not cancel the remaining three — all shards always
+finish and the coverage report is always generated.
 
 #### 2. 🤖 AI Code Review (`code-review.yml`)
 
@@ -466,6 +501,7 @@ craft-flow/
 ├── .github/
 │   └── workflows/        # GitHub Actions (pr-check, code-review, publish)
 ├── .storybook/           # Storybook configuration and decorators
+├── __mocks__/            # Vitest module mocks
 ├── app/                  # Next.js App Router
 │   ├── (auth)/           # Auth pages (sign-in, sign-up, forgot-password)
 │   ├── (marketing)/      # Public marketing pages
@@ -478,14 +514,19 @@ craft-flow/
 ├── constants/            # Static data and configuration
 ├── data/
 │   └── env/              # T3 Env type-safe environment variables
-├── features/             # Feature-driven modules (self-contained domains)
+├── docs/                 # Project documentation
+├── drizzle/              # Generated Drizzle migrations
+├── features/             # Feature-driven domain modules (self-contained)
 ├── lib/
 │   └── supabase/         # Drizzle ORM client and central schema exports
 ├── public/               # Static assets (images, fonts, icons)
+├── stories/              # Standalone Storybook stories (design-system docs)
 ├── tests/
 │   ├── e2e/              # Playwright end-to-end tests
 │   ├── integration/      # Storybook integration test setup
 │   └── unit/             # Vitest unit tests
+├── types/                # Shared TypeScript type augmentations
+├── utils/                # Shared utility helpers
 ├── drizzle.config.ts     # Drizzle ORM configuration
 ├── next.config.ts        # Next.js configuration
 ├── playwright.config.ts  # Playwright E2E configuration
@@ -496,9 +537,11 @@ craft-flow/
 
 ### Key Directories
 
-- **`app/`** — App Router with route groups: auth, marketing, onboarding, contractor dashboard, and client portal
-- **`features/{domain}/`** — Self-contained domain modules: `components/`, `schemas/`, `server/db/`, `server/services/`,
-  `server/actions/`, `test/builders/`
+- **`app/`** — App Router with route groups: `(auth)`, `(marketing)`, `(onboarding)`, `(public)` for the guest status
+  view, `app/` for the contractor dashboard, and `client/` for the client portal
+- **`features/{domain}/`** — 10 self-contained domain modules: `auth`, `billing`, `contact`, `contractor`, `crm`,
+  `marketing`, `onboarding`, `projects`, `shared`, `templates`. Each contains its own `components/`, `schemas/`,
+  `types/`, `server/db/`, `server/services/`, `server/actions/`, and `test/builders/`
 - **`lib/supabase/`** — Drizzle ORM client (`db.ts`) and central schema exports (`schema.ts`) — server-only
 - **`data/env/`** — T3 Env type-safe environment variable definitions
 - **`tests/`** — Three test environments: unit (Node), Storybook (browser), E2E (Playwright)
@@ -510,6 +553,7 @@ craft-flow/
 - **`vitest.config.ts`** — Dual-project Vitest setup (unit + storybook)
 - **`proxy.ts`** — Request logging middleware (not `middleware.ts`)
 - **`tsconfig.json`** — TypeScript strict mode with `~/` path alias
+- **`.npmrc`** — Sets `legacy-peer-deps=true` (required for the dependency tree)
 
 ---
 
@@ -537,12 +581,12 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 CraftFlow is built with amazing open-source tools and libraries:
 
-- [Next.js](https://nextjs.org/) - The React Framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [TypeScript](https://www.typescriptlang.org/) - JavaScript with syntax for types
-- [Vitest](https://vitest.dev/) - Next generation testing framework
-- [Playwright](https://playwright.dev/) - E2E testing framework
-- [Storybook](https://storybook.js.org/) - UI component explorer
+- [Next.js](https://nextjs.org/) — The React Framework
+- [Tailwind CSS](https://tailwindcss.com/) — Utility-first CSS framework
+- [TypeScript](https://www.typescriptlang.org/) — JavaScript with syntax for types
+- [Vitest](https://vitest.dev/) — Next generation testing framework
+- [Playwright](https://playwright.dev/) — E2E testing framework
+- [Storybook](https://storybook.js.org/) — UI component explorer
 - And many more amazing libraries!
 
 ---

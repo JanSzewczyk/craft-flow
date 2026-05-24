@@ -4,6 +4,22 @@ paths:
   - "features/**/*.tsx"
 ---
 
+# Feature architecture
+
+Portable spec for feature-driven packages on a **Next.js App Router + typed ORM + Zod + Server
+Actions** stack. Each feature (`features/{domain}/`) is a self-contained domain slice. `{domain}` /
+`{entity}` are placeholders; examples use a neutral domain (`orders`). Return-type contracts are
+named by *role* ("tuple result", "typed action response") — bind them to your project's types.
+
+## Guiding principle
+
+> **One barrel per zone = that zone's public API. A zone's nature (client-safe vs server-only) is
+> declared by the presence of `import "server-only"` in its barrel.**
+
+A feature is split into zones; each exposes exactly one entry point (`index.ts`); the files behind
+it are private. There is **no feature-root `index.ts`** — consumers aim at a specific zone barrel,
+choosing client vs server entry deliberately.
+
 ## Directory structure
 
 ```
@@ -13,429 +29,226 @@ features/{domain}/
 │   ├── {component}.tsx
 │   ├── {component}.stories.tsx
 │   └── index.tsx                   # barrel — components only
-├── constants/
+├── constants/index.ts
 ├── schemas/
-│   ├── {domain}-schema.ts          # Zod + exported *FormData types
-│   └── {domain}-schema.test.ts
-├── server/
-│   ├── actions/
-│   │   ├── {verb}-{domain}.action.ts
-│   │   ├── logger.ts               # createLogger({ module: "domain-actions" })
-│   │   ├── map-service-error.ts    # error code → Polish user message
-│   │   └── {domain}-actions.test.ts
-│   ├── db/
-│   │   ├── schema.ts               # Drizzle tables + ORM-bound types
-│   │   ├── queries.ts              # SELECT — SupabaseServiceResult<T>
-│   │   ├── mutations.ts            # INSERT/UPDATE/DELETE
-│   │   └── index.ts               # re-exports schema + queries + mutations
-│   ├── services/
-│   │   └── {domain}.service.ts     # orchestration only, no raw SQL
-│   └── permissions.ts              # canDoX guard functions
+│   ├── {entity}.schema.ts          # Zod + exported *FormData types
+│   ├── {entity}.schema.test.ts
+│   └── index.ts
 ├── types/
-│   ├── {entity}.ts                 # shared types (see section below)
-│   ├── {filter}.ts
-│   └── index.ts                    # barrel — re-exports all types/
-└── test/
-    └── builders/
-        ├── {entity}.builder.ts     # mimicry-js + faker
-        └── index.ts
+│   ├── {entity}.ts                 # shared, client-safe domain types
+│   └── index.ts
+├── server/                         # server-only zone
+│   ├── actions/{verb}-{noun}.action.ts, logger.ts, map-service-error.ts
+│   ├── api/{helper}.ts             # optional: external-integration helpers
+│   ├── db/schema.ts, queries.ts, mutations.ts, index.ts
+│   ├── services/{entity}.service.ts
+│   ├── permissions.ts
+│   └── index.ts                    # barrel — server public API, `import "server-only"`
+└── test/builders/{entity}.builder.ts, index.ts
 ```
 
-**No top-level `index.ts`** for the feature. Import from sub-paths directly:
-- `import { TemplateCard } from "~/features/templates/components"` ✓
-- `import { TemplateCard } from "~/features/templates"` ✗
+## Zones & barrels
 
----
+| Zone barrel | Public API | `server-only`? | From `"use client"`? |
+|---|---|---|---|
+| `types/index.ts` | domain types, enum const+type | ✗ | ✓ |
+| `schemas/index.ts` | Zod schemas + `*FormData` | ✗ | ✓ |
+| `constants/index.ts` | constants | ✗ | ✓ |
+| `components/index.tsx` | components only (no types, no `server/` re-exports) | ✗ | ✓ |
+| **`server/index.ts`** | actions + services + db | **✓** | ✗ (build error) |
+| `test/builders/index.ts` | builders | ✗ | tests only |
+
+- **Consumers import from a zone barrel, never a file path inside the zone.** Files inside `server/`
+  are private — the internal layout can be refactored without breaking callers.
+- `server/db/index.ts` is an internal sub-barrel (schema + queries + mutations), re-exported by
+  `server/index.ts`. No `server/actions/index.ts` or `server/services/index.ts` — deeper barrels are noise.
+
+```ts
+// ✓ client / page — client-safe barrels
+import { OrderStatus, type OrderListItem } from "~/features/orders/types";
+import { OrderRow } from "~/features/orders/components";
+// ✓ server / page — single server entry
+import { getOrders, createOrderAction } from "~/features/orders/server";
+// ✗ deep path into server/ (private)        ✗ feature-root barrel (does not exist)
+import { getOrders } from "~/features/orders/server/services/order.service";
+import { OrderRow } from "~/features/orders";
+```
 
 ## Server / client boundary
 
-This is the most important architectural rule. Code is split into three zones:
+**A client component (`"use client"`) must NEVER import from `server/` — not even via `import
+type`.** Type-only imports are runtime-erased (the bundle survives), but they couple the component
+to ORM internals and encourage keeping DTOs in `server/` instead of `types/`. Same ban applies to
+`*.stories.tsx`. Client-safe zones (`types/`, `schemas/`, `constants/`, `components/`) must have
+zero transitive dependency on `server/`.
 
-| Zone | Directory | Notes |
-|---|---|---|
-| Server-only | `server/` | May contain `import "server-only"`. Must not be imported by client components. |
-| Shared types | `types/` | No dependencies on `server/`. Safe to import from anywhere. |
-| Universal | `components/`, `schemas/`, `constants/` | Used by both server and client code. Contains both server and client components. |
+Defense in depth: put `import "server-only"` not only in `server/index.ts` but in every leaf server
+file (`*.service.ts`, `permissions.ts`, `db/queries.ts`, `db/mutations.ts`, `api/*.ts`).
 
-**Rule: client components (`"use client"`) must NEVER import from `server/`.**
+## `types/` — shared types
 
-Server modules often contain `import "server-only"` (services, permissions). Importing from them in a client component causes a build error. Even without `server-only`, importing Drizzle ORM types or server-side logic from client code is incorrect.
+The **only** path from which client components may import domain types; importable everywhere; zero
+dependencies on `server/`.
 
-`schemas/` and `constants/` are used on both sides: Zod schemas validate data in server actions and in client-side form libraries; constants are consumed by server services, client components, and pages alike. They are not client-only.
-
-### What to import from where
-
-```ts
-// ✓ client component — imports from types/ and components/
-import { ProjectStatus, type ClientProjectListItem } from "~/features/projects/types/project";
-import { ProjectStatusBadge } from "~/features/projects/components";
-
-// ✓ server component / page — can import from server/ directly
-import { getClientProjects } from "~/features/projects/server/services/projects.service";
-import { ProjectStatus } from "~/features/projects/types/project";
-
-// ✗ client component — never import from server/
-import { ProjectStatus } from "~/features/projects/server/db/schema"; // WRONG
-import { getClientProjects } from "~/features/projects/server/services/projects.service"; // WRONG
-```
-
----
-
-## `types/` — shared types between server and client
-
-The `types/` directory is the **only** path from which client components may import domain types. All code (server and client) can freely import from here.
-
-### What belongs in `types/`
-
-| Type category | Example | Why here |
-|---|---|---|
-| Domain enum const + type | `ProjectStatus` | Used in component props and server queries alike |
-| Service result / DTO types | `ClientProjectListItem`, `ClientProjectDetail` | Returned by services, received as component props |
-| Public view types | `PublicProjectView` | Used in both server pages and client components |
-| Filter / option types | `ProjectStatusFilter`, `ContractorListOptions` | Used in query params passed from server to components |
-| Cross-domain list items | `ClientContractorListItem` | Passed from server to client card/table components |
-
-### What stays in `server/db/schema.ts`
-
-Types tightly coupled to Drizzle ORM must stay in `server/`:
-
-| Type | Why it stays |
+| Lives in `types/` | Stays in `server/db/schema.ts` |
 |---|---|
-| `Project` (`BuildQueryResult` with relations) | Drizzle-specific — references ORM internals |
-| `ProjectRow` (`$inferSelect`) | Raw DB row — internal to queries and services |
-| `ProjectStep` (`$inferSelect`) | Raw DB row — internal to queries |
-| `pgEnum` definitions | Required by Drizzle table definitions |
+| Domain enum const + type (`OrderStatus`) | ORM relational query result types |
+| Service result / DTO / view types (`OrderListItem`, `OrderDetail`) | Raw row types (`$inferSelect` / equiv.) |
+| Filter / option types | ORM enum definitions (`pgEnum` / equiv.) |
 
-These types are used only inside `server/db/queries.ts` and `server/services/*.service.ts`. They never appear in component props.
+ORM-bound types reference ORM internals and never appear in component props.
 
-### Pattern for domain enum const + type
-
-Define the enum as a `const` object in `types/`, derive the type from it:
+### Domain enum const + type
 
 ```ts
-// features/projects/types/project.ts
-export const ProjectStatus = {
-  DRAFT: "DRAFT",
-  ACTIVE: "ACTIVE",
-  COMPLETED: "COMPLETED",
-  ARCHIVED: "ARCHIVED",
-  DELETED: "DELETED"
-} as const;
-
-export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus];
-
-export const ProjectStatuses = Object.values(ProjectStatus) as Array<ProjectStatus>;
+// features/orders/types/order.ts
+export const OrderStatus = { DRAFT: "DRAFT", PLACED: "PLACED", SHIPPED: "SHIPPED" } as const;
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
+export const OrderStatuses = Object.values(OrderStatus) as Array<OrderStatus>;
 ```
 
-Do **not** annotate the const with `Record<ProjectStatus, ProjectStatus>` — this widens all values to the union and breaks computed-key records and `Extract<>` narrowing. The `as const` alone preserves literal types; `satisfies` can be added when an external constraint must be enforced without widening.
+Don't annotate the const with `Record<OrderStatus, OrderStatus>` — it widens values to the union and
+breaks computed-key records and `Extract<>` narrowing. `as const` alone preserves literals; add
+`satisfies` only to enforce an external constraint without widening. The ORM enum uses string
+literals directly and does not import from `types/`.
 
-The corresponding `pgEnum` in `server/db/schema.ts` uses string literals directly and does not import from `types/`:
+## Naming & file extensions
 
-```ts
-// features/projects/server/db/schema.ts
-export const projectStatusEnum = pgEnum("project_status", [
-  "DRAFT", "ACTIVE", "COMPLETED", "ARCHIVED", "DELETED"
-]);
-```
+**Rule A — when a file gets a role-suffix:**
+- *Structural singleton* (one per folder, filename IS the role) → **no suffix**: `queries.ts`,
+  `mutations.ts`, `schema.ts`, `permissions.ts`, `logger.ts`, `map-service-error.ts`, `index.ts`.
+  A component is also suffix-free — role comes from the `components/` folder.
+- *Domain-named file among same-role siblings* → **suffix** re-attaches the role:
+  `*.action.ts`, `*.service.ts`, `*.builder.ts`, `*.schema.ts`, `*.stories.tsx`, `*.test.ts`.
+- Test: *"will this folder hold many files of this role, each differently named?"* yes → suffix.
 
-### `types/index.ts` barrel
+**Rule B — notation:** `<domain-name>.<role>.<ext>`. Dot = name↔role boundary; dash = words within
+the name. `line-item.schema.ts` is unambiguous; `line-item-schema.ts` is not — so **all suffixes are
+dotted, schemas included**.
 
-Every `types/` directory must have an `index.ts` that re-exports all sub-files:
+| Role | File |
+|---|---|
+| action / service / schema / builder / story / test | `create-order.action.ts`, `line-item.service.ts`, `order.schema.ts`, `order.builder.ts`, `order-card.stories.tsx`, `line-item.service.test.ts` |
+| db queries/mutations/schema, permissions, component | `queries.ts`, `permissions.ts`, `order-card.tsx` (no suffix) |
 
-```ts
-// features/projects/types/index.ts
-export * from "./project";
-export * from "./contractor";
-export * from "./project-filter";
-```
+`index.ts` when no JSX; `index.tsx` only when it contains JSX.
 
-### Service re-exports
-
-Services re-export the types they use so that callers have a single stable import point:
-
-```ts
-// features/projects/server/services/projects.service.ts
-export type {
-  ClientProjectListItem,
-  ClientProjectDetail,
-  ClientProjectStep,
-  PublicProjectView
-} from "~/features/projects/types/project";
-
-export type {
-  ClientContractorListItem,
-  ContractorListOptions,
-  ContractorListResult
-} from "~/features/projects/types/contractor";
-```
-
-This is optional but useful when the service is the only entry-point callers know. The underlying types still live in `types/`.
-
----
-
-## Layer dependency rules (one direction only)
+## Layers & return types
 
 ```
-Action → Service → Permission → DB
+Action → Service → Permission → DB        (each imports only downward)
              ↓              ↓
-           Schema (Zod)   DB schema (Drizzle)
-
+           Schema (Zod)   DB schema (ORM)
 types/ ← imported by all layers, no restriction
 ```
 
-Each layer imports only downward — never from the layer above.
-`types/` is the exception: it has no dependencies of its own (no imports from `server/`) and may be imported by any layer.
-
----
-
-## Return types per layer
-
-| Layer | Type |
+| Layer | Return shape |
 |---|---|
-| DB queries / mutations | `SupabaseServiceResult<T>` → `[SupabaseServiceError, null] \| [null, T]` |
-| Permissions | `SupabaseServiceResult<void>` |
-| Service reads | `SupabaseServiceResult<T>` — wrap with `React.cache()` |
-| Service mutations | `ServiceResult<BaseServiceError, T>` |
-| Actions | `ActionResponse<T>` from `~/lib/action-types` |
+| DB queries / mutations | tuple result → `[error, null] \| [null, data]` |
+| Permissions | tuple result of `void` |
+| Service reads | tuple result — wrap with `React.cache()` |
+| Service mutations | service result (typed error + data) |
+| Actions | typed action response (discriminated `success` union) |
 
-Import sources:
-- `~/lib/supabase/errors` — `SupabaseServiceResult`, `SupabaseServiceError`, `categorizeSupabaseError`
-- `~/lib/services/errors` — `ServiceResult`, `BaseServiceError`
-- `~/lib/action-types` — `ActionResponse`, `RedirectAction`, `isActionSuccess`, `isActionFailed`
+Keep the error/action-response contracts in shared modules, not re-declared per feature.
 
----
-
-## Service mutation guard chain (always in this order)
+### Service mutation guard chain (always in this order)
 
 ```ts
-const [roleErr] = await requireRole(userId, [Role.CONTRACTOR]);
-if (roleErr) return [roleErr, null];
-
-const [profileErr, profile] = await getCachedContractorProfile(userId);
-if (profileErr) return [profileErr, null];
-
-// feature-specific permission guard (canDoX from permissions.ts)
-const [permErr] = await canAddTemplate(profile.id);
+const [roleErr] = await requireRole(userId, [Role.OWNER]);                 if (roleErr) return [roleErr, null];
+const [profileErr, profile] = await getCachedProfile(userId);             if (profileErr) return [profileErr, null];
+const [permErr] = await canAddOrder(profile.id);  // canDoX from permissions.ts
 if (permErr) return [permErr, null];
-
-// DB mutation
-const [dbErr, result] = await ...;
-if (dbErr) return [dbErr, null];
-
+const [dbErr, result] = await ...;                                         if (dbErr) return [dbErr, null];
 return [null, result];
 ```
 
----
-
-## Action pattern
+### Action pattern
 
 ```ts
 "use server";
-export async function createTemplateAction(data: TemplateFormData): ActionResponse<Template> {
+export async function createOrderAction(data: OrderFormData): ActionResponse<Order> {
   const { isAuthenticated, userId } = await auth();
-  if (!isAuthenticated) return { success: false, error: "Nie jesteś zalogowany" };
-
-  const [error, template] = await createTemplate(userId, data);
-  if (error) return mapTemplateServiceError(error);
-
-  revalidatePath("/app/templates");
-  return { success: true, data: template, message: "Szablon został utworzony" };
+  if (!isAuthenticated) return { success: false, error: "Not signed in" };
+  const [error, order] = await createOrder(userId, data);
+  if (error) return mapServiceError(error);          // translate code → user string, never expose codes
+  revalidatePath("/app/orders");                     // only on success
+  return { success: true, data: order, message: "Order created" };
 }
 ```
 
-- No business logic in actions — delegate entirely to the service.
-- `revalidatePath` only on success.
-- `map-service-error.ts` translates `BaseServiceError.code` to Polish user strings. Never expose internal codes.
-
----
+No business logic in actions — delegate to the service.
 
 ## Components
 
-The `components/` directory holds **both server and client components**. There is no hard rule that all components here are one or the other — each file is what it needs to be. Names are domain-driven and descriptive, not constrained to a fixed pattern. Subdirectories (e.g. `forms/`, `portal/`) are used when grouping makes sense.
+Both server and client components live here. Default to **Server Components** (no directive, can be
+`async`); add `"use client"` only for hooks, browser APIs, or event handlers.
 
-### Server vs client
-
-Default to **Server Components** — no directive, can be `async`. Add `"use client"` only when the component requires:
-- React hooks (`useState`, `useEffect`, `useTransition`, etc.)
-- Browser APIs (`window`, `navigator`, `document`)
-- Event handlers that can't be passed down as server action props
-
-```ts
-// server component — no directive, can be async, can import from server/
-export function ProjectProgressBar({ totalSteps, completedSteps }: Props) { ... }
-
-// client component — requires interactivity
-"use client";
-export function ProjectSidebar({ project, onUpdateStatusAction }: Props) { ... }
-
-// client component — requires useEffect for browser API
-"use client";
-export function ClientTracker({ token, onTrackAction }: Props) {
-  React.useEffect(() => { void onTrackAction(token); }, [token, onTrackAction]);
-  return null;
-}
-```
-
-### Import rules inside components
-
-| Component type | Can import from `server/`? | Can import from `types/`? |
+| Component | Import `server/`? | Import `types/`? |
 |---|---|---|
-| Server component | ✓ Yes | ✓ Yes |
-| Client component (`"use client"`) | ✗ Never | ✓ Yes |
+| Server | ✓ (via `server/index.ts`) | ✓ |
+| Client (`"use client"`) | ✗ never, not even `import type` | ✓ |
 
-Server actions are passed as props to client components from the page or layout — client components do not import actions directly.
+Server actions reach client components as **props** from the page/layout — never imported directly.
+Co-locate `{component}.stories.tsx`. Skip `useMemo`/`useCallback`/`memo` under the React Compiler.
 
-```ts
-// ✓ page (server) — wires action as prop
-<ProjectSidebar onUpdateStatusAction={updateProjectStatusAction} />
+## DB layer
 
-// ✓ client component — receives action as prop, types from types/ only
-type Props = { onUpdateStatusAction(id: string, status: ProjectStatus): ActionResponse<void> };
-```
-
-### Other rules
-
-- Never add `useMemo` / `useCallback` / `memo` — React Compiler handles memoization automatically.
-- Button icons: use `startIcon` / `endIcon` props, not children.
-- Forms: React Hook Form + Zod resolver for complex forms; `useActionState` for simple ones.
-- Co-locate `{component}.stories.tsx` next to every component file.
-- The `components/index.tsx` barrel exports named component exports only — no types, no re-exports from `server/`.
-
----
-
-## DB layer rules
-
-- `categorizeSupabaseError(error, "ResourceName")` in every `catch` block — never throw across layer boundaries.
-- Register new tables in `lib/supabase/schema.ts`.
-- Logger: `createLogger({ module: "domain-db" })`.
-- DTO/view types (the shape returned to callers) live in `types/`, not in `queries.ts`. Query functions import them from `types/` for their return type annotations.
-
-### DB function signature
-
-Every DB function takes a **single object argument** including `dbClient?: DbClient`:
+- Categorize every caught error into a service-error type in each `catch` — never throw across a layer.
+- Multi-step writes use a transaction **owned by the service layer**; it passes the tx client down
+  via `dbClient`, and a thrown DB error rolls back.
+- DTO / view types live in `types/`; queries import them for return annotations.
+- Cross-feature DB ops live in a shared feature (e.g. `features/shared/server/db/{entity}/`), not duplicated.
 
 ```ts
-import { db, type DbClient } from "~/lib/supabase/db";
-
-export async function updateFoo({
-  fooId,
-  data,
-  dbClient = db
-}: {
-  fooId: string;
-  data: FooData;
-  dbClient?: DbClient;
-}): Promise<SupabaseServiceResult<Foo>> { ... }
+// every DB function: single object arg incl. optional client for tx participation
+export async function updateOrder({ orderId, data, dbClient = db }: {
+  orderId: string; data: OrderData; dbClient?: DbClient;
+}): Promise<ServiceResult<Order>> { ... }
 ```
 
-### Transaction ownership
-
-**Transactions belong to the service layer, not the DB layer.**
-
-```ts
-import { withTransaction } from "~/lib/supabase/db";
-import { categorizeSupabaseError } from "~/lib/supabase/errors";
-
-try {
-  await withTransaction(async (tx) => {
-    const [aErr, a] = await insertA({ data, dbClient: tx });
-    if (aErr) throw aErr; // rolls back
-
-    const [bErr] = await updateB({ id: a.id, dbClient: tx });
-    if (bErr) throw bErr;
-  });
-} catch (error) {
-  const serviceError = categorizeSupabaseError(error, "ResourceName");
-  logger.error({ userId, operation: "...", errorCode: serviceError.code }, "Transaction failed");
-  return [serviceError, null];
-}
-```
-
-### Cross-entity DB operations
-
-DB functions that touch an entity owned by another feature live in
-`features/shared/server/db/{entity}/mutations.ts` (or `queries.ts`).
-
-```ts
-import { insertAddress, updateAddress, deleteAddress } from "~/features/shared/server/db/addresses";
-```
-
----
-
-## Permissions file
+## Permissions
 
 ```ts
 import "server-only";
-
-export async function canAddTemplate(contractorId: string): Promise<SupabaseServiceResult<void>> {
-  if (overLimit) return [SupabaseServiceError.limitExceeded(max), null];
+export async function canAddOrder(ownerId: string): Promise<ServiceResult<void>> {
+  if (overLimit) return [limitExceededError(max), null];
   return [null, undefined];
 }
 ```
 
----
-
 ## Test builders
 
+One builder per entity, re-exported from `test/builders/index.ts`. **A builder lives in the feature
+that owns its type** — other features import it from there, never duplicate it. Builders import from
+`types/`, never from `server/` (they run in the test environment).
+
 ```ts
-export const templateBuilder = build<Template>({
-  fields: {
-    id: () => faker.string.uuid(),
-    contractorId: () => faker.string.uuid(),
-    name: () => faker.lorem.words(3),
-    ...
-  },
-  traits: { noDescription: { overrides: { description: null } } }
+export const orderBuilder = build<Order>({
+  fields: { id: () => faker.string.uuid(), total: () => faker.number.int({ min: 1, max: 1000 }) },
+  traits: { cancelled: { overrides: { status: OrderStatus.CANCELLED } } }
 });
 ```
-
-One builder per entity. Export all from `test/builders/index.ts`.
-
-**Builders live in the same feature as the types they are based on.** If the entity type is defined in `features/projects/types/`, its builder belongs in `features/projects/test/builders/` — even if the builder is used in another feature's tests or stories. Other features import the builder directly from the owning feature's builders path:
-
-```ts
-// ✓ — CRM story imports project-domain builder from the projects feature
-import { clientProjectDetailBuilder } from "~/features/projects/test/builders";
-
-// ✗ — do not duplicate the builder in the importing feature's builders directory
-import { clientProjectDetailBuilder } from "~/features/crm/test/builders";
-```
-
-Builders for types from `types/` import from `types/`, not from `server/`:
-
-```ts
-// ✓
-import { ProjectStatus, type PublicProjectView } from "~/features/projects/types/project";
-
-// ✗ — builder runs in test environment, must not import from server/
-import { ProjectStatus } from "~/features/projects/server/db/schema";
-```
-
----
 
 ## Logging
 
 ```ts
-const logger = createLogger({ module: "templates-service" });
-logger.info({ userId, templateId }, "Template created successfully");
-logger.error({ userId, operation: "createTemplate", errorCode: err.code }, "DB insert failed");
+const logger = createLogger({ module: "{domain}-service" });
+logger.error({ userId, operation: "createOrder", errorCode: err.code }, "DB insert failed");
 ```
 
-Always include `userId`, `operation`, and `errorCode` on failures. Log at the layer where the error originates — do not re-log the same error higher up.
-
----
+Always include `userId`, `operation`, `errorCode` on failures. Log where the error originates — don't re-log higher up.
 
 ## New feature checklist
 
-- [ ] `types/{entity}.ts` — domain const+type enums, DTO types, filter types
-- [ ] `types/index.ts` — barrel re-exporting all type files
-- [ ] `schemas/{domain}-schema.ts` — Zod + `*FormData` types
-- [ ] `server/db/schema.ts` — Drizzle tables + ORM-bound types, registered in `lib/supabase/schema.ts`
-- [ ] `server/db/queries.ts` + `mutations.ts` + `index.ts`
-- [ ] `server/permissions.ts` — `canDoX` guards
-- [ ] `server/services/{domain}.service.ts` — guard chain, `cache()` on reads, re-export shared types
-- [ ] `server/actions/{verb}-{domain}.action.ts` — thin, auth check, revalidate
-- [ ] `server/actions/map-service-error.ts` + `logger.ts`
-- [ ] `components/` — co-located stories, no imports from `server/` in client components
-- [ ] `test/builders/` — builders import from `types/`, not from `server/`
-- [ ] Schema unit tests + action unit tests
+- [ ] `types/` (+ `index.ts`) — enums, DTO/view types, filters
+- [ ] `schemas/{entity}.schema.ts` (+ `index.ts`) — Zod + `*FormData`
+- [ ] `server/db/` — `schema.ts`, `queries.ts`, `mutations.ts`, `index.ts`
+- [ ] `server/permissions.ts` — `canDoX`, `import "server-only"`
+- [ ] `server/services/{entity}.service.ts` — guard chain, `cache()` on reads, `server-only`
+- [ ] `server/actions/{verb}-{noun}.action.ts` + `map-service-error.ts` + `logger.ts`
+- [ ] `server/index.ts` — single server barrel, `import "server-only"`
+- [ ] `components/` — co-located stories; client components never import from `server/`
+- [ ] `test/builders/` — import from `types/`, not `server/`
+- [ ] No feature-root `index.ts`; names follow Rule A & B
+- [ ] Schema + action unit tests

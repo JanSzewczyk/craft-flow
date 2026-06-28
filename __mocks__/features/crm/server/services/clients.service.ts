@@ -21,6 +21,7 @@ const defaultResult: ClientListResult = {
   }
 };
 
-export const getClientList = fn(
-  async (): Promise<SupabaseServiceResult<ClientListResult>> => [null, defaultResult]
-).mockName("getClientList");
+export const getClientList = fn(async (): Promise<SupabaseServiceResult<ClientListResult>> => [
+  null,
+  defaultResult
+]).mockName("getClientList");

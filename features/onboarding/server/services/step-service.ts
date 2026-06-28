@@ -7,9 +7,7 @@ import { OnboardingStep } from "~/features/onboarding/constants/onboarding-steps
 type FirstOnboardingStep = typeof OnboardingStep.COMPANY_DETAILS;
 type LastOnboardingStep = typeof OnboardingStep.SUMMARY;
 type MiddleOnboardingStep =
-  | typeof OnboardingStep.BRANDING
-  | typeof OnboardingStep.TEMPLATE
-  | typeof OnboardingStep.EMAIL;
+  typeof OnboardingStep.BRANDING | typeof OnboardingStep.TEMPLATE | typeof OnboardingStep.EMAIL;
 
 export type StepConfig = {
   step: OnboardingStep;

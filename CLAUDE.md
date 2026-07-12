@@ -4,8 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Craft Flow is an enterprise-ready Next.js 16.2.1 template with React 19.2.0, TypeScript 6.0.2, Tailwind CSS 4.2.2,
-React Compiler, and comprehensive testing infrastructure (Vitest 4.1.2, Playwright 1.58.2).
+Craft Flow is an enterprise-ready Next.js 16.2.9 template with React 19.2.7, TypeScript 6.0.3, Tailwind CSS 4.3.1,
+React Compiler, and comprehensive testing infrastructure (Vitest 4.1.9, Playwright 1.61.x).
 
 ## Commands
 
@@ -51,9 +51,8 @@ npm run type-check   # TypeScript type checking
 
 ```bash
 npm run test                  # Run all Vitest tests
-npm run test:ci               # Run tests for CI environment
 npm run test:coverage         # Generate test coverage report
-npm run test:unit             # Unit tests only (with coverage)
+npm run test:unit             # Unit tests only (no coverage; use test:unit:coverage for coverage)
 npm run test:watch            # Watch mode
 npm run test:storybook        # Storybook component tests (with coverage)
 
@@ -87,23 +86,23 @@ npm run analyze               # Bundle analyzer
 
 ### Tech Stack
 
-- **Next.js**: 16.2.1 (App Router, Turbopack, React Compiler)
-- **React**: 19.2.0 with React Compiler enabled
-- **TypeScript**: 6.0.2 (strict mode with `noUncheckedIndexedAccess`)
-- **Tailwind CSS**: 4.2.2 (CSS-first config)
-- **@szum-tech/design-system**: 3.18.3
-- **Vitest**: 4.1.2 (unit & integration tests)
-- **Playwright**: 1.58.x (E2E tests)
-- **Storybook**: 10.4.0-alpha.6 (component development)
-- **Zod**: 4.3.6 (validation)
+- **Next.js**: 16.2.9 (App Router, Turbopack, React Compiler)
+- **React**: 19.2.7 with React Compiler enabled
+- **TypeScript**: 6.0.3 (strict mode with `noUncheckedIndexedAccess`)
+- **Tailwind CSS**: 4.3.1 (CSS-first config)
+- **@szum-tech/design-system**: 3.21.9
+- **Vitest**: 4.1.9 (unit & integration tests)
+- **Playwright**: 1.61.x (E2E tests)
+- **Storybook**: 10.4.6 (component development)
+- **Zod**: 4.4.3 (validation)
 - **Pino**: 10.3.1 (logging)
 - **next-themes**: 0.4.6 (theming)
-- **@clerk/nextjs**: 7.0.7 (authentication)
-- **react-hook-form**: 7.72.0 (form handling)
-- **Resend**: 6.9.4 (email service)
+- **@clerk/nextjs**: 7.5.9 (authentication)
+- **react-hook-form**: 7.80.0 (form handling)
+- **Resend**: 6.16.0 (email service)
 - **drizzle-orm**: 0.45.2 (ORM for PostgreSQL)
 - **postgres**: 3.4.8 (PostgreSQL client)
-- **@supabase/supabase-js**: 2.99.x (Supabase client)
+- **@supabase/supabase-js**: 2.108.x (Supabase client)
 - **@react-email/components**: 1.0.x (email template components)
 - **@react-email/render**: 2.0.x (email rendering)
 
@@ -172,6 +171,7 @@ Features follow a **feature-driven architecture** where each domain is self-cont
 - **onboarding**: 6-step onboarding flow (plans → company-details → branding → template → email → summary)
 - **pricing**: Pricing display and related components
 - **projects**: Project and project steps management (linked to clients)
+- **shared**: Cross-feature shared code (address schema, address DB operations)
 - **templates**: Custom template management with configurable steps
 
 **Feature Directory Layout:**
@@ -198,17 +198,32 @@ features/{domain}/
 │   │   └── index.ts
 │   ├── services/
 │   │   └── {domain}.service.ts     # orchestration only, no raw SQL
-│   └── permissions.ts              # canDoX guard functions
+│   ├── permissions.ts              # canDoX guard functions
+│   └── index.ts                    # server barrel — import "server-only"; re-exports actions + services + db
+├── types/
+│   ├── {entity}.ts                 # client-safe domain types, enums, DTOs
+│   └── index.ts
 └── test/
     └── builders/
         ├── {entity}.builder.ts     # mimicry-js + faker
         └── index.ts
 ```
 
+**Zone barrels — each zone has exactly one public entry point:**
+
+| Barrel | Importable from client? | Contains |
+|---|---|---|
+| `components/index.tsx` | ✓ | components only — no types, no server re-exports |
+| `server/index.ts` | ✗ (build error) | actions, services, DB — has `import "server-only"` |
+| `types/index.ts` | ✓ | domain enums, DTOs, view types |
+| `schemas/index.ts` | ✓ | Zod schemas + `*FormData` types |
+| `constants/index.ts` | ✓ | constants |
+
 **Import Rules:**
-- Import directly from sub-paths: `import { TemplateCard } from "~/features/templates/components"` ✓
+- Import from zone barrels: `import { TemplateCard } from "~/features/templates/components"` ✓
+- Server imports: `import { createTemplate } from "~/features/templates/server"` ✓
 - **No top-level feature `index.ts`** — `import { X } from "~/features/templates"` ✗
-- `features/{domain}/components/index.tsx` is the only allowed barrel, and exports components only
+- Never import from file paths inside a zone (e.g. `~/features/templates/server/services/templates.service`) ✗
 
 ### Layer Architecture
 
@@ -318,7 +333,7 @@ Use React `cache()` for query optimization in server components.
 
 ### Testing Configuration
 
-Vitest 4.1 is configured with two project modes:
+Vitest 4.1.9 is configured with two project modes:
 
 - **unit**: Node environment for unit tests (`*.test.ts` files), setup: `tests/unit/vitest.setup.ts`
 - **storybook**: Browser environment (Playwright/Chromium) for Storybook component tests, setup: `tests/integration/vitest.setup.ts`

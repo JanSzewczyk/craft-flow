@@ -131,3 +131,25 @@ if (status === "ACTIVE") { ... }
 const TRANSITIONS = { DRAFT: "ACTIVE" };
 newStatus: "ACTIVE" | "COMPLETED"
 ```
+
+## List keys in `map`
+
+Never use the array index as the `key` of components rendered inside `map`. Always use a stable, unique value derived from the data (e.g. an `id`).
+
+```tsx
+// ✓
+{items.map((item) => (
+  <Item key={item.id} item={item} />
+))}
+
+{entries.map((entry) => (
+  <Entry key={entry.slug} entry={entry} />
+))}
+
+// ✗
+{items.map((item, index) => (
+  <Item key={index} item={item} />
+))}
+```
+
+**Why:** index keys break React's reconciliation when the list is reordered, filtered, or has items inserted/removed — leading to stale state, wrong DOM reuse, and subtle rendering bugs. If the data has no natural unique field, derive a stable key from its contents or attach a generated id when the data is created — never fall back to the index.

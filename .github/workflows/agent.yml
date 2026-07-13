@@ -18,13 +18,13 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout craft-flow
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.AGENT_PAT }}
 
       - name: Checkout szumrak
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: JanSzewczyk/szumrak
           path: szumrak-src
@@ -46,7 +46,7 @@ jobs:
 
       - name: Upload agent log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: agent-log
           path: ${{ github.workspace }}/agent-run.jsonl

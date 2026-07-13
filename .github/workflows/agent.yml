@@ -38,9 +38,10 @@ jobs:
           GH_TOKEN: ${{ secrets.AGENT_PAT }}
           TASK: ${{ github.event.inputs.task }}
           REPO: ${{ github.repository }}
+          AGENT_MODEL: haiku
         run: |
           docker run --rm \
-            -e ANTHROPIC_API_KEY -e GH_TOKEN -e TASK -e REPO \
+            -e ANTHROPIC_API_KEY -e GH_TOKEN -e TASK -e REPO -e AGENT_MODEL \
             -v ${{ github.workspace }}:/workspace \
             szumrak
 

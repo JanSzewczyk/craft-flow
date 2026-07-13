@@ -130,6 +130,9 @@ src/styles
 /bash.exe.stackdump
 /.claude/agent-memory
 
+# Szumrak agent run log (Level 1 local testing writes this to WORKSPACE_PATH root)
+/agent-run.jsonl
+
 # decs
 /tmp
 

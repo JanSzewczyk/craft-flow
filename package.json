@@ -43,7 +43,7 @@
     "@supabase/supabase-js": "^2.110.3",
     "@szum-tech/design-system": "^3.21.9",
     "@t3-oss/env-nextjs": "^0.13.11",
-    "@tailwindcss/postcss": "^4.3.1",
+    "@tailwindcss/postcss": "^4.3.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "drizzle-orm": "^0.45.2",
     "next": "^16.2.9",
@@ -94,7 +94,7 @@
     "serve": "^14.2.6",
     "storybook": "^10.4.6",
     "storybook-addon-tag-badges": "^3.1.0",
-    "tailwindcss": "^4.3.1",
+    "tailwindcss": "^4.3.2",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
   }

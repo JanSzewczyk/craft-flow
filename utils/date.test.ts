@@ -123,13 +123,42 @@ describe("formatRelativeTime", () => {
     });
   });
 
+  describe("future dates", () => {
+    it("should return 'Przed chwilą' for a few seconds in the future", () => {
+      const now = new Date("2026-07-14T10:00:00Z");
+      vi.setSystemTime(now);
+      const futureDate = new Date("2026-07-14T10:00:05Z");
+      expect(formatRelativeTime(futureDate)).toBe("Przed chwilą");
+    });
+
+    it("should return 'Przed chwilą' for a few minutes in the future", () => {
+      const now = new Date("2026-07-14T10:00:00Z");
+      vi.setSystemTime(now);
+      const futureDate = new Date("2026-07-14T10:05:00Z");
+      expect(formatRelativeTime(futureDate)).toBe("Przed chwilą");
+    });
+
+    it("should return 'Przed chwilą' for several hours in the future", () => {
+      const now = new Date("2026-07-14T10:00:00Z");
+      vi.setSystemTime(now);
+      const futureDate = new Date("2026-07-14T15:00:00Z");
+      expect(formatRelativeTime(futureDate)).toBe("Przed chwilą");
+    });
+
+    it("should return 'Przed chwilą' for a day in the future", () => {
+      const now = new Date("2026-07-14T10:00:00Z");
+      vi.setSystemTime(now);
+      const futureDate = new Date("2026-07-15T10:00:00Z");
+      expect(formatRelativeTime(futureDate)).toBe("Przed chwilą");
+    });
+  });
+
   describe("day-month fallback (7+ days)", () => {
-    it("should return 'day month' format for exactly 7 days ago", () => {
+    it("should treat exactly 7 days ago as the dd MMM fallback branch", () => {
       const now = new Date("2026-07-14T10:00:00Z");
       vi.setSystemTime(now);
       const pastDate = new Date("2026-07-07T10:00:00Z");
-      expect(formatRelativeTime(pastDate)).toMatch(/\d+ [a-z]{3}/);
-      expect(formatRelativeTime(pastDate)).toContain("7");
+      expect(formatRelativeTime(pastDate)).toBe("7 lip");
     });
 
     it("should return 'day month' format for 30 days ago", () => {
@@ -169,13 +198,6 @@ describe("formatRelativeTime", () => {
   });
 
   describe("edge cases for formatRelativeTime", () => {
-    it("should handle future dates (negative diff)", () => {
-      const now = new Date("2026-07-14T10:00:00Z");
-      vi.setSystemTime(now);
-      const futureDate = new Date("2026-07-14T10:05:00Z");
-      expect(formatRelativeTime(futureDate)).toBe("Przed chwilą");
-    });
-
     it("should handle dates at month boundaries", () => {
       const now = new Date("2026-08-01T10:00:00Z");
       vi.setSystemTime(now);

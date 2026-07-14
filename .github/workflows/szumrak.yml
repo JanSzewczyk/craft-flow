@@ -35,6 +35,27 @@ jobs:
           fetch-depth: 0
           path: workspace
 
+      # Pre-install craft-flow's deps into the mounted workspace so the agent can
+      # run `npm run test`/`type-check` to self-verify, instead of burning turns
+      # trying to `npm install` inside the container (the mounted /workspace has
+      # no node_modules otherwise). node-version matches the szumrak image
+      # (node:24-slim) so the built node_modules are ABI-compatible with the node
+      # that runs the tests inside the container. Best-effort (continue-on-error):
+      # if install fails the agent just falls back to today's behavior — never a
+      # new blocker on PR creation. .npmrc (legacy-peer-deps=true) is picked up
+      # automatically since it lives in the workspace dir.
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: workspace/package-lock.json
+
+      - name: Install craft-flow dependencies
+        working-directory: workspace
+        continue-on-error: true
+        run: npm ci
+
       - name: Checkout szumrak
         uses: actions/checkout@v7
         with:
@@ -97,6 +118,27 @@ jobs:
         with:
           fetch-depth: 0
           path: workspace
+
+      # Pre-install craft-flow's deps into the mounted workspace so the agent can
+      # run `npm run test`/`type-check` to self-verify, instead of burning turns
+      # trying to `npm install` inside the container (the mounted /workspace has
+      # no node_modules otherwise). node-version matches the szumrak image
+      # (node:24-slim) so the built node_modules are ABI-compatible with the node
+      # that runs the tests inside the container. Best-effort (continue-on-error):
+      # if install fails the agent just falls back to today's behavior — never a
+      # new blocker on PR creation. .npmrc (legacy-peer-deps=true) is picked up
+      # automatically since it lives in the workspace dir.
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: workspace/package-lock.json
+
+      - name: Install craft-flow dependencies
+        working-directory: workspace
+        continue-on-error: true
+        run: npm ci
 
       - name: Checkout szumrak
         uses: actions/checkout@v7

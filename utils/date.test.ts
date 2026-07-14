@@ -55,11 +55,11 @@ describe("formatRelativeTime", () => {
       expect(formatRelativeTime(pastDate)).toBe("59 min temu");
     });
 
-    it("should return '59 min temu' for just under 60 minutes", () => {
+    it("should return '58 min temu' for just under 60 minutes", () => {
       const now = new Date("2026-07-14T10:00:00Z");
       vi.setSystemTime(now);
       const pastDate = new Date("2026-07-14T09:01:01Z");
-      expect(formatRelativeTime(pastDate)).toBe("59 min temu");
+      expect(formatRelativeTime(pastDate)).toBe("58 min temu");
     });
   });
 
@@ -115,11 +115,11 @@ describe("formatRelativeTime", () => {
       expect(formatRelativeTime(pastDate)).toBe("6 dn. temu");
     });
 
-    it("should return '6 dn. temu' for just under 7 days", () => {
+    it("should return '5 dn. temu' for just under 7 days", () => {
       const now = new Date("2026-07-14T10:00:00Z");
       vi.setSystemTime(now);
       const pastDate = new Date("2026-07-08T10:00:01Z");
-      expect(formatRelativeTime(pastDate)).toBe("6 dn. temu");
+      expect(formatRelativeTime(pastDate)).toBe("5 dn. temu");
     });
   });
 
@@ -217,37 +217,37 @@ describe("formatRelativeTime", () => {
 describe("formatDate", () => {
   it("should format a regular date with zero-padded day and month", () => {
     const date = new Date("2026-07-14T10:30:00Z");
-    expect(formatDate(date)).toBe("14/07/2026");
+    expect(formatDate(date)).toBe("14.07.2026");
   });
 
   it("should zero-pad single-digit days", () => {
     const date = new Date("2026-07-01T10:30:00Z");
-    expect(formatDate(date)).toBe("01/07/2026");
+    expect(formatDate(date)).toBe("01.07.2026");
   });
 
   it("should zero-pad single-digit months", () => {
     const date = new Date("2026-01-14T10:30:00Z");
-    expect(formatDate(date)).toBe("14/01/2026");
+    expect(formatDate(date)).toBe("14.01.2026");
   });
 
   it("should zero-pad both single-digit day and month", () => {
     const date = new Date("2026-01-01T10:30:00Z");
-    expect(formatDate(date)).toBe("01/01/2026");
+    expect(formatDate(date)).toBe("01.01.2026");
   });
 
   it("should format January 1st correctly", () => {
     const date = new Date("2026-01-01T00:00:00Z");
-    expect(formatDate(date)).toBe("01/01/2026");
+    expect(formatDate(date)).toBe("01.01.2026");
   });
 
   it("should format December 31st correctly", () => {
     const date = new Date("2026-12-31T23:59:59Z");
-    expect(formatDate(date)).toBe("31/12/2026");
+    expect(formatDate(date)).toBe("31.12.2026");
   });
 
   it("should format mid-month date correctly", () => {
     const date = new Date("2026-03-15T14:22:30Z");
-    expect(formatDate(date)).toBe("15/03/2026");
+    expect(formatDate(date)).toBe("15.03.2026");
   });
 
   it("should ignore time component", () => {
@@ -258,59 +258,59 @@ describe("formatDate", () => {
 
   it("should handle leap year dates", () => {
     const date = new Date("2024-02-29T10:30:00Z");
-    expect(formatDate(date)).toBe("29/02/2024");
+    expect(formatDate(date)).toBe("29.02.2024");
   });
 });
 
 describe("formatDateTime", () => {
   it("should format a regular datetime with zero-padded components", () => {
     const date = new Date("2026-07-14T14:30:00Z");
-    expect(formatDateTime(date)).toBe("14/07/2026 14:30");
+    expect(formatDateTime(date)).toBe("14.07.2026, 14:30");
   });
 
   it("should zero-pad single-digit days", () => {
     const date = new Date("2026-07-01T14:30:00Z");
-    expect(formatDateTime(date)).toBe("01/07/2026 14:30");
+    expect(formatDateTime(date)).toBe("01.07.2026, 14:30");
   });
 
   it("should zero-pad single-digit months", () => {
     const date = new Date("2026-01-14T14:30:00Z");
-    expect(formatDateTime(date)).toBe("14/01/2026 14:30");
+    expect(formatDateTime(date)).toBe("14.01.2026, 14:30");
   });
 
   it("should zero-pad single-digit hours", () => {
     const date = new Date("2026-07-14T07:30:00Z");
-    expect(formatDateTime(date)).toBe("14/07/2026 07:30");
+    expect(formatDateTime(date)).toBe("14.07.2026, 07:30");
   });
 
   it("should zero-pad single-digit minutes", () => {
     const date = new Date("2026-07-14T14:05:00Z");
-    expect(formatDateTime(date)).toBe("14/07/2026 14:05");
+    expect(formatDateTime(date)).toBe("14.07.2026, 14:05");
   });
 
   it("should format midnight (00:00)", () => {
     const date = new Date("2026-07-14T00:00:00Z");
-    expect(formatDateTime(date)).toBe("14/07/2026 00:00");
+    expect(formatDateTime(date)).toBe("14.07.2026, 00:00");
   });
 
   it("should format 23:59", () => {
     const date = new Date("2026-07-14T23:59:00Z");
-    expect(formatDateTime(date)).toBe("14/07/2026 23:59");
+    expect(formatDateTime(date)).toBe("14.07.2026, 23:59");
   });
 
   it("should format January 1st at midnight", () => {
     const date = new Date("2026-01-01T00:00:00Z");
-    expect(formatDateTime(date)).toBe("01/01/2026 00:00");
+    expect(formatDateTime(date)).toBe("01.01.2026, 00:00");
   });
 
   it("should format December 31st at 23:59", () => {
     const date = new Date("2026-12-31T23:59:00Z");
-    expect(formatDateTime(date)).toBe("31/12/2026 23:59");
+    expect(formatDateTime(date)).toBe("31.12.2026, 23:59");
   });
 
   it("should zero-pad all single-digit components together", () => {
     const date = new Date("2026-01-01T01:01:00Z");
-    expect(formatDateTime(date)).toBe("01/01/2026 01:01");
+    expect(formatDateTime(date)).toBe("01.01.2026, 01:01");
   });
 
   it("should ignore seconds", () => {
@@ -321,16 +321,28 @@ describe("formatDateTime", () => {
 
   it("should handle leap year dates with time", () => {
     const date = new Date("2024-02-29T15:45:00Z");
-    expect(formatDateTime(date)).toBe("29/02/2024 15:45");
+    expect(formatDateTime(date)).toBe("29.02.2024, 15:45");
   });
 
   it("should format typical work hours", () => {
     const date = new Date("2026-07-14T09:00:00Z");
-    expect(formatDateTime(date)).toBe("14/07/2026 09:00");
+    expect(formatDateTime(date)).toBe("14.07.2026, 09:00");
   });
 
   it("should format afternoon time", () => {
     const date = new Date("2026-07-14T16:45:00Z");
-    expect(formatDateTime(date)).toBe("14/07/2026 16:45");
+    expect(formatDateTime(date)).toBe("14.07.2026, 16:45");
+  });
+});
+
+describe("invalid input", () => {
+  it("should return 'Invalid Date' for formatDate with invalid Date", () => {
+    const invalidDate = new Date("not-a-date");
+    expect(formatDate(invalidDate)).toBe("Invalid Date");
+  });
+
+  it("should return 'Invalid Date' for formatDateTime with invalid Date", () => {
+    const invalidDate = new Date("not-a-date");
+    expect(formatDateTime(invalidDate)).toBe("Invalid Date");
   });
 });

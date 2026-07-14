@@ -15,4 +15,14 @@ describe("formatDate", () => {
     const date = new Date(2024, 1, 29);
     expect(formatDate(date)).toBe("29.02.2024");
   });
+
+  test("formats January 1st", () => {
+    const date = new Date("2025-01-01");
+    expect(formatDate(date)).toBe("01.01.2025");
+  });
+
+  test("formats December 31st", () => {
+    const date = new Date("2025-12-31");
+    expect(formatDate(date)).toBe("31.12.2025");
+  });
 });

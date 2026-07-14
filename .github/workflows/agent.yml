@@ -16,6 +16,13 @@ jobs:
     name: Run agent
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Serializes runs against this repo — protects against two workflow_dispatch
+    # triggers operating on the same checkout at once (branch conflicts, a race
+    # on git push). Keyed per-repo rather than per-issue/PR (see Notion page 16)
+    # because this workflow has no issue_comment trigger yet to key off of.
+    concurrency:
+      group: szumrak-${{ github.repository }}
+      cancel-in-progress: false
     steps:
       - name: Checkout craft-flow
         uses: actions/checkout@v7
@@ -43,7 +50,9 @@ jobs:
         run: |
           docker run --rm \
             -e ANTHROPIC_API_KEY -e GH_TOKEN -e TASK -e REPO -e AGENT_MODEL \
+            -e GITHUB_STEP_SUMMARY \
             -v ${{ github.workspace }}/workspace:/workspace \
+            -v "$GITHUB_STEP_SUMMARY:$GITHUB_STEP_SUMMARY" \
             szumrak
 
       - name: Upload agent log

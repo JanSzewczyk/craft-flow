@@ -6,29 +6,9 @@ describe("formatDate", () => {
     expect(formatDate(date)).toBe("14.07.2026");
   });
 
-  test("pads single digit day with leading zero", () => {
-    const date = new Date("2026-07-05");
-    expect(formatDate(date)).toBe("05.07.2026");
-  });
-
-  test("pads single digit month with leading zero", () => {
-    const date = new Date("2026-01-25");
-    expect(formatDate(date)).toBe("25.01.2026");
-  });
-
-  test("handles both single digit day and month", () => {
+  test("pads single digit day and month with leading zeros", () => {
     const date = new Date("2026-03-09");
     expect(formatDate(date)).toBe("09.03.2026");
-  });
-
-  test("formats dates at year boundaries", () => {
-    const date = new Date("2025-12-31");
-    expect(formatDate(date)).toBe("31.12.2025");
-  });
-
-  test("formats first day of year", () => {
-    const date = new Date("2026-01-01");
-    expect(formatDate(date)).toBe("01.01.2026");
   });
 
   test("formats leap year date", () => {

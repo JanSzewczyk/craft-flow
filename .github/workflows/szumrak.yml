@@ -115,7 +115,10 @@ jobs:
           # path/line the general review event doesn't have — keep that
           # location context in the feedback text when present, per Notion
           # page 9's recommendation over a flattened, location-less string.
-          REVIEW_FEEDBACK: "${{ github.event_name == 'pull_request_review_comment' && format('On line {0} in {1}: {2}', github.event.comment.line, github.event.comment.path, github.event.comment.body) || github.event.review.body }}"
+          REVIEW_FEEDBACK:
+            "${{ github.event_name == 'pull_request_review_comment' && format('On line {0} in {1}: {2}',
+            github.event.comment.line, github.event.comment.path, github.event.comment.body) || github.event.review.body
+            }}"
         run: |
           docker run --rm \
             -e ANTHROPIC_API_KEY -e GH_APP_ID -e GH_APP_PRIVATE_KEY -e GH_APP_INSTALLATION_ID \

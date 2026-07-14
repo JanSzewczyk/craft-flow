@@ -30,4 +30,9 @@ describe("formatDate", () => {
     const date = new Date("2026-01-01");
     expect(formatDate(date)).toBe("01.01.2026");
   });
+
+  test("formats leap year date", () => {
+    const date = new Date(2024, 1, 29);
+    expect(formatDate(date)).toBe("29.02.2024");
+  });
 });

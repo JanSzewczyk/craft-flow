@@ -33,7 +33,7 @@ describe("parseSearchParams", () => {
       expect(result).toEqual({ search: "test query", page: 1 });
     });
 
-    it("should trim only leading whitespace", () => {
+    it("should trim leading and trailing whitespace", () => {
       const result = parseSearchParams({ search: "  test  " });
       expect(result).toEqual({ search: "test", page: 1 });
     });
@@ -107,7 +107,7 @@ describe("parseSearchParams", () => {
       expect(result).toEqual({ search: "test", page: 1 });
     });
 
-    it("should default to 1 when page is a float string", () => {
+    it("should truncate float strings to integers", () => {
       const result = parseSearchParams({ search: "test", page: "2.5" });
       expect(result).toEqual({ search: "test", page: 2 });
     });

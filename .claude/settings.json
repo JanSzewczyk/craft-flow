@@ -1,34 +1,19 @@
 {
   "enableAllProjectMcpServers": true,
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "[[ \"$TOOL_INPUT\" =~ \"git push\".*\"--force-with-lease\" ]] && exit 0; [[ \"$TOOL_INPUT\" =~ (rm[[:space:]]+-rf[[:space:]]+/|git[[:space:]]+push.*--force([[:space:]]|$)|drop[[:space:]]+database) ]] && echo 'Dangerous command blocked' >&2 && exit 2 || true"
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "[[ \"$CLAUDE_FILE_PATH\" =~ (node_modules|\\.next|dist|out|\\.claude/) ]] && exit 0; npx --yes prettier --write --log-level=error \"$CLAUDE_FILE_PATH\" 2>/dev/null; [[ \"$CLAUDE_FILE_PATH\" =~ \\.(ts|tsx|js|jsx|mjs|cjs)$ ]] && npx --yes eslint --fix --quiet \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/format-prettier.sh",
+            "timeout": 30
+          },
           {
             "type": "command",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" && output=$(npm run type-check 2>&1); code=$?; if [ $code -ne 0 ]; then echo \"$output\" | grep -E '(error TS|\\([0-9]+,[0-9]+\\))' | head -15 >&2; exit 2; fi"
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/lint-eslint-fix.sh",
+            "timeout": 30
           }
         ]
       }

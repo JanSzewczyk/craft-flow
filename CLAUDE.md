@@ -467,3 +467,19 @@ The project includes several GitHub Actions workflows in `.github/workflows/`:
 - **Publish** (`publish.yml`): Automated semantic releases when merging to main branch
 
 All workflows use `npm` as the package manager.
+
+## Claude Code Skills
+
+The repo ships project-local skills in `.claude/skills/`, all focused on Clerk (this project's auth provider — see `@clerk/nextjs` in Tech Stack). Invoke via the `Skill` tool or `/<name>`.
+
+| Skill | Purpose |
+|-------|---------|
+| `clerk` | Router — detects the Clerk SDK version from `package.json` and routes to the specific skill below based on the task |
+| `clerk-setup` | Add Clerk authentication to a project following the official quickstart guides |
+| `clerk-custom-ui` | Custom sign-in/sign-up flows, `useSignIn`/`useSignUp` hooks, appearance/theming, branding |
+| `clerk-nextjs-patterns` | Advanced Next.js patterns — middleware, Server Actions, caching with Clerk |
+| `clerk-webhooks` | Real-time events and data syncing (user create/update/delete, org events) for event-driven features |
+| `clerk-testing` | E2E testing for Clerk auth flows with Playwright or Cypress |
+| `clerk-backend-api` | Clerk backend REST API reference (endpoints, methods) |
+
+Prefer the `clerk` router skill by default — it picks the right specific skill based on the task and SDK version. Also see: `testing:storybook-testing` (referenced in [Testing Configuration](#testing-configuration)) is a global skill, not project-local.

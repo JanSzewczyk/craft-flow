@@ -63,6 +63,18 @@ jobs:
         continue-on-error: true
         run: npm ci
 
+      # Next.js's route-aware ambient types (PageProps/LayoutProps/RouteContext)
+      # are normally generated during `next dev`/`next build`, which never ran
+      # in this checkout — without them, any type-check the target repo's own
+      # Stop hook runs (loaded even in this read-only ask-mode session) fails
+      # on "Cannot find name 'PageProps'" for reasons that have nothing to do
+      # with the question asked. `next typegen` (Next.js 15.5+) generates just
+      # those route types, without a full build.
+      - name: Generate Next.js route types
+        working-directory: workspace
+        continue-on-error: true
+        run: npx --yes next typegen
+
       - name: Checkout szumrak
         uses: actions/checkout@v7
         with:

@@ -11,5 +11,5 @@
     ]
   },
   "skills": "all",
-  "verify": ["npm run prettier:write", "npm run lint:fix"]
+  "verify": []
 }

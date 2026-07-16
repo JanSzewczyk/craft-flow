@@ -1,4 +1,4 @@
-name: Szumrak 🤖
+name: Szumrak Worker 👷‍♂️
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   run-szumrak:
-    name: Run Szumrak
+    name: Work 👷‍♂️
     # Every run costs real ANTHROPIC_API_KEY tokens — only the repo owner may
     # trigger this, not any collaborator with write access.
     if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner

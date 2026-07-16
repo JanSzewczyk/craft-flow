@@ -18,7 +18,9 @@ permissions:
 jobs:
   run-szumrak:
     name: Run Szumrak
-    if: github.event_name == 'workflow_dispatch'
+    # Every run costs real ANTHROPIC_API_KEY tokens — only the repo owner may
+    # trigger this, not any collaborator with write access.
+    if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # Serializes runs against this repo — protects against two workflow_dispatch

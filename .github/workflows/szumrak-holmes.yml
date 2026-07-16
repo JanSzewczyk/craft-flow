@@ -24,6 +24,9 @@ permissions:
 jobs:
   run-szumrak-holmes:
     name: Run Szumrak Holmes
+    # Every run costs real ANTHROPIC_API_KEY tokens — only the repo owner may
+    # trigger this, not any collaborator with write access.
+    if: github.actor == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # Own group, separate from szumrak.yml's `szumrak-${{ github.repository }}` —

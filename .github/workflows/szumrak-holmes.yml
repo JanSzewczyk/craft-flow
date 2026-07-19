@@ -1,7 +1,10 @@
 # Reference template — copy into the target repo's .github/workflows/szumrak-holmes.yml.
 # Adjust: the "Checkout target repo" step name, AGENT_MODEL, and timeout-minutes
 # to the target repo's own needs, same as szumrak-worker.yml. "Checkout szumrak" always
-# points at JanSzewczyk/szumrak — that's the engine, not the target repo.
+# points at JanSzewczyk/szumrak — that's the engine, not the target repo. Which
+# ref of it gets built is resolved by "Resolve Szumrak engine ref" from the
+# target repo's own .claude/agent-config.json (szumrakEngineVersion field),
+# falling back to main when that field is absent — see README.md.
 #
 # Single-purpose workflow dedicated to MODE=ask: a `question` in, a read-only
 # agent run, an answer in GITHUB_STEP_SUMMARY out — no `task` input, no
@@ -24,8 +27,11 @@ permissions:
 jobs:
   run-szumrak-holmes:
     name: Run Szumrak Holmes
-    # Every run costs real ANTHROPIC_API_KEY tokens — only the repo owner may
-    # trigger this, not any collaborator with write access.
+    # github.repository_owner, not a hardcoded username, so this template stays
+    # correct for whichever account/org owns the target repo it's copied into —
+    # every run costs real ANTHROPIC_API_KEY tokens, so a collaborator with
+    # write access (but not the repo owner) triggering workflow_dispatch is
+    # blocked before the job even starts, not just discouraged.
     if: github.actor == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -41,6 +47,19 @@ jobs:
         with:
           fetch-depth: 0
           path: workspace
+
+      # Resolves which Szumrak engine ref to build from the target repo's own
+      # .claude/agent-config.json (szumrakEngineVersion field — a real
+      # JanSzewczyk/szumrak release tag). Falls back to "main" when the file,
+      # field, or jq itself is missing/fails — never fails the job over this.
+      - name: Resolve Szumrak engine ref
+        run: |
+          REF="main"
+          RESOLVED=$(jq -r '.szumrakEngineVersion // empty' workspace/.claude/agent-config.json 2>/dev/null || true)
+          if [[ "$RESOLVED" =~ ^[A-Za-z0-9._/-]+$ ]]; then
+            REF="$RESOLVED"
+          fi
+          echo "SZUMRAK_REF=$REF" >> "$GITHUB_ENV"
 
       # Pre-install the target repo's deps into the mounted workspace so the
       # agent can run the repo's test/type-check scripts to self-verify, instead
@@ -63,22 +82,11 @@ jobs:
         continue-on-error: true
         run: npm ci
 
-      # Next.js's route-aware ambient types (PageProps/LayoutProps/RouteContext)
-      # are normally generated during `next dev`/`next build`, which never ran
-      # in this checkout — without them, any type-check the target repo's own
-      # Stop hook runs (loaded even in this read-only ask-mode session) fails
-      # on "Cannot find name 'PageProps'" for reasons that have nothing to do
-      # with the question asked. `next typegen` (Next.js 15.5+) generates just
-      # those route types, without a full build.
-      - name: Generate Next.js route types
-        working-directory: workspace
-        continue-on-error: true
-        run: npx --yes next typegen
-
       - name: Checkout szumrak
         uses: actions/checkout@v7
         with:
           repository: JanSzewczyk/szumrak
+          ref: ${{ env.SZUMRAK_REF }}
           path: szumrak-src
 
       - name: Build Szumrak image

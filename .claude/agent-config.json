@@ -22,5 +22,6 @@
     ]
   },
   "skills": "all",
-  "verify": []
+  "verify": [],
+  "szumrakEngineVersion": "v1.12.1"
 }

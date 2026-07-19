@@ -17,6 +17,11 @@ export function formatRelativeTime(date: Date): string {
   return new Date(date).toLocaleDateString("pl-PL", { day: "numeric", month: "short" });
 }
 
+/**
+ * Formats a date in Polish locale as DD.MM.YYYY format.
+ *
+ * Examples: "19.07.2026", "01.01.2025", "31.12.2024"
+ */
 export function formatDate(date: Date): string {
   return date.toLocaleDateString("pl-PL", {
     day: "2-digit",
@@ -25,6 +30,11 @@ export function formatDate(date: Date): string {
   });
 }
 
+/**
+ * Formats a date and time in Polish locale as DD.MM.YYYY, HH:MM format.
+ *
+ * Examples: "19.07.2026, 14:30", "01.01.2025, 09:15", "31.12.2024, 23:59"
+ */
 export function formatDateTime(date: Date): string {
   return date.toLocaleDateString("pl-PL", {
     day: "2-digit",

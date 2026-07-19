@@ -67,7 +67,9 @@ jobs:
       # path/line the general review event doesn't have — keep that
       # location context in the feedback text when present, per Notion
       # page 9's recommendation over a flattened, location-less string.
-      review_feedback: "${{ github.event_name == 'pull_request_review_comment' && format('On line {0} in {1}: {2}', github.event.comment.line, github.event.comment.path, github.event.comment.body) || github.event.review.body }}"
+      review_feedback:
+        "${{ github.event_name == 'pull_request_review_comment' && format('On line {0} in {1}: {2}',
+        github.event.comment.line, github.event.comment.path, github.event.comment.body) || github.event.review.body }}"
       agent_model: haiku
       timeout_minutes: 20
     secrets: inherit
